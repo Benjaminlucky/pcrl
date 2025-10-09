@@ -70,3 +70,21 @@ export const awards = [
     icon: PiMagnifyingGlassBold,
   },
 ];
+
+export const impact = [
+  {
+    item: "Connected clients with secure and compliant real estate deals.",
+  },
+  {
+    item: "Promoted sustainable investments that boost Nigeria’s economy locally and globally.",
+  },
+  {
+    item: "Reinforced trust and transparency in every property transaction.",
+  },
+  {
+    item: "Created business opportunities and jobs for thousands of Nigerians.",
+  },
+  {
+    item: "Launched sensitisation and welfare programs that enrich the real estate journey for clients and realtors alike.",
+  },
+];

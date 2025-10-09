@@ -1,6 +1,7 @@
 import React from "react";
 import Hero from "../../components/Hero";
 import HomeRecognition from "../../components/HomeRecognition";
+import HomeWhoWeAre from "../../components/HomeWhoWeAre";
 
 function Home() {
   return (
@@ -11,6 +12,9 @@ function Home() {
         </div>
         <div className="recognitionSection">
           <HomeRecognition />
+        </div>
+        <div className="whoWeAre">
+          <HomeWhoWeAre />
         </div>
       </div>
     </div>
