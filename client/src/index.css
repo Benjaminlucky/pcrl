@@ -61,4 +61,12 @@ body,
   transform-origin: left;
 }
 
+.base-title {
+  @apply text-3xl md:text-4xl font-bold;
+}
+
+.base-underline {
+  @apply bg-gray-900 rounded-full origin-left;
+}
+
 /* ============= HOME / COMPONENTS CUSTOM CSS ENDS HERE =============== */

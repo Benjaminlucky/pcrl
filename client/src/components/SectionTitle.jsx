@@ -8,11 +8,10 @@ export default function SectionTitle({
 }) {
   return (
     <motion.div
-      className="title"
+      className="title text-left w-full"
       initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      viewport={{ once: true, amount: 0.4 }}
     >
       <motion.h2
         className={`base-title ${textClass}`}
@@ -23,14 +22,16 @@ export default function SectionTitle({
         {text}
       </motion.h2>
 
-      {/* Animated underline */}
+      {/* Underline animates left to right always */}
       <motion.div
-        className={`base-underline ${underlineClass}`}
+        className="flex justify-start mt-2"
         initial={{ scaleX: 0 }}
-        whileInView={{ scaleX: 1 }}
+        animate={{ scaleX: 1 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        viewport={{ once: true }}
-      />
+        style={{ transformOrigin: "left" }}
+      >
+        <div className={`base-underline ${underlineClass}`} />
+      </motion.div>
     </motion.div>
   );
 }

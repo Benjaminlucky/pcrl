@@ -10,6 +10,7 @@ import Services from "./pages/services/Services";
 import Signup from "./pages/signup/Signup";
 import Login from "./pages/login/Login";
 import TopNavigation from "./components/TopNavigation";
+import Footer from "./components/Footer";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/sign-up" element={<Signup />} />
           <Route path="/login" element={<Login />} />
         </Routes>
+        <Footer />
       </main>
     </Router>
   );
