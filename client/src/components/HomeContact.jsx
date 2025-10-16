@@ -105,7 +105,9 @@ export default function HomeContact() {
               <div className="bg-[#EC1C24] p-3 rounded-md text-white text-lg">
                 <FaPhoneAlt />
               </div>
-              <p className="text-base font-medium">+234 (0)805 364 2425</p>
+              <p className="text-base font-medium">
+                +234(0) 8126 326 511, +234(0) 9123 521 421
+              </p>
             </motion.div>
           </div>
 

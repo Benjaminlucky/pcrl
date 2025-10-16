@@ -62,12 +62,12 @@ export default function HomeWhoWeAre() {
               />
               <p className="text-gray-300 leading-[1.988] text-justify text-[1.125rem] md:text-[1.25rem] hyphens-auto">
                 Platinum Cape Realtors Group (PCRG) is a thriving real estate
-                marketing company headquartered in Lagos, Nigeria. In just three
-                years, we have built a network of over 10,000 realtors, serving
-                both local and international investors with excellence,
-                integrity, and professionalism. Our dedication to redefining
-                standards in real estate makes us a trusted partner for
-                investors seeking value and growth.
+                marketing company with its headquarter in Lagos, Nigeria. In
+                just three years, we have built a network of over 10,000
+                realtors, serving both local and international investors with
+                excellence, integrity, and professionalism. Our dedication to
+                redefining standards in real estate makes us a trusted partner
+                for investors seeking value and growth.
               </p>
             </div>
           </motion.div>

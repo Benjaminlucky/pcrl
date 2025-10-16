@@ -1,0 +1,140 @@
+:root {
+  --color-primary-50: #fff1f2;
+  --color-primary-100: #ffe0e2;
+  --color-primary-200: #ffbfc2;
+  --color-primary-300: #ff8f93;
+  --color-primary-400: #fa5a5f;
+  --color-primary-500: #ec1c24;
+  --color-primary-600: #d0161e;
+  --color-primary-700: #a81218;
+  --color-primary-800: #7f0d12;
+  --color-primary-900: #5e090e;
+}
+
+/* Hero Section */
+.realtor-hero {
+  position: relative;
+  overflow: hidden;
+  /* padding: 6rem 2rem; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  background: var(--color-primary-900);
+  min-height: 80vh;
+}
+
+/* Swirling Animated Background */
+.swirl-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+      circle at 30% 30%,
+      var(--color-primary-400),
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      var(--color-primary-500),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      var(--color-primary-700),
+      transparent 50%
+    );
+  background-blend-mode: screen;
+  mix-blend-mode: lighten;
+  opacity: 0.8;
+  filter: blur(50px);
+  animation: swirlMove 20s ease-in-out infinite alternate;
+  background-size: 200% 200%;
+}
+
+/* Swirling animation */
+@keyframes swirlMove {
+  0% {
+    background-position: 20% 30%, 80% 70%, 50% 50%;
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    background-position: 40% 60%, 60% 40%, 30% 70%;
+    transform: rotate(45deg) scale(1.05);
+  }
+  50% {
+    background-position: 60% 30%, 40% 80%, 70% 40%;
+    transform: rotate(90deg) scale(1.1);
+  }
+  75% {
+    background-position: 30% 40%, 70% 50%, 50% 70%;
+    transform: rotate(135deg) scale(1.05);
+  }
+  100% {
+    background-position: 20% 30%, 80% 70%, 50% 50%;
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+/* Hero Content */
+.realtor-hero__content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .realtor-hero__content {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.realtor-hero__text {
+  max-width: 550px;
+}
+
+/* .realtor-hero__text h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+} */
+
+.realtor-hero__text p {
+  font-size: 1.1rem;
+  margin-top: 1rem;
+  line-height: 1.6;
+  color: #f8f8f8;
+}
+
+.realtor-hero__btn {
+  margin-top: 2rem;
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+  padding: 0.75rem 2rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.realtor-hero__btn:hover {
+  background: white;
+  color: var(--color-primary-700);
+  box-shadow: 0 0 25px var(--color-primary-400);
+}
+
+/* Image */
+.realtor-hero__image img {
+  /* width: 320px; */
+  max-width: 100%;
+  filter: drop-shadow(0 0 25px var(--color-primary-400));
+}

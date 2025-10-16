@@ -149,3 +149,30 @@ export const reviews = [
     avatar: "/images/realtor.jpeg",
   },
 ];
+
+export const Realtorreviews = [
+  {
+    designation: " Sarah, Realtor Partner",
+    review:
+      "Joining PCRG changed my life. I went from struggling for listings to closing my first 3 property deals in a month.",
+    avatar: "/images/client.jpg",
+  },
+  {
+    designation: "Chijioke, Senior Realtor",
+    review:
+      "The mentorship here is next-level. It’s not just about selling, it’s about becoming a true professional.",
+    avatar: "/images/client.jpg",
+  },
+  {
+    designation: " Sarah, Realtor Partner",
+    review:
+      "Joining PCRG changed my life. I went from struggling for listings to closing my first 3 property deals in a month.",
+    avatar: "/images/client.jpg",
+  },
+  {
+    designation: "Chijioke, Senior Realtor",
+    review:
+      "The mentorship here is next-level. It’s not just about selling, it’s about becoming a true professional.",
+    avatar: "/images/client.jpg",
+  },
+];

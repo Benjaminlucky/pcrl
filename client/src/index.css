@@ -8,6 +8,7 @@ body,
   margin: 0;
   font-family: "Poppins", sans-serif;
   background-color: white;
+  overflow-x: hidden !important;
 }
 
 /* ✅ Define your theme variables here */
@@ -70,3 +71,7 @@ body,
 }
 
 /* ============= HOME / COMPONENTS CUSTOM CSS ENDS HERE =============== */
+
+/* =============== REALTOR PAGE / COMPONENTS CUSTOM CSS STARTS HERE =========== */
+
+/* =============== REALTOR PAGE / COMPONENTS CUSTOM CSS ENDS HERE =========== */
