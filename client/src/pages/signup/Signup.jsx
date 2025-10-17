@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import { motion, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 // ✅ JSON objects for Nigerian states and banks
 const states = [
   "Abia",
@@ -127,64 +129,64 @@ export default function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     const validationErrors = validateForm();
     setErrors(validationErrors);
 
-    if (Object.keys(validationErrors).length === 0) {
-      try {
-        // Build payload (match backend controller)
-        const payload = {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          phone: formData.phone,
-          state: formData.state,
-          bank: formData.bank,
-          accountName: formData.accountName,
-          accountNumber: formData.accountNumber,
-          password: formData.password,
-          birthDate: formData.birthDate,
-        };
+    if (Object.keys(validationErrors).length > 0) {
+      setLoading(false);
+      return;
+    }
 
-        // ✅ If referral exists in URL, include it
-        const urlParams = new URLSearchParams(window.location.search);
-        const ref = urlParams.get("ref");
-        if (ref) payload.ref = ref;
+    try {
+      const payload = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        state: formData.state,
+        bank: formData.bank,
+        accountName: formData.accountName,
+        accountNumber: formData.accountNumber,
+        password: formData.password,
+        birthDate: formData.birthDate,
+      };
 
-        const res = await fetch("http://localhost:3000/api/realtors/signup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
+      const urlParams = new URLSearchParams(window.location.search);
+      const ref = urlParams.get("ref");
+      if (ref) payload.ref = ref;
 
-        const data = await res.json();
+      const res = await fetch(`${BASE_URL}/api/realtors/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-        if (!res.ok) {
-          throw new Error(data.message || "Signup failed");
-        }
+      const data = await res.json();
 
-        setSuccess("Account created successfully!");
-        console.log("✅ Created Realtor:", data);
-        setFormData({
-          firstName: "",
-          lastName: "",
-          email: "",
-          state: "",
-          bank: "",
-          accountName: "",
-          accountNumber: "",
-          phone: "",
-          password: "",
-          confirmPassword: "",
-        });
-        setTimeout(() => setSuccess(""), 4000);
-      } catch (error) {
-        console.error("Signup Error:", error);
-        setErrors({ general: error.message });
-      } finally {
-        setLoading(false);
-      }
-    } else {
+      if (!res.ok) throw new Error(data.message || "Signup failed");
+
+      setSuccess("Account created successfully!");
+      console.log("✅ Created Realtor:", data);
+
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        state: "",
+        bank: "",
+        accountName: "",
+        accountNumber: "",
+        phone: "",
+        password: "",
+        confirmPassword: "",
+      });
+
+      setTimeout(() => setSuccess(""), 4000);
+    } catch (error) {
+      console.error("Signup Error:", error);
+      setErrors({ general: error.message });
+    } finally {
       setLoading(false);
     }
   };
