@@ -1,13 +1,13 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import cors from "cors";
+import realtorRoutes from "./routes/realtor.routes.js";
 
 dotenv.config();
 
 const app = express();
-
-const port = 3000;
-
+app.use(cors());
 app.use(express.json());
 
 mongoose
@@ -15,10 +15,6 @@ mongoose
   .then(() => console.log("Connected to MongoDb"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-app.get("/", (req, res) => {
-  res.send("Hello PCRG Server");
-});
+app.use("/api/realtors", realtorRoutes);
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+app.listen(process.env.PORT || 3000, () => console.log("Server is running"));

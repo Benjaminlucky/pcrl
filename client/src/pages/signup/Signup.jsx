@@ -76,6 +76,7 @@ export default function Signup() {
     phone: "",
     password: "",
     confirmPassword: "",
+    birthDate: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -117,22 +118,53 @@ export default function Signup() {
       newErrors.password = "Password must be at least 8 characters";
     if (formData.password !== formData.confirmPassword)
       newErrors.confirmPassword = "Passwords do not match";
+    if (!formData.birthDate) newErrors.birthDate = "Date of birth is required";
 
     return newErrors;
   };
 
   // ✅ Submit handler
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     const validationErrors = validateForm();
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
-      setTimeout(() => {
-        setLoading(false);
+      try {
+        // Build payload (match backend controller)
+        const payload = {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          state: formData.state,
+          bank: formData.bank,
+          accountName: formData.accountName,
+          accountNumber: formData.accountNumber,
+          password: formData.password,
+          birthDate: formData.birthDate,
+        };
+
+        // ✅ If referral exists in URL, include it
+        const urlParams = new URLSearchParams(window.location.search);
+        const ref = urlParams.get("ref");
+        if (ref) payload.ref = ref;
+
+        const res = await fetch("http://localhost:3000/api/realtors/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.message || "Signup failed");
+        }
+
         setSuccess("Account created successfully!");
-        console.log("Form submitted:", formData);
+        console.log("✅ Created Realtor:", data);
         setFormData({
           firstName: "",
           lastName: "",
@@ -146,8 +178,15 @@ export default function Signup() {
           confirmPassword: "",
         });
         setTimeout(() => setSuccess(""), 4000);
-      }, 2000);
-    } else setLoading(false);
+      } catch (error) {
+        console.error("Signup Error:", error);
+        setErrors({ general: error.message });
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setLoading(false);
+    }
   };
 
   return (
@@ -313,6 +352,22 @@ export default function Signup() {
               />
               {errors.phone && (
                 <p className="text-xs text-red-500">{errors.phone}</p>
+              )}
+            </div>
+            {/* Birthday */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Date of Birth
+              </label>
+              <input
+                type="date"
+                name="birthDate"
+                value={formData.birthDate}
+                onChange={handleChange}
+                className="w-full border border-gray-400 rounded-sm p-3 ring-0 outline-0 focus:ring-3 focus:ring-red-500"
+              />
+              {errors.birthDate && (
+                <p className="text-xs text-red-500">{errors.birthDate}</p>
               )}
             </div>
 

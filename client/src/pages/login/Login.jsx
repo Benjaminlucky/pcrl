@@ -23,26 +23,28 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { email, password } = formData;
-
-    if (!email || !password) {
-      toast.error("Please fill in all fields.");
-      return;
-    }
-
-    if (password.length < 6) {
-      toast.warn("Password must be at least 6 characters long.");
-      return;
-    }
-
     setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const res = await fetch("http://localhost:3000/api/realtors/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message);
+
+      localStorage.setItem("token", data.token);
       toast.success("Login successful!");
-      console.log("Form submitted:", formData);
+
+      // Redirect based on role
+      if (data.realtor.role === "admin") {
+        window.location.href = "/admin";
+      } else {
+        window.location.href = "/realtor";
+      }
     } catch (error) {
-      console.error("Error:", error);
-      toast.error("Something went wrong. Please try again.");
+      toast.error(error.message || "Login failed.");
     } finally {
       setLoading(false);
     }
