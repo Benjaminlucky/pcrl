@@ -4,6 +4,7 @@ import RealtorWhyjoinpcrg from "../../components/RealtorWhyjoinpcrg";
 import RealtorWhatYouGet from "../../components/RealtorWhatYouGet";
 import RealtorWhocanjoin from "../../components/RealtorWhocanjoin";
 import RealtorReviews from "../../components/RealtorReviews";
+import RealtorGrowWithPCRG from "../../components/RealtorGrowWithPCRG";
 
 function Realtor() {
   return (
@@ -22,6 +23,9 @@ function Realtor() {
       </div>
       <div className="realtorReviewsSection">
         <RealtorReviews />
+      </div>
+      <div className="growWithus">
+        <RealtorGrowWithPCRG />
       </div>
     </>
   );

@@ -176,3 +176,25 @@ export const Realtorreviews = [
     avatar: "/images/client.jpg",
   },
 ];
+export const developerReviews = [
+  {
+    designation: " Ocean growth Homes Ltd",
+    review:
+      "PCRG handled our estate launch in Lekki — 80% sold out in 6 weeks!”",
+  },
+  {
+    designation: "Evermark Homes Ltd",
+    review:
+      "Professional, organized, and result-driven. They made our project shine.",
+  },
+  {
+    designation: "Evermark Homes Ltd",
+    review:
+      "Professional, organized, and result-driven. They made our project shine.",
+  },
+  {
+    designation: " Ocean growth Homes Ltd",
+    review:
+      "PCRG handled our estate launch in Lekki — 80% sold out in 6 weeks!”",
+  },
+];

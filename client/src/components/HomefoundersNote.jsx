@@ -63,7 +63,7 @@ export default function HomeFoundersNote() {
                 At PCRG, we see real estate as more than property—it’s about
                 vision, transformation, and lasting impact. Under the leadership
                 of{" "}
-                <span className="text-primary-400 font-semibold">
+                <span className="text-black font-bold">
                   Dr. Mrs. Vivian Okiche
                 </span>
                 , our Founder and President, PCRG stands as a symbol of
