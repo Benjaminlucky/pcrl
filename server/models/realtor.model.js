@@ -1,4 +1,4 @@
-// models/User.js
+// models/realtor.model.js
 import mongoose from "mongoose";
 
 const RealtorSchema = new mongoose.Schema({
@@ -19,36 +19,40 @@ const RealtorSchema = new mongoose.Schema({
   accountNumber: { type: String },
   passwordHash: { type: String, required: true },
 
-  // Referral tracking
-  referralCode: { type: String, required: true, unique: true }, // e.g. "pcr01"
+  // ✅ Better default avatar placeholder
+  avatar: {
+    type: String,
+    default: "https://ui-avatars.com/api/?name=Realtor",
+  },
+
+  referralCode: { type: String, required: true, unique: true },
+
+  // ✅ Correct model reference
   recruitedBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "Realtor",
     default: null,
-  }, // who referred this user
+  },
 
   role: { type: String, enum: ["admin", "realtor"], default: "realtor" },
 
   createdAt: { type: Date, default: Date.now },
 });
 
-// 🔹 Index for fast lookup by recruiter
+// ✅ Fix populate + referral counting
 RealtorSchema.index({ recruitedBy: 1 });
 
-// 🔹 Virtual field to calculate referral link dynamically
 RealtorSchema.virtual("referralLink").get(function () {
-  return `https://yourapp.com/signup?ref=${this.referralCode}`;
+  return `https://pcrg.netlify.app/signup?ref=${this.referralCode}`;
 });
 
-// 🔹 Virtual field to count how many users this person recruited
 RealtorSchema.virtual("recruitCount", {
-  ref: "User", // model to reference
-  localField: "_id", // current user's id
-  foreignField: "recruitedBy", // field in other users
-  count: true, // tells Mongoose to count, not return docs
+  ref: "Realtor",
+  localField: "_id",
+  foreignField: "recruitedBy",
+  count: true,
 });
 
-// Ensure virtuals are included when converting to JSON
 RealtorSchema.set("toJSON", { virtuals: true });
 RealtorSchema.set("toObject", { virtuals: true });
 

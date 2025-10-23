@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 import realtorRoutes from "./routes/realtor.routes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 dotenv.config();
 
@@ -16,5 +17,6 @@ mongoose
   .catch((err) => console.error("MongoDB connection error:", err));
 
 app.use("/api/realtors", realtorRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.listen(process.env.PORT || 3000, () => console.log("Server is running"));

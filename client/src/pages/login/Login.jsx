@@ -35,15 +35,14 @@ const Login = () => {
 
       if (!res.ok) throw new Error(data.message);
 
+      // ✅ Store both token and user info
       localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.realtor));
+
       toast.success("Login successful!");
 
-      // Redirect based on role
-      if (data.realtor.role === "admin") {
-        window.location.href = "/admin";
-      } else {
-        window.location.href = "/realtor";
-      }
+      // ✅ Redirect both roles to /dashboard
+      window.location.href = "/dashboard";
     } catch (error) {
       toast.error(error.message || "Login failed.");
     } finally {

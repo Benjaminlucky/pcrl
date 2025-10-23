@@ -40,6 +40,8 @@ export const login = async (req, res) => {
         lastName: realtor.lastName,
         email: realtor.email,
         role: realtor.role,
+        referralCode: realtor.referralCode,
+        referralLink: realtor.referralLink, // ✅ Added
       },
     });
   } catch (error) {

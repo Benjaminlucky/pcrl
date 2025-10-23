@@ -1,3 +1,4 @@
+// controllers/auth.controller.js
 import Realtor from "../models/realtor.model.js";
 import bcrypt from "bcrypt";
 
@@ -15,15 +16,13 @@ export const signup = async (req, res) => {
       password,
       ref,
       birthDate,
-      ...rest
+      avatar,
     } = req.body;
 
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    //Get Recruiter
+    const passwordHash = await bcrypt.hash(password, 12);
 
     let recruiter = null;
-    if (ref && ref.trim() !== "") {
+    if (ref?.trim()) {
       recruiter = await Realtor.findOne({ referralCode: ref.trim() });
       if (!recruiter) {
         return res
@@ -32,9 +31,8 @@ export const signup = async (req, res) => {
       }
     }
 
-    //Generate New refferal code based on Count
     const count = await Realtor.countDocuments();
-    const referralCode = `pcr${(count + 1).toString().padStart(2, "0")}`;
+    const referralCode = `pcr${String(count + 1).padStart(3, "0")}`;
 
     const newRealtor = await Realtor.create({
       firstName,
@@ -45,21 +43,25 @@ export const signup = async (req, res) => {
       bank,
       accountName,
       accountNumber,
+      avatar: avatar || undefined, // ✅ allow override
       passwordHash,
       referralCode,
       birthDate: new Date(birthDate),
-      recruitedBy: recruiter ? recruiter._id : null,
-
-      ...rest,
+      recruitedBy: recruiter?._id || null,
     });
 
     res.status(201).json({
       message: "User created successfully",
-      referralCode: newRealtor.referralCode,
-      referralLink: newRealtor.referralLink,
+      user: {
+        id: newRealtor._id,
+        name: `${newRealtor.firstName} ${newRealtor.lastName}`,
+        avatar: newRealtor.avatar,
+        referralCode: newRealtor.referralCode,
+        referralLink: newRealtor.referralLink,
+      },
     });
   } catch (error) {
-    console.error(error);
+    console.error("SIGNUP ERROR:", error);
     res.status(500).json({ message: "Unable to create Realtor Account" });
   }
 };
