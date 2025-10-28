@@ -5,6 +5,7 @@ import {
   Routes,
   useLocation,
 } from "react-router-dom";
+import { HeadProvider } from "react-head"; // ✅ SEO Provider
 import Home from "./pages/home/Home";
 import Realtor from "./pages/realtors/Realtor";
 import Developers from "./pages/developers/Developers";
@@ -20,6 +21,7 @@ import ProtectedRoute from "./components/ProctectedRoute";
 import Dashboard from "./pages/dashboard";
 import AdminSignup from "./pages/admin/AdminSignup";
 import AdminLogin from "./pages/admin/AdminLogin";
+import GlobalSEO from "./components/GlobalSeo";
 
 function AppWrapper() {
   const location = useLocation();
@@ -27,8 +29,15 @@ function AppWrapper() {
 
   return (
     <>
+      {/* ✅ Show navbar only if not on dashboard */}
       {!hideLayout && <TopNavigation />}
-      <main className={!hideLayout ? "pt-16" : ""}>
+
+      {/* ✅ Main layout with overflow fix */}
+      <main
+        className={`${
+          !hideLayout ? "pt-16" : ""
+        } relative overflow-x-hidden bg-white`}
+      >
         <Routes>
           {/* 🌍 Public Routes */}
           <Route path="/" element={<Home />} />
@@ -43,7 +52,7 @@ function AppWrapper() {
           <Route path="/admin/signup" element={<AdminSignup />} />
           <Route path="/admin/login" element={<AdminLogin />} />
 
-          {/* 🔒 Protected Dashboard Routes */}
+          {/* 🔒 Protected Dashboard */}
           <Route
             path="/dashboard/*"
             element={
@@ -53,6 +62,8 @@ function AppWrapper() {
             }
           />
         </Routes>
+
+        {/* ✅ Show footer only on non-dashboard pages */}
         {!hideLayout && <Footer />}
       </main>
     </>
@@ -62,7 +73,13 @@ function AppWrapper() {
 export default function App() {
   return (
     <Router>
-      <AppWrapper />
+      {/* ✅ HeadProvider wraps the entire app for SEO meta support */}
+      <HeadProvider>
+        <GlobalSEO />
+        <div className="relative overflow-x-hidden overflow-y-auto">
+          <AppWrapper />
+        </div>
+      </HeadProvider>
     </Router>
   );
 }
