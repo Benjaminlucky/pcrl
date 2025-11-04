@@ -49,7 +49,7 @@ export const topNavLinks = [
 export const awards = [
   {
     title: "Growth",
-    description: "Over 10,000 realtors in One Year",
+    description: "Over 10,000 realtors in three Year",
     icon: HiUserGroup,
   },
   {

@@ -35,7 +35,7 @@ export default function Hero() {
       <motion.div
         className="absolute inset-0 bg-center bg-no-repeat"
         style={{
-          backgroundImage: "url('/images/PCRG-Team.jpg')",
+          backgroundImage: "url('/images/homeHero.jpg')",
           backgroundSize: "cover",
         }}
         animate={isInView ? { scale: [1, 1.08, 1] } : {}}

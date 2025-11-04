@@ -14,16 +14,16 @@ const facultyMembers = [
     role: "Head trainer, pcrg academy",
     image: "/images/faculty/faculty1.jpg",
   },
-  {
-    name: "Dr. Mrs. Vivian Okiche",
-    role: "Vice President, Pcrg",
-    image: "/images/faculty/faculty2.jpg",
-  },
-  {
-    name: "Dr. Mrs. Vivian Okiche",
-    role: "Chaplain, Pcrg",
-    image: "/images/faculty/faculty3.jpg",
-  },
+  // {
+  //   name: "Dr. Mrs. Vivian Okiche",
+  //   role: "Vice President, Pcrg",
+  //   image: "/images/faculty/faculty2.jpg",
+  // },
+  // {
+  //   name: "Dr. Mrs. Vivian Okiche",
+  //   role: "Chaplain, Pcrg",
+  //   image: "/images/faculty/faculty3.jpg",
+  // },
 ];
 
 const AcademyFaculty = () => {
@@ -74,7 +74,7 @@ const AcademyFaculty = () => {
         </div>
 
         {/* Faculty Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-10 md:gap-12">
           {facultyMembers.map((member, i) => (
             <motion.div
               key={i}
@@ -113,7 +113,7 @@ const AcademyFaculty = () => {
                 <img
                   src={member.image}
                   alt={member.name}
-                  className="w-full h-[350px] object-cover transform hover:scale-105 transition-transform duration-700"
+                  className="w-full h-[550px] object-cover transform hover:scale-105 transition-transform duration-700"
                 />
               </motion.div>
 
