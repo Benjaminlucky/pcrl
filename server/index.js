@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import realtorRoutes from "./routes/realtor.routes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import cloudinary from "./utils/cloudinary.config.js";
 
 dotenv.config();
 
@@ -18,5 +19,8 @@ mongoose
 
 app.use("/api/realtors", realtorRoutes);
 app.use("/api/admin", adminRoutes);
+
+const result = await cloudinary.api.ping();
+console.log(result);
 
 app.listen(process.env.PORT || 3000, () => console.log("Server is running"));

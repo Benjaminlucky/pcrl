@@ -10,9 +10,9 @@ const facultyMembers = [
     image: "/images/faculty/drOkichie1.jpg",
   },
   {
-    name: "Dr. Mrs. Vivian Okiche",
-    role: "Head trainer, pcrg academy",
-    image: "/images/faculty/faculty1.jpg",
+    name: "Mr Mark Iorliam",
+    role: "Vice President, pcrg academy",
+    image: "/images/MrMark.jpg",
   },
   // {
   //   name: "Dr. Mrs. Vivian Okiche",

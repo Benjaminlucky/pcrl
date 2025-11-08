@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
  * Matches brand red theme and modern layout from screenshot.
  * Includes subtle animations and validation handling.
  */
-export default function AcademyMailingList() {
+export default function SubscribeSection() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
@@ -19,7 +19,7 @@ export default function AcademyMailingList() {
   };
 
   return (
-    <section className="bg-black py-16 px-4 text-white text-center">
+    <section className="bg-primary-500 py-16 px-4 text-white text-center">
       <div className="max-w-5xl mx-auto flex flex-col sm:flex-row justify-center items-center gap-5 sm:gap-8">
         {/* Heading */}
         <motion.h2
@@ -28,7 +28,7 @@ export default function AcademyMailingList() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          Get notified of upcoming trainings
+          Subscribe to the PCRG Event Alerts
         </motion.h2>
 
         {/* Form */}
@@ -49,7 +49,7 @@ export default function AcademyMailingList() {
           />
           <button
             type="submit"
-            className="bg-primary-500 text-white px-6 py-3 font-semibold hover:bg-gray-900 transition duration-300"
+            className="bg-black text-white px-6 py-3 font-semibold hover:bg-gray-900 transition duration-300"
           >
             {submitted ? "Subscribed!" : "Join our mailing list"}
           </button>
