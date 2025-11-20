@@ -64,7 +64,7 @@ export default function HomeFoundersNote() {
                 vision, transformation, and lasting impact. Under the leadership
                 of{" "}
                 <span className="text-black font-bold">
-                  Dr. Mrs. Vivian Okiche
+                  Dr Mrs Vivian Pollard Okiche
                 </span>
                 , our Founder and President, PCRG stands as a symbol of
                 innovation, integrity, and growth in real estate marketing. Her
@@ -77,7 +77,7 @@ export default function HomeFoundersNote() {
 
               <div className="mt-4">
                 <span className="block font-semibold text-lg text-primary-500">
-                  Dr. Mrs. Vivian Okiche
+                  Dr Mrs Vivian Pollard Okiche
                 </span>
                 <p className="text-gray-600 text-sm uppercase tracking-wide">
                   Founder & President, PCRG

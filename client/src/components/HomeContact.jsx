@@ -106,7 +106,8 @@ export default function HomeContact() {
                 <FaPhoneAlt />
               </div>
               <p className="text-base font-medium">
-                +234(0) 8126 326 511, +234(0) 9123 521 421
+                +234 (0)812 632 6511, +234 (0)901 190 8119, +234 (0)814 776
+                6885, +234 (0)9123212589
               </p>
             </motion.div>
           </div>

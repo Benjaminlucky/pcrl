@@ -243,7 +243,7 @@ export default function Signup() {
             </p>
           </div>
 
-          <motion.div
+          {/* <motion.div
             className="mt-8 flex items-center space-x-3"
             variants={{
               hidden: { opacity: 0, y: 20 },
@@ -261,7 +261,7 @@ export default function Signup() {
               <p className="font-semibold text-white text-sm">Lucky Benjamin</p>
               <p className="text-xs text-gray-300">COO Veritasi Group</p>
             </div>
-          </motion.div>
+          </motion.div> */}
         </motion.div>
 
         {/* RIGHT SECTION (Animated Form) */}
