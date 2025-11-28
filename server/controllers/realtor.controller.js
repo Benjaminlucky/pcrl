@@ -122,3 +122,64 @@ export const updateAvatar = async (req, res) => {
     return res.status(500).json({ message: "Failed to upload avatar" });
   }
 };
+
+export const getRealtors = async (req, res) => {
+  try {
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.min(
+      Math.max(parseInt(req.query.limit, 10) || 10, 1),
+      100
+    );
+    const sort = req.query.sort || "-createdAt";
+    const search = req.query.search || "";
+
+    // Filter by search
+    const filter = {};
+    if (search) {
+      filter.$or = [
+        { firstName: { $regex: search, $options: "i" } },
+        { lastName: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+        { referralCode: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const total = await Realtor.countDocuments(filter);
+    const pages = Math.max(Math.ceil(total / limit), 1);
+    const skip = (page - 1) * limit;
+
+    const docs = await Realtor.find(filter)
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .populate("recruitedBy", "firstName lastName referralCode") // ✅ populate recruiter
+      .select(
+        "firstName lastName email phone referralCode createdAt recruitedBy"
+      )
+      .lean();
+
+    const formatted = docs.map((d) => ({
+      _id: d._id,
+      referralCode: d.referralCode,
+      name: `${d.firstName} ${d.lastName}`,
+      email: d.email,
+      phone: d.phone,
+      createdAt: d.createdAt,
+      recruitedByName: d.recruitedBy
+        ? `${d.recruitedBy.firstName} ${d.recruitedBy.lastName}`
+        : "-",
+      recruitedByCode: d.recruitedBy ? d.recruitedBy.referralCode : "-",
+    }));
+
+    return res.json({
+      docs: formatted,
+      total,
+      page,
+      pages,
+      limit,
+    });
+  } catch (err) {
+    console.error("getRealtors error:", err);
+    return res.status(500).json({ message: "Failed to fetch realtors" });
+  }
+};
