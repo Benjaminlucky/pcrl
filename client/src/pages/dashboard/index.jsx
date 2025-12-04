@@ -7,6 +7,7 @@ import Reports from "./Reports";
 import DashboardLayout from "./Layout";
 import RealtorDashboard from "./RealtorDashboard";
 import AdminDashboard from "./AdminDashboard";
+import ManageRealtors from "./ManageRealtors";
 
 export default function Dashboard() {
   return (
@@ -14,6 +15,7 @@ export default function Dashboard() {
       <Routes>
         {/* Default landing based on user role */}
         <Route index element={<RoleBasedDashboard />} />
+        <Route path="/realtors" element={<ManageRealtors />} />
 
         {/* Nested routes */}
         <Route path="earnings" element={<Earnings />} />

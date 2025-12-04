@@ -33,12 +33,12 @@ export default function DashboardLayout({ children }) {
       ? [
           {
             name: "Dashboard",
-            path: "/admin/dashboard",
+            path: "/dashboard",
             icon: <FaTachometerAlt />,
           },
           {
             name: "Manage Realtors",
-            path: "/admin/realtors",
+            path: "/dashboard/realtors",
             icon: <FaUsers />,
           },
           { name: "Reports", path: "/admin/reports", icon: <FaChartLine /> },

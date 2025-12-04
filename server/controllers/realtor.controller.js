@@ -154,8 +154,9 @@ export const getRealtors = async (req, res) => {
       .limit(limit)
       .populate("recruitedBy", "firstName lastName referralCode") // ✅ populate recruiter
       .select(
-        "firstName lastName email phone referralCode createdAt recruitedBy"
+        "firstName lastName email phone referralCode createdAt recruitedBy bank accountName accountNumber"
       )
+
       .lean();
 
     const formatted = docs.map((d) => ({
@@ -164,6 +165,10 @@ export const getRealtors = async (req, res) => {
       name: `${d.firstName} ${d.lastName}`,
       email: d.email,
       phone: d.phone,
+      accountNumber: d.accountNumber || null, // ✅ Add this line
+      accountName: d.accountName || null, // (optional)
+      bank: d.bank || null, // (optional)
+
       createdAt: d.createdAt,
       recruitedByName: d.recruitedBy
         ? `${d.recruitedBy.firstName} ${d.recruitedBy.lastName}`
@@ -181,5 +186,144 @@ export const getRealtors = async (req, res) => {
   } catch (err) {
     console.error("getRealtors error:", err);
     return res.status(500).json({ message: "Failed to fetch realtors" });
+  }
+};
+
+// Add these to your realtor.controller.js file
+
+// Get single realtor by ID
+export const getRealtorById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const realtor = await Realtor.findById(id)
+      .populate("recruitedBy", "firstName lastName referralCode")
+      .select("-passwordHash")
+      .lean();
+
+    if (!realtor) {
+      return res.status(404).json({ message: "Realtor not found" });
+    }
+
+    // Format response
+    const formatted = {
+      ...realtor,
+      recruitedByName: realtor.recruitedBy
+        ? `${realtor.recruitedBy.firstName} ${realtor.recruitedBy.lastName}`
+        : null,
+      recruitedByCode: realtor.recruitedBy
+        ? realtor.recruitedBy.referralCode
+        : null,
+    };
+
+    return res.json(formatted);
+  } catch (err) {
+    console.error("getRealtorById error:", err);
+    return res.status(500).json({ message: "Failed to fetch realtor" });
+  }
+};
+
+// Update realtor by ID
+export const updateRealtor = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      firstName,
+      lastName,
+      email,
+      phone,
+      state,
+      bank,
+      accountName,
+      accountNumber,
+      birthDate,
+    } = req.body;
+
+    // Check if realtor exists
+    const existing = await Realtor.findById(id);
+    if (!existing) {
+      return res.status(404).json({ message: "Realtor not found" });
+    }
+
+    // Check if email is being changed and if it's already in use
+    if (email && email !== existing.email) {
+      const emailExists = await Realtor.findOne({ email });
+      if (emailExists) {
+        return res.status(400).json({ message: "Email already in use" });
+      }
+    }
+
+    // Update fields
+    const updateData = {};
+    if (firstName) updateData.firstName = firstName;
+    if (lastName) updateData.lastName = lastName;
+    if (email) updateData.email = email;
+    if (phone) updateData.phone = phone;
+    if (state) updateData.state = state;
+    if (bank) updateData.bank = bank;
+    if (accountName) updateData.accountName = accountName;
+    if (accountNumber) updateData.accountNumber = accountNumber;
+    if (birthDate) updateData.birthDate = new Date(birthDate);
+
+    const updated = await Realtor.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    })
+      .populate("recruitedBy", "firstName lastName referralCode")
+      .select("-passwordHash")
+      .lean();
+
+    const formatted = {
+      ...updated,
+      recruitedByName: updated.recruitedBy
+        ? `${updated.recruitedBy.firstName} ${updated.recruitedBy.lastName}`
+        : null,
+    };
+
+    return res.json({
+      message: "Realtor updated successfully",
+      realtor: formatted,
+    });
+  } catch (err) {
+    console.error("updateRealtor error:", err);
+    return res.status(500).json({ message: "Failed to update realtor" });
+  }
+};
+
+// Delete realtor by ID
+export const deleteRealtor = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const realtor = await Realtor.findById(id);
+    if (!realtor) {
+      return res.status(404).json({ message: "Realtor not found" });
+    }
+
+    // Check if realtor has recruited others
+    const recruitsCount = await Realtor.countDocuments({ recruitedBy: id });
+
+    if (recruitsCount > 0) {
+      // Option 1: Prevent deletion
+      return res.status(400).json({
+        message: `Cannot delete realtor with ${recruitsCount} recruits. Please reassign or remove recruits first.`,
+      });
+
+      // Option 2: Set recruits' recruitedBy to null (uncomment if preferred)
+      // await Realtor.updateMany(
+      //   { recruitedBy: id },
+      //   { $set: { recruitedBy: null } }
+      // );
+    }
+
+    await Realtor.findByIdAndDelete(id);
+
+    return res.json({
+      message: "Realtor deleted successfully",
+      id,
+    });
+  } catch (err) {
+    console.error("deleteRealtor error:", err);
+    return res.status(500).json({ message: "Failed to delete realtor" });
   }
 };

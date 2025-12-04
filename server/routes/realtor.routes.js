@@ -1,4 +1,4 @@
-// routes/realtor.routes.js (or wherever your router file lives)
+// routes/realtor.routes.js
 import express from "express";
 import { signup } from "../controllers/realtor.controller.js";
 import { login } from "../controllers/auth.controller.js";
@@ -7,26 +7,42 @@ import { protect } from "../middlewares/authMiddleware.js";
 import { updateAvatar } from "../controllers/realtor.controller.js";
 import { uploadSingleImage } from "../middlewares/upload.middleware.js";
 
-// NEW import
-import { getRealtors } from "../controllers/realtor.controller.js";
+// Import new controllers
+import {
+  getRealtors,
+  getRealtorById,
+  updateRealtor,
+  deleteRealtor,
+} from "../controllers/realtor.controller.js";
 
 const router = express.Router();
 
+// Public routes
 router.post("/signup", signup);
 router.post("/login", login);
+
+// Protected routes
 router.get("/dashboard", protect, getDashboard);
 
-// GET /api/realtors?page=1&limit=10 (protected)
+// Get all realtors (paginated, searchable, sortable)
 router.get("/", protect, getRealtors);
 
-// NEW: update avatar (protected). Accepts form-data with key 'avatar'
+// Get single realtor by ID
+router.get("/:id", protect, getRealtorById);
+
+// Update realtor by ID
+router.put("/:id", protect, updateRealtor);
+
+// Delete realtor by ID
+router.delete("/:id", protect, deleteRealtor);
+
+// Update avatar (protected)
 router.put(
   "/avatar",
   protect,
   (req, res, next) =>
     uploadSingleImage(req, res, (err) => {
       if (err) {
-        // multer error handling
         return res.status(400).json({ message: err.message || "Upload error" });
       }
       return next();
