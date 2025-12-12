@@ -58,7 +58,7 @@ export default function DashboardLayout({ children }) {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#fdfdfd] font-poppins relative">
+    <div className="flex min-h-screen  bg-[#fdfdfd] font-poppins relative">
       {/* Mobile/Tablet Menu Toggle Button */}
       <div className="absolute top-4 left-4 z-50 lg:hidden">
         <button
@@ -117,7 +117,7 @@ export default function DashboardLayout({ children }) {
         </motion.aside>
       ) : (
         // Static Sidebar for Desktop
-        <aside className="h-[100vh] w-64 bg-[#561010] text-white flex flex-col justify-between py-6 px-4 sticky top-0">
+        <aside className="h-auto w-64 bg-[#561010] text-white flex flex-col justify-between py-6 px-4 sticky top-0">
           <div>
             <h1 className="text-2xl font-bold mb-8 pl-4">PCR Dashboard</h1>
             <nav className="space-y-2">

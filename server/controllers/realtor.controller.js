@@ -1,4 +1,4 @@
-// controllers/auth.controller.js
+// controllers/realtor.controller.js
 import Realtor from "../models/realtor.model.js";
 import bcrypt from "bcrypt";
 import cloudinary from "../utils/cloudinary.config.js";
@@ -45,7 +45,7 @@ export const signup = async (req, res) => {
       bank,
       accountName,
       accountNumber,
-      avatar: avatar || undefined, // ✅ allow override
+      avatar: avatar || undefined,
       passwordHash,
       referralCode,
       birthDate: new Date(birthDate),
@@ -68,17 +68,14 @@ export const signup = async (req, res) => {
   }
 };
 
-// Update avatar controller
 export const updateAvatar = async (req, res) => {
   try {
-    // multer has put the file buffer on req.file
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
     const userId = req.user.id;
 
-    // Upload buffer to Cloudinary via upload_stream
     const uploadFromBuffer = (buffer) =>
       new Promise((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
@@ -96,7 +93,6 @@ export const updateAvatar = async (req, res) => {
 
     const result = await uploadFromBuffer(req.file.buffer);
 
-    // Save avatar URL on Realtor
     const updated = await Realtor.findByIdAndUpdate(
       userId,
       { avatar: result.secure_url },
@@ -133,7 +129,6 @@ export const getRealtors = async (req, res) => {
     const sort = req.query.sort || "-createdAt";
     const search = req.query.search || "";
 
-    // Filter by search
     const filter = {};
     if (search) {
       filter.$or = [
@@ -152,11 +147,10 @@ export const getRealtors = async (req, res) => {
       .sort(sort)
       .skip(skip)
       .limit(limit)
-      .populate("recruitedBy", "firstName lastName referralCode") // ✅ populate recruiter
+      .populate("recruitedBy", "firstName lastName referralCode")
       .select(
-        "firstName lastName email phone referralCode createdAt recruitedBy bank accountName accountNumber"
+        "firstName lastName email phone referralCode createdAt recruitedBy bank accountName accountNumber birthDate"
       )
-
       .lean();
 
     const formatted = docs.map((d) => ({
@@ -165,10 +159,10 @@ export const getRealtors = async (req, res) => {
       name: `${d.firstName} ${d.lastName}`,
       email: d.email,
       phone: d.phone,
-      accountNumber: d.accountNumber || null, // ✅ Add this line
-      accountName: d.accountName || null, // (optional)
-      bank: d.bank || null, // (optional)
-
+      accountNumber: d.accountNumber || null,
+      accountName: d.accountName || null,
+      bank: d.bank || null,
+      birthDate: d.birthDate || null,
       createdAt: d.createdAt,
       recruitedByName: d.recruitedBy
         ? `${d.recruitedBy.firstName} ${d.recruitedBy.lastName}`
@@ -189,9 +183,6 @@ export const getRealtors = async (req, res) => {
   }
 };
 
-// Add these to your realtor.controller.js file
-
-// Get single realtor by ID
 export const getRealtorById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -205,7 +196,6 @@ export const getRealtorById = async (req, res) => {
       return res.status(404).json({ message: "Realtor not found" });
     }
 
-    // Format response
     const formatted = {
       ...realtor,
       recruitedByName: realtor.recruitedBy
@@ -223,7 +213,6 @@ export const getRealtorById = async (req, res) => {
   }
 };
 
-// Update realtor by ID
 export const updateRealtor = async (req, res) => {
   try {
     const { id } = req.params;
@@ -239,13 +228,11 @@ export const updateRealtor = async (req, res) => {
       birthDate,
     } = req.body;
 
-    // Check if realtor exists
     const existing = await Realtor.findById(id);
     if (!existing) {
       return res.status(404).json({ message: "Realtor not found" });
     }
 
-    // Check if email is being changed and if it's already in use
     if (email && email !== existing.email) {
       const emailExists = await Realtor.findOne({ email });
       if (emailExists) {
@@ -253,7 +240,6 @@ export const updateRealtor = async (req, res) => {
       }
     }
 
-    // Update fields
     const updateData = {};
     if (firstName) updateData.firstName = firstName;
     if (lastName) updateData.lastName = lastName;
@@ -290,7 +276,6 @@ export const updateRealtor = async (req, res) => {
   }
 };
 
-// Delete realtor by ID
 export const deleteRealtor = async (req, res) => {
   try {
     const { id } = req.params;
@@ -300,20 +285,12 @@ export const deleteRealtor = async (req, res) => {
       return res.status(404).json({ message: "Realtor not found" });
     }
 
-    // Check if realtor has recruited others
     const recruitsCount = await Realtor.countDocuments({ recruitedBy: id });
 
     if (recruitsCount > 0) {
-      // Option 1: Prevent deletion
       return res.status(400).json({
         message: `Cannot delete realtor with ${recruitsCount} recruits. Please reassign or remove recruits first.`,
       });
-
-      // Option 2: Set recruits' recruitedBy to null (uncomment if preferred)
-      // await Realtor.updateMany(
-      //   { recruitedBy: id },
-      //   { $set: { recruitedBy: null } }
-      // );
     }
 
     await Realtor.findByIdAndDelete(id);

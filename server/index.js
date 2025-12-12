@@ -5,6 +5,7 @@ import cors from "cors";
 import realtorRoutes from "./routes/realtor.routes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import cloudinary from "./utils/cloudinary.config.js";
+import "./jobs/birthdayJob.js";
 
 dotenv.config();
 

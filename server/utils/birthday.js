@@ -1,39 +1,40 @@
 // utils/birthday.js
-import { DateTime } from "luxon"; // recommended for timezone safety (install: npm install luxon)
+export function getNextBirthdayAndDaysUntil(birthDate) {
+  if (!birthDate) return null;
 
-const TZ = "Africa/Lagos";
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
 
-export function getNextBirthdayAndDaysUntil(birthDateISO) {
-  // birthDateISO: a Date object or ISO string, e.g. "1985-02-28"
-  if (!birthDateISO) return null;
+  const dob = new Date(birthDate);
 
-  const dob = DateTime.fromJSDate(new Date(birthDateISO)).setZone(TZ);
-  const now = DateTime.now().setZone(TZ).startOf("day");
+  let nextBirthday = new Date(
+    Date.UTC(
+      today.getUTCFullYear(),
+      dob.getUTCMonth(),
+      dob.getUTCDate(),
+      0,
+      0,
+      0,
+      0
+    )
+  );
 
-  // Keep month/day
-  let month = dob.month;
-  let day = dob.day;
-
-  // handle Feb 29 on non-leap years: treat as Feb 28
-  if (month === 2 && day === 29) {
-    // determine if current year is leap
-    let candidate = DateTime.local(now.year, 2, 29).setZone(TZ);
-    if (!candidate.isValid) {
-      day = 28;
-    }
+  if (nextBirthday < today) {
+    nextBirthday = new Date(
+      Date.UTC(
+        today.getUTCFullYear() + 1,
+        dob.getUTCMonth(),
+        dob.getUTCDate(),
+        0,
+        0,
+        0,
+        0
+      )
+    );
   }
 
-  // candidate this year
-  let candidate = DateTime.local(now.year, month, day).setZone(TZ);
-  if (candidate < now) {
-    candidate = candidate.plus({ years: 1 });
-    // for Feb 29, re-evaluate on next year
-    if (month === 2 && day === 29 && !candidate.isValid) {
-      candidate = DateTime.local(candidate.year, 2, 28).setZone(TZ);
-    }
-  }
+  const diff = nextBirthday - today;
+  const daysUntil = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-  const daysUntil = Math.ceil(candidate.diff(now, "days").days);
-
-  return { nextBirthday: candidate.toJSDate(), daysUntil };
+  return { nextBirthday, daysUntil };
 }

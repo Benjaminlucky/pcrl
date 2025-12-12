@@ -41,10 +41,13 @@ export default function ManageRealtors() {
   // Edit form state
   const [editForm, setEditForm] = useState({});
 
+  // ✅ FIXED: Changed endpoint from /api/realtors to /api/realtors/list
   const { data, error, mutate } = useSWR(
-    `${API_URL}/api/realtors?page=${page}&limit=${limit}&search=${encodeURIComponent(
-      search
-    )}&sort=${sort}`,
+    token
+      ? `${API_URL}/api/realtors/list?page=${page}&limit=${limit}&search=${encodeURIComponent(
+          search
+        )}&sort=${sort}`
+      : null,
     (url) => fetcher(url, token),
     { revalidateOnFocus: false }
   );
@@ -76,6 +79,9 @@ export default function ManageRealtors() {
       const res = await fetch(`${API_URL}/api/realtors/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
+      if (!res.ok) throw new Error("Failed to fetch");
+
       const realtor = await res.json();
       setViewModal(realtor);
     } catch (err) {
@@ -89,6 +95,9 @@ export default function ManageRealtors() {
       const res = await fetch(`${API_URL}/api/realtors/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
+      if (!res.ok) throw new Error("Failed to fetch");
+
       const realtor = await res.json();
       setEditForm(realtor);
       setEditModal(realtor);
@@ -127,7 +136,10 @@ export default function ManageRealtors() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (!res.ok) throw new Error("Failed to delete");
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || "Failed to delete");
+      }
 
       alert("Realtor deleted successfully");
       setDeleteModal(null);
@@ -240,7 +252,6 @@ export default function ManageRealtors() {
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                   Bank
                 </th>
-
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                   Account No.
                 </th>
@@ -254,7 +265,7 @@ export default function ManageRealtors() {
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i}>
-                    <td colSpan="7" className="px-4 py-4">
+                    <td colSpan="8" className="px-4 py-4">
                       <div className="h-4 bg-gray-200 rounded animate-pulse w-full"></div>
                     </td>
                   </tr>
@@ -262,7 +273,7 @@ export default function ManageRealtors() {
               ) : realtors.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="7"
+                    colSpan="8"
                     className="px-4 py-8 text-center text-gray-500"
                   >
                     No realtors found.
@@ -274,9 +285,12 @@ export default function ManageRealtors() {
                     <td className="px-4 py-4 text-sm font-medium text-gray-700">
                       {r.referralCode || "-"}
                     </td>
-                    <td>{r.name?.split(" ")[0] || "-"}</td>
-                    <td>{r.name?.split(" ")[1] || "-"}</td>
-
+                    <td className="px-4 py-4 text-sm text-gray-700">
+                      {r.name?.split(" ")[0] || "-"}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-700">
+                      {r.name?.split(" ")[1] || "-"}
+                    </td>
                     <td className="px-4 py-4 text-sm text-gray-700">
                       {r.email || "-"}
                     </td>
@@ -286,7 +300,6 @@ export default function ManageRealtors() {
                     <td className="px-4 py-4 text-sm text-gray-700">
                       {r.bank || "-"}
                     </td>
-
                     <td className="px-4 py-4 text-sm text-gray-700">
                       {r.accountNumber || "-"}
                     </td>
@@ -599,7 +612,7 @@ export default function ManageRealtors() {
                 <p className="text-gray-600 text-center mt-2">
                   Are you sure you want to delete{" "}
                   <span className="font-semibold">
-                    {deleteModal.firstName} {deleteModal.lastName}
+                    {deleteModal.name || "this realtor"}
                   </span>
                   ? This action cannot be undone.
                 </p>
