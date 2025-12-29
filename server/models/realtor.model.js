@@ -43,7 +43,7 @@ const RealtorSchema = new mongoose.Schema({
 RealtorSchema.index({ recruitedBy: 1 });
 
 RealtorSchema.virtual("referralLink").get(function () {
-  return `https://pcrg.netlify.app/sign-up?ref=${this.referralCode}`;
+  return `https://pcrginitiative.com/sign-up?ref=${this.referralCode}`;
 });
 
 RealtorSchema.virtual("recruitCount", {
