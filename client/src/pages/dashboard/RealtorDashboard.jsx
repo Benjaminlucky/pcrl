@@ -10,6 +10,8 @@ export default function RealtorDashboard() {
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [referrals, setReferrals] = useState([]);
+  const [referralsLoading, setReferralsLoading] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -35,6 +37,39 @@ export default function RealtorDashboard() {
     fetchDashboard();
   }, []);
 
+  useEffect(() => {
+    const fetchReferrals = async () => {
+      if (!data?.referralCode) return;
+
+      try {
+        setReferralsLoading(true);
+        const token = localStorage.getItem("token");
+        const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+        // Fetch all realtors and filter by current user's referral code
+        const res = await axios.get(
+          `${BASE_URL}/api/realtors/list?limit=100&search=${data.referralCode}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        // Filter to only include realtors recruited by this user
+        const myReferrals = res.data.docs.filter(
+          (realtor) => realtor.recruitedByCode === data.referralCode
+        );
+
+        setReferrals(myReferrals);
+      } catch (err) {
+        console.error("Failed to load referrals:", err);
+      } finally {
+        setReferralsLoading(false);
+      }
+    };
+
+    fetchReferrals();
+  }, [data?.referralCode]);
+
   if (loading) return <p>Loading Dashboard...</p>;
   if (error) return <p className="text-red-600">{error}</p>;
   if (!data) return <p>No dashboard data found</p>;
@@ -51,7 +86,6 @@ export default function RealtorDashboard() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Optional basic client-side validation
     if (!file.type.startsWith("image/")) {
       alert("Please select an image file");
       return;
@@ -76,12 +110,10 @@ export default function RealtorDashboard() {
         },
       });
 
-      // Update state with new avatar
       const newAvatar = res.data?.avatar;
       if (newAvatar) {
         setData((prev) => ({ ...prev, avatar: newAvatar }));
 
-        // If you persist user in localStorage, update it too (don't change your AuthContext here)
         const savedUserRaw = localStorage.getItem("user");
         if (savedUserRaw) {
           try {
@@ -98,13 +130,22 @@ export default function RealtorDashboard() {
       alert("Failed to upload avatar. Try again.");
     } finally {
       setUploading(false);
-      // clear input so the same file can be reselected if needed
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
   const triggerFile = () => {
     fileInputRef.current?.click();
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   };
 
   return (
@@ -123,7 +164,6 @@ export default function RealtorDashboard() {
             className="w-full h-full object-cover"
           />
 
-          {/* small overlay button (keeps your classes/style) */}
           <div
             className="absolute top-2 right-2 bg-white/90 rounded-md px-2 py-1 text-xs cursor-pointer hover:opacity-90 flex items-center gap-2"
             onClick={triggerFile}
@@ -141,7 +181,6 @@ export default function RealtorDashboard() {
             <span>{uploading ? "Uploading..." : "Change"}</span>
           </div>
 
-          {/* hidden input */}
           <input
             ref={fileInputRef}
             type="file"
@@ -154,9 +193,9 @@ export default function RealtorDashboard() {
 
         {/* Stats */}
         <Stat value={data.downlines || 0} label="Downlines" />
-        <Stat value={data.recruitedBy || "Not Assigned"} label="Recruited By" />
+        <Stat value={data.recruitedBy || "Admin"} label="Recruited By" />
 
-        {/* ✅ Referral Link Card */}
+        {/* Referral Link Card */}
         <div
           className="bg-[#0f1f1f] text-white rounded-xl p-6 h-[250px] flex flex-col
           items-center justify-center cursor-pointer hover:bg-[#0b1515] transition relative"
@@ -167,13 +206,90 @@ export default function RealtorDashboard() {
           </p>
           <p className="text-xs mt-2 opacity-90">Referral Link</p>
 
-          {/* ✅ Copy Feedback */}
           {copied && (
             <span className="absolute bottom-3 bg-white text-black px-2 py-1 rounded text-xs font-semibold">
               ✅ Copied!
             </span>
           )}
         </div>
+      </div>
+
+      {/* Referrals Table */}
+      <div className="mt-10">
+        <h2 className="text-xl md:text-2xl font-semibold mb-4">
+          My Referrals ({referrals.length})
+        </h2>
+
+        {referralsLoading ? (
+          <p className="text-gray-600">Loading referrals...</p>
+        ) : referrals.length === 0 ? (
+          <div className="bg-gray-50 rounded-xl p-8 text-center">
+            <p className="text-gray-600">
+              You haven't referred any realtors yet. Share your referral link to
+              start building your network!
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto bg-white rounded-xl shadow-sm">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-[#0f1f1f] text-white">
+                  <th className="px-4 py-3 text-left text-sm font-semibold">
+                    Name
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold">
+                    Email
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold">
+                    Phone
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold">
+                    Referral Code
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold">
+                    Date Joined
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold">
+                    Bank Details
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {referrals.map((referral) => (
+                  <tr
+                    key={referral._id}
+                    className="hover:bg-gray-50 transition"
+                  >
+                    <td className="px-4 py-3 text-sm">{referral.name}</td>
+                    <td className="px-4 py-3 text-sm">{referral.email}</td>
+                    <td className="px-4 py-3 text-sm">{referral.phone}</td>
+                    <td className="px-4 py-3 text-sm font-mono">
+                      {referral.referralCode}
+                    </td>
+                    <td className="px-4 py-3 text-sm">
+                      {formatDate(referral.createdAt)}
+                    </td>
+                    <td className="px-4 py-3 text-sm">
+                      {referral.bank && referral.accountNumber ? (
+                        <div className="text-xs">
+                          <div className="font-medium">{referral.bank}</div>
+                          <div className="text-gray-600">
+                            {referral.accountNumber}
+                          </div>
+                          <div className="text-gray-500">
+                            {referral.accountName}
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">Not provided</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -187,5 +303,3 @@ function Stat({ value, label }) {
     </div>
   );
 }
-
-<table></table>;

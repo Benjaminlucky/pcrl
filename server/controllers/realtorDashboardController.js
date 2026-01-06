@@ -5,16 +5,16 @@ export const getDashboard = async (req, res) => {
     const userId = req.user.id;
     const realtor = await Realtor.findById(userId)
       .populate("recruitedBy", "firstName lastName")
-      .exec(); // ❌ no lean here
+      .exec();
 
     if (!realtor) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // ✅ Convert including virtuals
+    // Convert including virtuals
     const realtorObj = realtor.toObject({ virtuals: true });
 
-    // ✅ Count real downlines
+    // Count real downlines
     const recruitCount = await Realtor.countDocuments({ recruitedBy: userId });
 
     return res.json({
@@ -25,9 +25,9 @@ export const getDashboard = async (req, res) => {
       downlines: recruitCount,
       recruitedBy: realtorObj.recruitedBy
         ? `${realtorObj.recruitedBy.firstName} ${realtorObj.recruitedBy.lastName}`
-        : "Not Assigned",
+        : "Admin", // ✅ Changed from "Not Assigned" to "Admin"
       referralCode: realtorObj.referralCode,
-      referralLink: realtorObj.referralLink, // ✅ Now definitely exists!
+      referralLink: realtorObj.referralLink,
     });
   } catch (error) {
     console.error("Dashboard Error:", error);

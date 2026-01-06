@@ -49,8 +49,8 @@ export default function DashboardLayout({ children }) {
             path: "/realtor/dashboard",
             icon: <FaTachometerAlt />,
           },
-          { name: "My Recruits", path: "/realtor/recruits", icon: <FaUsers /> },
-          { name: "Earnings", path: "/realtor/earnings", icon: <FaBuilding /> },
+          { name: "My Recruits", path: "#", icon: <FaUsers /> },
+          { name: "Earnings", path: "#", icon: <FaBuilding /> },
         ];
 
   const handleItemClick = () => {
@@ -83,7 +83,7 @@ export default function DashboardLayout({ children }) {
                      z-40 shadow-2xl lg:hidden"
         >
           <div>
-            <h1 className="text-2xl font-bold mb-8 pl-4">PCR Dashboard</h1>
+            <h1 className="text-2xl font-bold mb-8 pl-4">PCRG Dashboard</h1>
             <nav className="space-y-2">
               {sidebarItems.map((item) => {
                 const isActive = pathname === item.path;
@@ -119,7 +119,7 @@ export default function DashboardLayout({ children }) {
         // Static Sidebar for Desktop
         <aside className="h-auto w-64 bg-[#561010] text-white flex flex-col justify-between py-6 px-4 sticky top-0">
           <div>
-            <h1 className="text-2xl font-bold mb-8 pl-4">PCR Dashboard</h1>
+            <h1 className="text-2xl font-bold mb-8 pl-4">PCRG Dashboard</h1>
             <nav className="space-y-2">
               {sidebarItems.map((item) => {
                 const isActive = pathname === item.path;
