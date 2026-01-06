@@ -187,3 +187,5 @@ function Stat({ value, label }) {
     </div>
   );
 }
+
+<table></table>;
