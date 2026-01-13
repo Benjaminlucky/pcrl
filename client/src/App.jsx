@@ -22,6 +22,7 @@ import Dashboard from "./pages/dashboard";
 import AdminSignup from "./pages/admin/AdminSignup";
 import AdminLogin from "./pages/admin/AdminLogin";
 import GlobalSEO from "./components/GlobalSeo";
+import NotFound from "./components/NotFound";
 
 function AppWrapper() {
   const location = useLocation();
@@ -61,6 +62,8 @@ function AppWrapper() {
               </ProtectedRoute>
             }
           />
+          {/* ❓ Fallback Route */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
 
         {/* ✅ Show footer only on non-dashboard pages */}
