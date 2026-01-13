@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { motion, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import "./RealtorHero.css";
+import { Link } from "react-router-dom";
 
 const RealtorHero = () => {
   const controls = useAnimation();
@@ -97,7 +98,7 @@ const RealtorHero = () => {
             }}
             className="mt-6 px-8 py-3 rounded-md border-2 border-white text-lg font-semibold text-white hover:bg-white hover:text-[var(--color-primary-700)] transition-all duration-300 shadow-lg"
           >
-            Get Started
+            <Link to="/sign-up">Get Started</Link>
           </motion.button>
         </div>
 

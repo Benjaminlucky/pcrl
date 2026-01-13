@@ -23,32 +23,50 @@ export default function Footer() {
           <h3 className="text-lg font-semibold text-white mb-4">Quicklinks</h3>
           <ul className="space-y-2 text-gray-400">
             <li>
-              <a href="#" className="hover:text-red-500 transition">
+              <a
+                href="https://pcrginitiative.com/"
+                className="hover:text-red-500 transition"
+              >
                 Home
               </a>
             </li>
             <li>
-              <a href="#" className="hover:text-red-500 transition">
+              <a
+                href="https://pcrginitiative.com/for-realtors"
+                className="hover:text-red-500 transition"
+              >
                 For Realtors
               </a>
             </li>
             <li>
-              <a href="#" className="hover:text-red-500 transition">
+              <a
+                href="https://pcrginitiative.com/for-developers"
+                className="hover:text-red-500 transition"
+              >
                 For Developers
               </a>
             </li>
             <li>
-              <a href="#" className="hover:text-red-500 transition">
+              <a
+                href="https://pcrginitiative.com/pcrg-training-academy"
+                className="hover:text-red-500 transition"
+              >
                 PCRG Training Academy
               </a>
             </li>
             <li>
-              <a href="#" className="hover:text-red-500 transition">
+              <a
+                href="https://pcrginitiative.com/blog-and-events"
+                className="hover:text-red-500 transition"
+              >
                 Blog and Events
               </a>
             </li>
             <li>
-              <a href="#" className="hover:text-red-500 transition">
+              <a
+                href="https://pcrginitiative.com/about-us"
+                className="hover:text-red-500 transition"
+              >
                 About Us
               </a>
             </li>
@@ -58,12 +76,18 @@ export default function Footer() {
               </a>
             </li>
             <li>
-              <a href="#" className="hover:text-red-500 transition">
+              <a
+                href="https://pcrginitiative.com/sign-up"
+                className="hover:text-red-500 transition"
+              >
                 Signup
               </a>
             </li>
             <li>
-              <a href="#" className="hover:text-red-500 transition">
+              <a
+                href="https://pcrginitiative.com/login"
+                className="hover:text-red-500 transition"
+              >
                 Login
               </a>
             </li>
