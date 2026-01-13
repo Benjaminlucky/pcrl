@@ -286,7 +286,7 @@ export default function Signup() {
             <p className="text-gray-500 mt-2 text-sm">
               Already a member?{" "}
               <a
-                href="#"
+                href="/login"
                 className="text-primary-700 font-semibold hover:underline"
               >
                 Log in here
