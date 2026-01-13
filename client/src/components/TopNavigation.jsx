@@ -6,21 +6,32 @@ import { motion, AnimatePresence } from "motion/react";
 
 export default function TopNavigation() {
   const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
 
+  // Close mobile menu on resize if screen becomes large to prevent UI glitches
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const handleResize = () => {
+      if (window.innerWidth >= 1280) setIsOpen(false);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+  }, [isOpen]);
+
   const navVariants = {
-    hidden: { opacity: 0, y: -20 },
+    hidden: { opacity: 0, y: -10 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.5, ease: "easeOut" },
+      transition: { duration: 0.4, ease: "easeOut" },
     },
   };
 
@@ -29,41 +40,41 @@ export default function TopNavigation() {
       variants={navVariants}
       initial="hidden"
       animate="visible"
-      className={`fixed top-0 bg-white py-1 left-0 w-full z-50 transition-all duration-300 ${
-        scrolled
-          ? "backdrop-blur-md bg-white/90 shadow-md"
-          : "bg-transparent backdrop-blur-none"
-      }`}
+      className="sticky top-0 left-0 w-full z-50 bg-white shadow-sm border-b border-gray-100"
     >
-      <div className="max-w-10/12 mx-auto px-4  lg:px-2 flex justify-between items-center h-24">
-        {/* Logo */}
-        <Link to="/" className="flex items-center  gap-2">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-20 lg:h-24">
+        {/* Logo Section */}
+        <Link
+          to="/"
+          className="flex-shrink-0 transition-transform hover:scale-105"
+        >
           <img
             src="/images/pcrgLogo.svg"
             alt="PCRG Logo"
-            className="w-44 sm:w-48 lg:w-50  object-contain"
+            className="w-40 sm:w-48 xl:w-56 object-contain"
           />
         </Link>
 
-        {/* Mobile Menu Icon */}
+        {/* Mobile Menu Toggle */}
         <button
-          className="text-2xl lg:hidden cursor-pointer text-primary-500"
+          className="text-2xl xl:hidden cursor-pointer text-gray-700 p-2 hover:bg-gray-100 rounded-lg transition-colors"
           onClick={() => setIsOpen(!isOpen)}
+          aria-label="Toggle Menu"
         >
           {isOpen ? <FaTimes /> : <FaBars />}
         </button>
 
-        {/* Desktop Navigation */}
-        <ul className="hidden lg:flex items-center space-x-4 xl:space-x-8">
+        {/* Desktop Navigation (Visible from XL screens upwards) */}
+        <ul className="hidden xl:flex items-center gap-1 2xl:gap-4">
           {topNavLinks.map((link) => {
             const isActive = location.pathname === link.url;
 
             if (link.label === "Sign up") {
               return (
-                <li key={link.url}>
+                <li key={link.url} className="ml-2">
                   <Link
                     to={link.url}
-                    className="px-5 py-2 rounded-md bg-primary-500 text-white font-medium hover:bg-primary-600 transition"
+                    className="px-4 py-3 rounded-lg bg-[#E31E24] text-white font-bold hover:bg-red-700 transition-all shadow-md active:scale-95"
                   >
                     {link.label}
                   </Link>
@@ -73,10 +84,10 @@ export default function TopNavigation() {
 
             if (link.label === "Login") {
               return (
-                <li key={link.url}>
+                <li key={link.url} className="ml-1">
                   <Link
                     to={link.url}
-                    className="px-5 py-2 rounded-md border border-primary-500 text-primary-500 font-medium hover:bg-primary-500 hover:text-white transition"
+                    className="px-4 py-3 rounded-lg border-2 border-[#E31E24] text-[#E31E24] font-bold hover:bg-[#E31E24] hover:text-white transition-all active:scale-95"
                   >
                     {link.label}
                   </Link>
@@ -88,8 +99,10 @@ export default function TopNavigation() {
               <li key={link.url}>
                 <Link
                   to={link.url}
-                  className={`text-gray-800 hover:text-primary-500 transition font-medium ${
-                    isActive ? "text-primary-500 font-semibold" : ""
+                  className={`px-3 py-2 text-sm 2xl:text-[16px] font-semibold transition-colors whitespace-nowrap ${
+                    isActive
+                      ? "text-[#E31E24]"
+                      : "text-gray-600 hover:text-[#E31E24]"
                   }`}
                 >
                   {link.label}
@@ -99,58 +112,57 @@ export default function TopNavigation() {
           })}
         </ul>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Overlay & Menu */}
         <AnimatePresence>
           {isOpen && (
-            <motion.ul
-              key="mobile-menu"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{
-                opacity: 1,
-                y: 0,
-                transition: { duration: 0.4, ease: "easeOut" },
-              }}
-              exit={{ opacity: 0, y: -10, transition: { duration: 0.3 } }}
-              className="absolute top-20 left-0 w-full bg-white shadow-xl flex flex-col text-center overflow-hidden border-t border-gray-200"
-            >
-              {topNavLinks.map((link, index) => {
-                const isActive = location.pathname === link.url;
+            <>
+              {/* Background Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsOpen(false)}
+                className="fixed inset-0 bg-black/40 backdrop-blur-sm xl:hidden"
+                style={{ top: "80px" }} // Starts below the header
+              />
 
-                let baseClass =
-                  "block py-4 border-b border-gray-100 text-gray-800 transition hover:bg-primary-200";
+              <motion.div
+                initial={{ x: "100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "100%" }}
+                transition={{ type: "tween", duration: 0.3 }}
+                className="fixed top-20 right-0 bottom-0 w-[85%] max-w-sm bg-white shadow-2xl xl:hidden flex flex-col z-50 overflow-y-auto"
+              >
+                <ul className="flex flex-col p-6 gap-2">
+                  {topNavLinks.map((link) => {
+                    const isActive = location.pathname === link.url;
 
-                if (link.label === "Sign up") {
-                  baseClass =
-                    "block py-4 bg-primary-500 text-white font-semibold hover:bg-primary-600 transition";
-                } else if (link.label === "Login") {
-                  baseClass =
-                    "block py-4 border border-primary-500 text-primary-500 font-medium hover:bg-primary-50 transition";
-                }
-
-                return (
-                  <motion.li
-                    key={link.url}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{
-                      opacity: 1,
-                      y: 0,
-                      transition: { delay: 0.05 * index, duration: 0.3 },
-                    }}
-                    exit={{ opacity: 0, y: -10 }}
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <Link
-                      to={link.url}
-                      className={`${baseClass} ${
-                        isActive ? "bg-gray-50 text-primary-600" : ""
-                      }`}
-                    >
-                      {link.label}
-                    </Link>
-                  </motion.li>
-                );
-              })}
-            </motion.ul>
+                    return (
+                      <li key={link.url}>
+                        <Link
+                          to={link.url}
+                          onClick={() => setIsOpen(false)}
+                          className={`block p-4 text-lg font-bold rounded-xl transition-all ${
+                            link.label === "Sign up"
+                              ? "mt-4 bg-[#E31E24] text-white text-center shadow-lg"
+                              : link.label === "Login"
+                              ? "mt-2 border-2 border-[#E31E24] text-[#E31E24] text-center"
+                              : isActive
+                              ? "text-[#E31E24] bg-red-50"
+                              : "text-gray-800 hover:bg-gray-50"
+                          }`}
+                        >
+                          {link.label}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <div className="mt-auto p-8 text-center text-gray-400 text-sm italic">
+                  Platinum Cape Realtor Group
+                </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
       </div>
