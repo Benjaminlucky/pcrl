@@ -162,7 +162,7 @@ export default function DashboardLayout({ children }) {
 
       {/* Main Content */}
       <main
-        className={`flex-1 p-6 sm:p-8 bg-[#fafafa] overflow-y-auto transition-all duration-300 ${
+        className={`flex-1 p-6 sm:p-8 bg-black overflow-y-auto transition-all duration-300 ${
           isOpen ? "pointer-events-none blur-sm" : ""
         }`}
       >

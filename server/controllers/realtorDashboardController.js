@@ -18,6 +18,7 @@ export const getDashboard = async (req, res) => {
     const recruitCount = await Realtor.countDocuments({ recruitedBy: userId });
 
     return res.json({
+      id: realtorObj._id, // ✅ Added user ID so frontend can use it
       firstName: realtorObj.firstName,
       lastName: realtorObj.lastName,
       name: `${realtorObj.firstName} ${realtorObj.lastName}`,
@@ -25,7 +26,7 @@ export const getDashboard = async (req, res) => {
       downlines: recruitCount,
       recruitedBy: realtorObj.recruitedBy
         ? `${realtorObj.recruitedBy.firstName} ${realtorObj.recruitedBy.lastName}`
-        : "Admin", // ✅ Changed from "Not Assigned" to "Admin"
+        : "Admin",
       referralCode: realtorObj.referralCode,
       referralLink: realtorObj.referralLink,
     });

@@ -128,8 +128,15 @@ export const getRealtors = async (req, res) => {
     );
     const sort = req.query.sort || "-createdAt";
     const search = req.query.search || "";
+    const recruitedBy = req.query.recruitedBy || ""; // ✅ NEW: Filter by recruiter ID
 
     const filter = {};
+
+    // ✅ NEW: If recruitedBy is provided, filter by it
+    if (recruitedBy) {
+      filter.recruitedBy = recruitedBy;
+    }
+
     if (search) {
       filter.$or = [
         { firstName: { $regex: search, $options: "i" } },

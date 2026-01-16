@@ -36,7 +36,7 @@ function AppWrapper() {
       {/* ✅ Main layout with overflow fix */}
       <main
         className={`${
-          !hideLayout ? "pt-16" : ""
+          !hideLayout ? "" : ""
         } relative overflow-x-hidden bg-white`}
       >
         <Routes>

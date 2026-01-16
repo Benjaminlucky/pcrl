@@ -123,7 +123,7 @@ export default function TopNavigation() {
                 exit={{ opacity: 0 }}
                 onClick={() => setIsOpen(false)}
                 className="fixed inset-0 bg-black/40 backdrop-blur-sm xl:hidden"
-                style={{ top: "80px" }} // Starts below the header
+                style={{ top: "40px" }} // Starts below the header
               />
 
               <motion.div
