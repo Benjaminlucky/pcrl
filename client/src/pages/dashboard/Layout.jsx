@@ -13,6 +13,7 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useLocation, Link } from "react-router-dom";
+import { RiHome9Fill } from "react-icons/ri";
 
 export default function DashboardLayout({ children }) {
   const { user, logout } = useAuth();
@@ -46,11 +47,12 @@ export default function DashboardLayout({ children }) {
       : [
           {
             name: "Dashboard",
-            path: "/realtor/dashboard",
+            path: "/dashboard",
             icon: <FaTachometerAlt />,
           },
           { name: "My Recruits", path: "#", icon: <FaUsers /> },
           { name: "Earnings", path: "#", icon: <FaBuilding /> },
+          { name: "Back to Home", path: "/", icon: <RiHome9Fill /> },
         ];
 
   const handleItemClick = () => {
