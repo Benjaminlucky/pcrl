@@ -32,10 +32,7 @@ export const topNavLinks = [
     label: "About us",
     url: "/about-us",
   },
-  {
-    label: "Services",
-    url: "/services",
-  },
+
   {
     label: "Sign up",
     url: "/sign-up",

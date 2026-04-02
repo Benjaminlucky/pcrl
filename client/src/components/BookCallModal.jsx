@@ -4,17 +4,16 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 
-// ✅ Module-level constant — Next.js statically replaces this at build time,
-// so there's no runtime `process` lookup that could crash in the browser
 const API_URL = import.meta.env.VITE_API_BASE_URL ?? "";
 
-const EngageModal = ({ isOpen, onClose }) => {
+const BookCallModal = ({ isOpen, onClose }) => {
   const [form, setForm] = useState({
     name: "",
     email: "",
     phone: "",
-    company: "",
-    projectDetails: "",
+    preferredDate: "",
+    preferredTime: "",
+    notes: "",
   });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -45,34 +44,26 @@ const EngageModal = ({ isOpen, onClose }) => {
     e.preventDefault();
     e.stopPropagation();
     if (loading) return;
-
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/enquiry/developer`, {
+      const res = await fetch(`${API_URL}/api/enquiry/book-call`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(
-          data.message || "Something went wrong. Please try again.",
-        );
-      }
-
+      if (!res.ok) throw new Error(data.message || "Something went wrong.");
       setSubmitted(true);
-      toast.success("Enquiry sent! We'll be in touch shortly.");
+      toast.success("Call booked! We'll confirm shortly.");
       setForm({
         name: "",
         email: "",
         phone: "",
-        company: "",
-        projectDetails: "",
+        preferredDate: "",
+        preferredTime: "",
+        notes: "",
       });
     } catch (err) {
-      console.error("Enquiry submission error:", err);
       toast.error(err.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
@@ -112,36 +103,36 @@ const EngageModal = ({ isOpen, onClose }) => {
     }),
   };
 
-  const fields = [
-    {
-      label: "Full Name",
-      name: "name",
-      type: "text",
-      placeholder: "e.g. Chidi Okafor",
-      required: true,
-    },
-    {
-      label: "Email Address",
-      name: "email",
-      type: "email",
-      placeholder: "you@company.com",
-      required: true,
-    },
-    {
-      label: "Phone Number",
-      name: "phone",
-      type: "tel",
-      placeholder: "+234 800 000 0000",
-      required: true,
-    },
-    {
-      label: "Company / Organization",
-      name: "company",
-      type: "text",
-      placeholder: "Optional",
-      required: false,
-    },
-  ];
+  const inputStyle = {
+    width: "100%",
+    padding: "10px 14px",
+    borderRadius: "8px",
+    border: "1.5px solid #e5e7eb",
+    background: "#ffffff",
+    color: "#111827",
+    fontSize: "14px",
+    outline: "none",
+    boxSizing: "border-box",
+    fontFamily: "inherit",
+    transition: "border-color 0.2s, box-shadow 0.2s",
+  };
+
+  const labelStyle = {
+    fontSize: "10px",
+    fontWeight: 700,
+    color: "#6b7280",
+    textTransform: "uppercase",
+    letterSpacing: "0.12em",
+  };
+
+  const onFocus = (e) => {
+    e.target.style.borderColor = "#dc2626";
+    e.target.style.boxShadow = "0 0 0 3px rgba(220,38,38,0.1)";
+  };
+  const onBlur = (e) => {
+    e.target.style.borderColor = "#e5e7eb";
+    e.target.style.boxShadow = "none";
+  };
 
   const successScreen = (
     <motion.div
@@ -202,7 +193,6 @@ const EngageModal = ({ isOpen, onClose }) => {
           />
         </svg>
       </motion.div>
-
       <motion.h3
         initial={{ opacity: 0, y: 12 }}
         animate={{
@@ -217,9 +207,8 @@ const EngageModal = ({ isOpen, onClose }) => {
           margin: "0 0 8px",
         }}
       >
-        Enquiry Received!
+        Call Booked!
       </motion.h3>
-
       <motion.p
         initial={{ opacity: 0, y: 8 }}
         animate={{
@@ -235,11 +224,9 @@ const EngageModal = ({ isOpen, onClose }) => {
           margin: "0 0 32px",
         }}
       >
-        Thank you for reaching out. The PCRG team will review your project
-        details and get back to you within{" "}
+        Thanks! The PCRG team will confirm your strategy call within{" "}
         <strong style={{ color: "#111827" }}>24 hours</strong>.
       </motion.p>
-
       <motion.button
         initial={{ opacity: 0, y: 8 }}
         animate={{
@@ -272,7 +259,6 @@ const EngageModal = ({ isOpen, onClose }) => {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
           <motion.div
             variants={backdropVariants}
             initial="hidden"
@@ -289,7 +275,6 @@ const EngageModal = ({ isOpen, onClose }) => {
             }}
           />
 
-          {/* Cinematic red sweep */}
           <motion.div
             initial={{ x: "-100%" }}
             animate={{ x: "100%" }}
@@ -304,7 +289,6 @@ const EngageModal = ({ isOpen, onClose }) => {
             }}
           />
 
-          {/* Centering wrapper */}
           <div
             style={{
               position: "fixed",
@@ -316,7 +300,6 @@ const EngageModal = ({ isOpen, onClose }) => {
               padding: "16px",
             }}
           >
-            {/* Modal panel */}
             <motion.div
               variants={modalVariants}
               initial="hidden"
@@ -391,7 +374,7 @@ const EngageModal = ({ isOpen, onClose }) => {
                         margin: 0,
                       }}
                     >
-                      Partnership Enquiry
+                      Strategy Session
                     </p>
                     <h2
                       style={{
@@ -402,7 +385,7 @@ const EngageModal = ({ isOpen, onClose }) => {
                         margin: "4px 0 0",
                       }}
                     >
-                      {submitted ? "You're All Set" : "Engage PCRG Today"}
+                      {submitted ? "You're All Set" : "Book a Strategy Call"}
                     </h2>
                     <p
                       style={{
@@ -413,8 +396,8 @@ const EngageModal = ({ isOpen, onClose }) => {
                       }}
                     >
                       {submitted
-                        ? "Your enquiry has been sent successfully."
-                        : "Tell us about your project — we'll take it from there."}
+                        ? "Your call request has been sent."
+                        : "Pick a time and we'll make it happen."}
                     </p>
                   </div>
                   <button
@@ -471,7 +454,7 @@ const EngageModal = ({ isOpen, onClose }) => {
                         gap: "16px",
                       }}
                     >
-                      {/* 2-col grid */}
+                      {/* Name + Email */}
                       <div
                         style={{
                           display: "grid",
@@ -479,7 +462,22 @@ const EngageModal = ({ isOpen, onClose }) => {
                           gap: "14px",
                         }}
                       >
-                        {fields.map((field, i) => (
+                        {[
+                          {
+                            label: "Full Name",
+                            name: "name",
+                            type: "text",
+                            placeholder: "e.g. Chidi Okafor",
+                            required: true,
+                          },
+                          {
+                            label: "Email Address",
+                            name: "email",
+                            type: "email",
+                            placeholder: "you@company.com",
+                            required: true,
+                          },
+                        ].map((field, i) => (
                           <motion.div
                             key={field.name}
                             custom={i}
@@ -492,26 +490,10 @@ const EngageModal = ({ isOpen, onClose }) => {
                               gap: "6px",
                             }}
                           >
-                            <label
-                              htmlFor={field.name}
-                              style={{
-                                fontSize: "10px",
-                                fontWeight: 700,
-                                color: "#6b7280",
-                                textTransform: "uppercase",
-                                letterSpacing: "0.12em",
-                              }}
-                            >
-                              {field.label}
+                            <label htmlFor={field.name} style={labelStyle}>
+                              {field.label}{" "}
                               {field.required && (
-                                <span
-                                  style={{
-                                    color: "#ef4444",
-                                    marginLeft: "2px",
-                                  }}
-                                >
-                                  *
-                                </span>
+                                <span style={{ color: "#ef4444" }}>*</span>
                               )}
                             </label>
                             <input
@@ -522,37 +504,17 @@ const EngageModal = ({ isOpen, onClose }) => {
                               placeholder={field.placeholder}
                               value={form[field.name]}
                               onChange={handleChange}
-                              style={{
-                                width: "100%",
-                                padding: "10px 14px",
-                                borderRadius: "8px",
-                                border: "1.5px solid #e5e7eb",
-                                background: "#ffffff",
-                                color: "#111827",
-                                fontSize: "14px",
-                                outline: "none",
-                                boxSizing: "border-box",
-                                fontFamily: "inherit",
-                                transition:
-                                  "border-color 0.2s, box-shadow 0.2s",
-                              }}
-                              onFocus={(e) => {
-                                e.target.style.borderColor = "#dc2626";
-                                e.target.style.boxShadow =
-                                  "0 0 0 3px rgba(220,38,38,0.1)";
-                              }}
-                              onBlur={(e) => {
-                                e.target.style.borderColor = "#e5e7eb";
-                                e.target.style.boxShadow = "none";
-                              }}
+                              style={inputStyle}
+                              onFocus={onFocus}
+                              onBlur={onBlur}
                             />
                           </motion.div>
                         ))}
                       </div>
 
-                      {/* Project Details */}
+                      {/* Phone */}
                       <motion.div
-                        custom={4}
+                        custom={2}
                         variants={fieldVariants}
                         initial="hidden"
                         animate="visible"
@@ -562,56 +524,104 @@ const EngageModal = ({ isOpen, onClose }) => {
                           gap: "6px",
                         }}
                       >
-                        <label
-                          htmlFor="projectDetails"
-                          style={{
-                            fontSize: "10px",
-                            fontWeight: 700,
-                            color: "#6b7280",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.12em",
-                          }}
-                        >
-                          Project Details{" "}
+                        <label htmlFor="phone" style={labelStyle}>
+                          Phone Number{" "}
                           <span style={{ color: "#ef4444" }}>*</span>
                         </label>
-                        <textarea
-                          id="projectDetails"
-                          name="projectDetails"
+                        <input
+                          id="phone"
+                          name="phone"
+                          type="tel"
                           required
-                          rows={4}
-                          placeholder="Briefly describe your development project — location, type, number of units, current stage, etc."
-                          value={form.projectDetails}
+                          placeholder="+234 800 000 0000"
+                          value={form.phone}
                           onChange={handleChange}
-                          style={{
-                            width: "100%",
-                            padding: "10px 14px",
-                            borderRadius: "8px",
-                            border: "1.5px solid #e5e7eb",
-                            background: "#ffffff",
-                            color: "#111827",
-                            fontSize: "14px",
-                            outline: "none",
-                            resize: "none",
-                            boxSizing: "border-box",
-                            fontFamily: "inherit",
-                            transition: "border-color 0.2s, box-shadow 0.2s",
-                          }}
-                          onFocus={(e) => {
-                            e.target.style.borderColor = "#dc2626";
-                            e.target.style.boxShadow =
-                              "0 0 0 3px rgba(220,38,38,0.1)";
-                          }}
-                          onBlur={(e) => {
-                            e.target.style.borderColor = "#e5e7eb";
-                            e.target.style.boxShadow = "none";
-                          }}
+                          style={inputStyle}
+                          onFocus={onFocus}
+                          onBlur={onBlur}
+                        />
+                      </motion.div>
+
+                      {/* Date + Time */}
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "1fr 1fr",
+                          gap: "14px",
+                        }}
+                      >
+                        {[
+                          {
+                            label: "Preferred Date",
+                            name: "preferredDate",
+                            type: "date",
+                          },
+                          {
+                            label: "Preferred Time",
+                            name: "preferredTime",
+                            type: "time",
+                          },
+                        ].map((field, i) => (
+                          <motion.div
+                            key={field.name}
+                            custom={3 + i}
+                            variants={fieldVariants}
+                            initial="hidden"
+                            animate="visible"
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "6px",
+                            }}
+                          >
+                            <label htmlFor={field.name} style={labelStyle}>
+                              {field.label}
+                            </label>
+                            <input
+                              id={field.name}
+                              name={field.name}
+                              type={field.type}
+                              value={form[field.name]}
+                              onChange={handleChange}
+                              style={inputStyle}
+                              onFocus={onFocus}
+                              onBlur={onBlur}
+                            />
+                          </motion.div>
+                        ))}
+                      </div>
+
+                      {/* Notes */}
+                      <motion.div
+                        custom={5}
+                        variants={fieldVariants}
+                        initial="hidden"
+                        animate="visible"
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "6px",
+                        }}
+                      >
+                        <label htmlFor="notes" style={labelStyle}>
+                          Additional Notes
+                        </label>
+                        <textarea
+                          id="notes"
+                          name="notes"
+                          rows={3}
+                          placeholder="Any specifics you'd like to discuss on the call..."
+                          value={form.notes}
+                          onChange={handleChange}
+                          style={{ ...inputStyle, resize: "none" }}
+                          onFocus={onFocus}
+                          onBlur={onBlur}
                         />
                       </motion.div>
 
                       {/* Submit */}
                       <motion.div
-                        custom={5}
+                        custom={6}
                         variants={fieldVariants}
                         initial="hidden"
                         animate="visible"
@@ -678,10 +688,10 @@ const EngageModal = ({ isOpen, onClose }) => {
                                   d="M4 12a8 8 0 018-8v8z"
                                 />
                               </svg>
-                              Sending Enquiry…
+                              Booking Call…
                             </>
                           ) : (
-                            "Send Enquiry"
+                            "Book My Call"
                           )}
                         </motion.button>
                         <p
@@ -693,7 +703,7 @@ const EngageModal = ({ isOpen, onClose }) => {
                             marginBottom: 0,
                           }}
                         >
-                          We typically respond within 24 hours.
+                          We'll confirm your slot within 24 hours.
                         </p>
                       </motion.div>
                     </form>
@@ -710,4 +720,4 @@ const EngageModal = ({ isOpen, onClose }) => {
   return createPortal(modalContent, document.body);
 };
 
-export default EngageModal;
+export default BookCallModal;

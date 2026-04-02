@@ -70,14 +70,14 @@ export default function Footer() {
                 About Us
               </a>
             </li>
-            <li className="relative z-10">
+            {/* <li className="relative z-10">
               <a
                 href="#"
                 className="hover:text-red-500 transition inline-block py-1 cursor-pointer touch-manipulation"
               >
                 Service
               </a>
-            </li>
+            </li> */}
             <li className="relative z-10">
               <a
                 href="https://pcrginitiative.com/sign-up"
