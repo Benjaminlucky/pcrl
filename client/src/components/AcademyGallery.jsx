@@ -173,7 +173,7 @@ export default function AcademyGallery() {
           className="rounded-md !w-fit mx-auto mt-16 overflow-hidden"
         >
           <Link
-            to="/services"
+            to="https://www.youtube.com/@platinumcaperealtorgroup3638"
             className="px-8 py-3 border border-white text-white rounded-md font-semibold hover:bg-white hover:text-[var(--color-primary-500)] transition duration-300 block"
           >
             See Events

@@ -79,7 +79,7 @@ const RealtorPremiumBenefits = () => {
             className="rounded-md !w-fit mx-auto md:mx-0 mt-8 overflow-hidden"
           >
             <Link
-              to="/academy"
+              to="/sign-up"
               className="px-8 py-3 border border-[var(--color-primary-500)] text-[var(--color-primary-500)] rounded-md font-semibold hover:bg-[var(--color-primary-500)] hover:text-white transition duration-300 block"
             >
               Join PCRG Academy

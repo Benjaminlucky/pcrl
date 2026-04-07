@@ -12,7 +12,7 @@ import Developers from "./pages/developers/Developers";
 import Academy from "./pages/academy/Academy";
 import Blog from "./pages/blog/Blog";
 import About from "./pages/about/About";
-import Services from "./pages/services/Services";
+// import Services from "./pages/services/Services";
 import Signup from "./pages/signup/Signup";
 import Login from "./pages/login/Login";
 import TopNavigation from "./components/TopNavigation";
@@ -47,7 +47,7 @@ function AppWrapper() {
           <Route path="/pcrg-training-academy" element={<Academy />} />
           <Route path="/blog-and-events" element={<Blog />} />
           <Route path="/about-us" element={<About />} />
-          <Route path="/services" element={<Services />} />
+          {/* <Route path="/services" element={<Services />} /> */}
           <Route path="/sign-up" element={<Signup />} />
           <Route path="/login" element={<Login />} />
           <Route path="/admin/signup" element={<AdminSignup />} />

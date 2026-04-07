@@ -9,6 +9,7 @@ import {
   FaChartLine,
   FaBars,
   FaTimes,
+  FaEnvelope,
 } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,11 @@ export default function DashboardLayout({ children }) {
             name: "Manage Realtors",
             path: "/dashboard/realtors",
             icon: <FaUsers />,
+          },
+          {
+            name: "Mailing List",
+            path: "/dashboard/mailing-list",
+            icon: <FaEnvelope />, // add: import { FaEnvelope } from "react-icons/fa"
           },
           { name: "Reports", path: "/admin/reports", icon: <FaChartLine /> },
         ]

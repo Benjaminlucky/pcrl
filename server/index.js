@@ -5,6 +5,7 @@ import cors from "cors";
 import realtorRoutes from "./routes/realtor.routes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import enquiryRoutes from "./routes/enquiry.routes.js";
+import mailingListRoutes from "./routes/mailingList.routes.js";
 import cloudinary from "./utils/cloudinary.config.js";
 import "./jobs/birthdayJob.js";
 
@@ -22,6 +23,7 @@ mongoose
 app.use("/api/realtors", realtorRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/enquiry", enquiryRoutes);
+app.use("/api/mailing-list", mailingListRoutes);
 
 const result = await cloudinary.api.ping();
 console.log(result);

@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
  * - Ambient glow uses brand primary color.
  * - Smooth motion for text and CTA reveal.
  * - Glow + pulse button animations using Framer Motion.
+ * - "View Faculty" button smoothly scrolls to #faculty section.
  */
 export default function AcademyHero() {
   const videoRef = useRef(null);
@@ -21,7 +22,7 @@ export default function AcademyHero() {
     if (!node) return;
 
     const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
+      "(prefers-reduced-motion: reduce)",
     ).matches;
     if (prefersReduced) return;
 
@@ -43,7 +44,7 @@ export default function AcademyHero() {
           }
         });
       },
-      { threshold: 0.3 }
+      { threshold: 0.3 },
     );
 
     obs.observe(node);
@@ -51,6 +52,11 @@ export default function AcademyHero() {
   }, [controls]);
 
   const handleVideoError = () => setVideoError(true);
+
+  const handleViewFaculty = (e) => {
+    e.preventDefault();
+    document.getElementById("faculty")?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
     <section className="relative w-full h-screen min-h-[560px] flex items-center justify-center text-white overflow-hidden">
@@ -139,7 +145,7 @@ export default function AcademyHero() {
             </Link>
           </motion.div>
 
-          {/* 🌟 Outline Button with Infinite Pulse Glow using Brand Primary */}
+          {/* 🌟 Outline Button with Infinite Pulse Glow — scrolls to Faculty section */}
           <motion.div
             animate={{
               scale: [1, 1.05, 1],
@@ -152,16 +158,17 @@ export default function AcademyHero() {
             transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
             whileHover={{
               scale: 1.1,
-              boxShadow: "0 0 40px 10px rgb(255,255,255",
+              boxShadow: "0 0 40px 10px rgb(255,255,255)",
             }}
             className="rounded-md overflow-hidden"
           >
-            <Link
-              to="/services"
+            <a
+              href="#faculty"
+              onClick={handleViewFaculty}
               className="px-8 py-3 border border-white text-white rounded-md font-semibold hover:bg-white hover:text-[var(--color-primary-500)] transition duration-300 block"
             >
               View Faculty
-            </Link>
+            </a>
           </motion.div>
         </motion.div>
       </motion.div>

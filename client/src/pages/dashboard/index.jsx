@@ -8,16 +8,15 @@ import DashboardLayout from "./Layout";
 import RealtorDashboard from "./RealtorDashboard";
 import AdminDashboard from "./AdminDashboard";
 import ManageRealtors from "./ManageRealtors";
+import MailingListSubscribers from "./MailingListSubscribers";
 
 export default function Dashboard() {
   return (
     <DashboardLayout>
       <Routes>
-        {/* Default landing based on user role */}
         <Route index element={<RoleBasedDashboard />} />
         <Route path="/realtors" element={<ManageRealtors />} />
-
-        {/* Nested routes */}
+        <Route path="/mailing-list" element={<MailingListSubscribers />} />
         <Route path="earnings" element={<Earnings />} />
         <Route path="recruits" element={<Recruits />} />
         <Route path="reports" element={<Reports />} />
