@@ -92,7 +92,7 @@ export default function EventsHero() {
             className="rounded-md py-3 overflow-hidden"
           >
             <Link
-              to="/events"
+              to="https://www.youtube.com/@platinumcaperealtorgroup3638"
               className="px-8 py-3 bg-[var(--color-primary-500)] text-white font-semibold rounded-md transition duration-300 shadow-[0_0_15px_var(--color-primary-400)] hover:shadow-[0_0_40px_var(--color-primary-500)]"
             >
               Explore Events

@@ -94,10 +94,10 @@ export default function Hero() {
             className="rounded-sm overflow-hidden"
           >
             <Link
-              to="/sign-up"
+              to="/about-us"
               className="px-8 py-3 bg-primary-500 text-white rounded-sm font-semibold transition duration-300 block"
             >
-              Explore Properties
+              Learn More About PCRG
             </Link>
           </motion.div>
 
@@ -119,7 +119,7 @@ export default function Hero() {
             className="rounded-sm overflow-hidden"
           >
             <Link
-              to="/services"
+              to="/sign-up"
               className="px-8 py-3 border border-white text-white rounded-sm font-semibold hover:bg-white hover:text-primary-500 transition duration-300 block"
             >
               Join Our Realtors Network

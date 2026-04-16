@@ -93,7 +93,7 @@ export default function HomeContact() {
               <div className="bg-[#EC1C24] p-3 rounded-md text-white text-lg">
                 <FaEnvelope />
               </div>
-              <p className="text-base font-medium">info@pcrl.com</p>
+              <p className="text-base font-medium">info@pcrginitiative.com</p>
             </motion.div>
 
             <motion.div
