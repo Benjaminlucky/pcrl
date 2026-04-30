@@ -14,7 +14,6 @@ router.post("/developer", async (req, res) => {
       .json({ message: "Please fill in all required fields." });
   }
 
-  // ✅ Moved inside the handler — env vars are loaded by the time this runs
   const resend = new Resend(process.env.RESEND_API_KEY);
 
   try {
@@ -69,8 +68,7 @@ router.post("/developer", async (req, res) => {
   }
 });
 
-export default router;
-
+// POST /api/enquiry/book-call
 router.post("/book-call", async (req, res) => {
   const { name, email, phone, preferredDate, preferredTime, notes } = req.body;
 
@@ -118,3 +116,6 @@ router.post("/book-call", async (req, res) => {
       .json({ message: "Failed to book call. Please try again." });
   }
 });
+
+// ✅ export MUST be after all routes
+export default router;

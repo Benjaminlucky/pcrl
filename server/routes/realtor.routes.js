@@ -39,11 +39,12 @@ router.put(
       }
       return next();
     }),
-  updateAvatar
+  updateAvatar,
 );
 
-// List all realtors - MUST come before /:id
-router.get("/list", protect, getRealtors);
+// List all realtors — GET /api/realtors
+// ✅ Changed from "/list" to "/" so the base route works
+router.get("/", protect, getRealtors);
 
 // CRUD operations with ID parameter
 router.get("/:id", protect, getRealtorById);
