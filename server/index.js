@@ -20,6 +20,11 @@ mongoose
   .then(() => console.log("Connected to MongoDb"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
+// Root health check
+app.get("/", (req, res) => {
+  res.json({ status: "ok", message: "PCRG API is running" });
+});
+
 app.use("/api/realtors", realtorRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/enquiry", enquiryRoutes);
