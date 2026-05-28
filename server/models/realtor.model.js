@@ -36,6 +36,13 @@ const RealtorSchema = new mongoose.Schema({
 
   role: { type: String, enum: ["admin", "realtor"], default: "realtor" },
 
+  // 🔐 Password reset (stored hashed, never returned by default).
+  // select:false keeps these out of every normal query/response so they can
+  // never leak via getMe, getRealtorById, etc. The reset controller selects
+  // them explicitly with .select("+resetPasswordToken +resetPasswordExpires").
+  resetPasswordToken: { type: String, default: null, select: false },
+  resetPasswordExpires: { type: Date, default: null, select: false },
+
   createdAt: { type: Date, default: Date.now },
 });
 

@@ -66,6 +66,14 @@ const banks = [
   "Zenith Bank",
 ];
 
+// Maps backend error codes/fields to where the message should appear.
+// Codes come from the server (EMAIL_TAKEN, INVALID_REFERRAL, etc.).
+const FIELD_ERROR_CODES = new Set([
+  "EMAIL_TAKEN",
+  "ACCOUNT_TAKEN",
+  "INVALID_REFERRAL",
+]);
+
 export default function Signup() {
   const [formData, setFormData] = useState({
     firstName: "",
@@ -85,11 +93,9 @@ export default function Signup() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ✅ Password visibility states
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // ✅ Animation controls and in-view logic
   const controls = useAnimation();
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.2 });
 
@@ -97,11 +103,19 @@ export default function Signup() {
     if (inView) controls.start("visible");
   }, [inView, controls]);
 
-  // ✅ Input handler
-  const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    // Clear that field's error (and any general error) as the user fixes it.
+    setErrors((prev) => {
+      if (!prev[name] && !prev.general) return prev;
+      const next = { ...prev };
+      delete next[name];
+      delete next.general;
+      return next;
+    });
+  };
 
-  // ✅ Validation logic
   const validateForm = () => {
     let newErrors = {};
     const phoneRegex = /^(\+234|0)[789][01]\d{8}$/;
@@ -129,9 +143,50 @@ export default function Signup() {
     return newErrors;
   };
 
-  // ✅ Submit handler
+  // Translate a backend response into the errors object the UI renders.
+  const applyServerError = (status, data) => {
+    const code = data?.code;
+    const field = data?.field;
+    const message = data?.message || "Something went wrong. Please try again.";
+
+    // Field-specific: show the message right under the relevant input,
+    // and also surface it in the banner so it's impossible to miss.
+    if (field && (FIELD_ERROR_CODES.has(code) || field)) {
+      // Map server field name "ref" to a general banner (no ref input shown).
+      if (field === "ref") {
+        setErrors({ general: message });
+      } else {
+        setErrors({ [field]: message, general: message });
+      }
+      return;
+    }
+
+    // Code-based fallbacks without an explicit field.
+    if (code === "REFERRAL_RACE") {
+      setErrors({ general: message });
+      return;
+    }
+    if (status === 0) {
+      setErrors({
+        general:
+          "We couldn't reach the server. Check your internet connection and try again.",
+      });
+      return;
+    }
+    if (status >= 500) {
+      setErrors({
+        general:
+          "Our server had a problem creating your account. Please try again in a moment — if it keeps happening, contact support.",
+      });
+      return;
+    }
+
+    setErrors({ general: message });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSuccess("");
     setLoading(true);
 
     const validationErrors = validateForm();
@@ -157,21 +212,39 @@ export default function Signup() {
       };
 
       const urlParams = new URLSearchParams(window.location.search);
-      const ref = urlParams.get("ref");
-      if (ref) payload.ref = ref;
+      const refCode = urlParams.get("ref");
+      if (refCode) payload.ref = refCode;
 
-      const res = await fetch(`${BASE_URL}/api/realtors/signup`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      let res;
+      try {
+        res = await fetch(`${BASE_URL}/api/realtors/signup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      } catch (networkErr) {
+        // fetch throws only on network failure (no response at all)
+        applyServerError(0, {});
+        setLoading(false);
+        return;
+      }
 
-      const data = await res.json();
+      let data = {};
+      try {
+        data = await res.json();
+      } catch {
+        // non-JSON response
+      }
 
-      if (!res.ok) throw new Error(data.message || "Signup failed");
+      if (!res.ok) {
+        applyServerError(res.status, data);
+        setLoading(false);
+        return;
+      }
 
-      setSuccess("Account created successfully!");
-      console.log("✅ Created Realtor:", data);
+      setSuccess(
+        "Account created successfully! Check your email for your login link.",
+      );
 
       setFormData({
         firstName: "",
@@ -187,10 +260,13 @@ export default function Signup() {
         birthDate: "",
       });
 
-      setTimeout(() => setSuccess(""), 4000);
+      setTimeout(() => setSuccess(""), 6000);
     } catch (error) {
       console.error("Signup Error:", error);
-      setErrors({ general: error.message });
+      setErrors({
+        general:
+          "Something unexpected happened. Please try again — if it persists, contact support.",
+      });
     } finally {
       setLoading(false);
     }
@@ -201,7 +277,6 @@ export default function Signup() {
       ref={ref}
       className="py-24 flex items-center justify-center bg-gray-50 relative overflow-hidden"
     >
-      {/* 🔴 Cinematic Red Sweep Overlay */}
       <motion.div
         className="absolute inset-0 bg-gradient-to-r from-[rgba(255,0,0,0.1)] via-transparent to-transparent pointer-events-none z-0"
         initial={{ x: "-100%" }}
@@ -209,7 +284,6 @@ export default function Signup() {
         transition={{ duration: 2, ease: "easeInOut" }}
       />
 
-      {/* 🌫️ Soft Background Zoom/Pan (Breathe Effect) */}
       <motion.div
         className="absolute inset-0 bg-gray-100"
         initial={{ scale: 1 }}
@@ -280,18 +354,37 @@ export default function Signup() {
           </div>
 
           {success && (
-            <p className="bg-green-100 text-green-700 p-2 rounded mb-4 text-sm">
+            <p className="bg-green-100 text-green-700 p-3 rounded mb-4 text-sm">
               {success}
             </p>
           )}
 
           {errors.general && (
-            <p className="bg-red-100 text-red-700 p-2 rounded mb-4 text-sm">
-              {errors.general}
-            </p>
+            <div
+              role="alert"
+              className="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm flex items-start gap-2"
+            >
+              <span className="font-bold leading-none">!</span>
+              <span>
+                {errors.general}
+                {errors.email &&
+                  errors.general?.toLowerCase().includes("already") && (
+                    <>
+                      {" "}
+                      <a
+                        href="/login"
+                        className="font-semibold underline hover:no-underline"
+                      >
+                        Go to login
+                      </a>
+                      .
+                    </>
+                  )}
+              </span>
+            </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6 py-8">
+          <form onSubmit={handleSubmit} className="space-y-6 py-8" noValidate>
             {/* Names */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -300,10 +393,15 @@ export default function Signup() {
                   placeholder="First Name"
                   value={formData.firstName}
                   onChange={handleChange}
-                  className="w-full border border-gray-400 rounded-sm p-3 ring-0 outline-0 focus:ring-3 focus:ring-red-500"
+                  aria-invalid={!!errors.firstName}
+                  className={`w-full border rounded-sm p-3 ring-0 outline-0 focus:ring-3 focus:ring-red-500 ${
+                    errors.firstName ? "border-red-500" : "border-gray-400"
+                  }`}
                 />
                 {errors.firstName && (
-                  <p className="text-xs text-red-500">{errors.firstName}</p>
+                  <p className="text-xs text-red-500 mt-1">
+                    {errors.firstName}
+                  </p>
                 )}
               </div>
               <div>
@@ -312,10 +410,13 @@ export default function Signup() {
                   placeholder="Last Name"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className="w-full border border-gray-400 rounded-sm p-3 ring-0 outline-0 focus:ring-3 focus:ring-red-500"
+                  aria-invalid={!!errors.lastName}
+                  className={`w-full border rounded-sm p-3 ring-0 outline-0 focus:ring-3 focus:ring-red-500 ${
+                    errors.lastName ? "border-red-500" : "border-gray-400"
+                  }`}
                 />
                 {errors.lastName && (
-                  <p className="text-xs text-red-500">{errors.lastName}</p>
+                  <p className="text-xs text-red-500 mt-1">{errors.lastName}</p>
                 )}
               </div>
             </div>
@@ -327,10 +428,13 @@ export default function Signup() {
                 placeholder="Email Address"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full border border-gray-400 rounded-sm p-3 ring-0 outline-0 focus:ring-3 focus:ring-red-500"
+                aria-invalid={!!errors.email}
+                className={`w-full border rounded-sm p-3 ring-0 outline-0 focus:ring-3 focus:ring-red-500 ${
+                  errors.email ? "border-red-500" : "border-gray-400"
+                }`}
               />
               {errors.email && (
-                <p className="text-xs text-red-500">{errors.email}</p>
+                <p className="text-xs text-red-500 mt-1">{errors.email}</p>
               )}
             </div>
 
@@ -341,10 +445,13 @@ export default function Signup() {
                 placeholder="Phone Number"
                 value={formData.phone}
                 onChange={handleChange}
-                className="w-full border border-gray-400 rounded-sm p-3 ring-0 outline-0 focus:ring-3 focus:ring-red-500"
+                aria-invalid={!!errors.phone}
+                className={`w-full border rounded-sm p-3 ring-0 outline-0 focus:ring-3 focus:ring-red-500 ${
+                  errors.phone ? "border-red-500" : "border-gray-400"
+                }`}
               />
               {errors.phone && (
-                <p className="text-xs text-red-500">{errors.phone}</p>
+                <p className="text-xs text-red-500 mt-1">{errors.phone}</p>
               )}
             </div>
 
@@ -358,10 +465,13 @@ export default function Signup() {
                 name="birthDate"
                 value={formData.birthDate}
                 onChange={handleChange}
-                className="w-full border border-gray-400 rounded-sm p-3 ring-0 outline-0 focus:ring-3 focus:ring-red-500"
+                aria-invalid={!!errors.birthDate}
+                className={`w-full border rounded-sm p-3 ring-0 outline-0 focus:ring-3 focus:ring-red-500 ${
+                  errors.birthDate ? "border-red-500" : "border-gray-400"
+                }`}
               />
               {errors.birthDate && (
-                <p className="text-xs text-red-500">{errors.birthDate}</p>
+                <p className="text-xs text-red-500 mt-1">{errors.birthDate}</p>
               )}
             </div>
 
@@ -372,7 +482,10 @@ export default function Signup() {
                   name="state"
                   value={formData.state}
                   onChange={handleChange}
-                  className="w-full border border-gray-400 rounded-sm p-3 ring-0 outline-0 focus:ring-3 focus:ring-red-500"
+                  aria-invalid={!!errors.state}
+                  className={`w-full border rounded-sm p-3 ring-0 outline-0 focus:ring-3 focus:ring-red-500 ${
+                    errors.state ? "border-red-500" : "border-gray-400"
+                  }`}
                 >
                   <option value="">Select State</option>
                   {states.map((st) => (
@@ -382,7 +495,7 @@ export default function Signup() {
                   ))}
                 </select>
                 {errors.state && (
-                  <p className="text-xs text-red-500">{errors.state}</p>
+                  <p className="text-xs text-red-500 mt-1">{errors.state}</p>
                 )}
               </div>
 
@@ -391,7 +504,10 @@ export default function Signup() {
                   name="bank"
                   value={formData.bank}
                   onChange={handleChange}
-                  className="w-full border border-gray-400 rounded-sm p-3 ring-0 outline-0 focus:ring-3 focus:ring-red-500"
+                  aria-invalid={!!errors.bank}
+                  className={`w-full border rounded-sm p-3 ring-0 outline-0 focus:ring-3 focus:ring-red-500 ${
+                    errors.bank ? "border-red-500" : "border-gray-400"
+                  }`}
                 >
                   <option value="">Select Bank</option>
                   {banks.map((bk) => (
@@ -401,7 +517,7 @@ export default function Signup() {
                   ))}
                 </select>
                 {errors.bank && (
-                  <p className="text-xs text-red-500">{errors.bank}</p>
+                  <p className="text-xs text-red-500 mt-1">{errors.bank}</p>
                 )}
               </div>
             </div>
@@ -413,10 +529,15 @@ export default function Signup() {
                 placeholder="Account Name"
                 value={formData.accountName}
                 onChange={handleChange}
-                className="w-full border border-gray-400 rounded-sm p-3 ring-0 outline-0 focus:ring-3 focus:ring-red-500"
+                aria-invalid={!!errors.accountName}
+                className={`w-full border rounded-sm p-3 ring-0 outline-0 focus:ring-3 focus:ring-red-500 ${
+                  errors.accountName ? "border-red-500" : "border-gray-400"
+                }`}
               />
               {errors.accountName && (
-                <p className="text-xs text-red-500">{errors.accountName}</p>
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.accountName}
+                </p>
               )}
             </div>
 
@@ -426,10 +547,15 @@ export default function Signup() {
                 placeholder="Account Number"
                 value={formData.accountNumber}
                 onChange={handleChange}
-                className="w-full border border-gray-400 rounded-sm p-3 ring-0 outline-0 focus:ring-3 focus:ring-red-500"
+                aria-invalid={!!errors.accountNumber}
+                className={`w-full border rounded-sm p-3 ring-0 outline-0 focus:ring-3 focus:ring-red-500 ${
+                  errors.accountNumber ? "border-red-500" : "border-gray-400"
+                }`}
               />
               {errors.accountNumber && (
-                <p className="text-xs text-red-500">{errors.accountNumber}</p>
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.accountNumber}
+                </p>
               )}
             </div>
 
@@ -441,12 +567,15 @@ export default function Signup() {
                 placeholder="Password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full border border-gray-400 rounded-sm p-3 pr-12 ring-0 outline-0 focus:ring-3 focus:ring-red-500"
+                aria-invalid={!!errors.password}
+                className={`w-full border rounded-sm p-3 pr-12 ring-0 outline-0 focus:ring-3 focus:ring-red-500 ${
+                  errors.password ? "border-red-500" : "border-gray-400"
+                }`}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                className="absolute right-3 top-[22px] -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
@@ -499,12 +628,15 @@ export default function Signup() {
                 placeholder="Confirm Password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className="w-full border border-gray-400 rounded-sm p-3 pr-12 ring-0 outline-0 focus:ring-3 focus:ring-red-500"
+                aria-invalid={!!errors.confirmPassword}
+                className={`w-full border rounded-sm p-3 pr-12 ring-0 outline-0 focus:ring-3 focus:ring-red-500 ${
+                  errors.confirmPassword ? "border-red-500" : "border-gray-400"
+                }`}
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                className="absolute right-3 top-[22px] -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
                 aria-label={
                   showConfirmPassword ? "Hide password" : "Show password"
                 }

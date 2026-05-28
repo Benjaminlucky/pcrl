@@ -1,8 +1,46 @@
 // controllers/realtor.controller.js
 import Realtor from "../models/realtor.model.js";
+import Notification from "../models/notification.model.js";
 import bcrypt from "bcrypt";
 import cloudinary from "../utils/cloudinary.config.js";
 import streamifier from "streamifier";
+import {
+  sendRealtorWelcomeEmail,
+  sendUplineReferralEmail,
+} from "../utils/email.js";
+
+// ---------------------------------------------------------------------------
+// Race-safe referral code generator.
+// The old approach (`pcr${countDocuments()+1}`) caused E11000 duplicate-key
+// errors: two signups could read the same count, or a deleted realtor left a
+// gap so the next count collided with an existing code (e.g. pcr030).
+//
+// This version finds the current highest numeric code and increments it, then
+// retries on the rare race where two requests still land on the same number.
+// The unique index on referralCode is the final guarantee.
+// ---------------------------------------------------------------------------
+async function generateUniqueReferralCode(maxAttempts = 5) {
+  // Find the highest existing pcrNNN by sorting descending on referralCode.
+  const last = await Realtor.findOne({ referralCode: /^pcr\d+$/ })
+    .sort({ referralCode: -1 })
+    .select("referralCode")
+    .lean();
+
+  let next = 1;
+  if (last?.referralCode) {
+    const n = parseInt(last.referralCode.replace(/^pcr/, ""), 10);
+    if (!Number.isNaN(n)) next = n + 1;
+  }
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const candidate = `pcr${String(next + attempt).padStart(3, "0")}`;
+    const exists = await Realtor.exists({ referralCode: candidate });
+    if (!exists) return candidate;
+  }
+
+  // Fallback: timestamp-based suffix, effectively collision-proof.
+  return `pcr${Date.now().toString().slice(-6)}`;
+}
 
 export const signup = async (req, res) => {
   try {
@@ -21,37 +59,94 @@ export const signup = async (req, res) => {
       avatar,
     } = req.body;
 
-    const passwordHash = await bcrypt.hash(password, 12);
+    // --- Basic server-side presence check (defense in depth) ---
+    if (!firstName || !lastName || !email || !password) {
+      return res.status(400).json({
+        message: "Please fill in all required fields.",
+        code: "MISSING_FIELDS",
+      });
+    }
 
+    // --- Duplicate email check (clear, field-targeted message) ---
+    const emailExists = await Realtor.findOne({
+      email: email.toLowerCase().trim(),
+    });
+    if (emailExists) {
+      return res.status(409).json({
+        message:
+          "An account with this email already exists. Try logging in, or use a different email.",
+        code: "EMAIL_TAKEN",
+        field: "email",
+      });
+    }
+
+    // --- Referral code validation ---
     let recruiter = null;
     if (ref?.trim()) {
       recruiter = await Realtor.findOne({ referralCode: ref.trim() });
       if (!recruiter) {
-        return res
-          .status(400)
-          .json({ message: "Invalid referral code provided" });
+        return res.status(400).json({
+          message:
+            "That referral code doesn't match any realtor. Please check it and try again, or remove it to continue without one.",
+          code: "INVALID_REFERRAL",
+          field: "ref",
+        });
       }
     }
 
-    const count = await Realtor.countDocuments();
-    const referralCode = `pcr${String(count + 1).padStart(3, "0")}`;
+    const passwordHash = await bcrypt.hash(password, 12);
+    const referralCode = await generateUniqueReferralCode();
 
-    const newRealtor = await Realtor.create({
-      firstName,
-      lastName,
-      email,
-      phone,
-      state,
-      bank,
-      accountName,
-      accountNumber,
-      avatar: avatar || undefined,
-      passwordHash,
-      referralCode,
-      birthDate: new Date(birthDate),
-      recruitedBy: recruiter?._id || null,
-    });
+    let newRealtor;
+    try {
+      newRealtor = await Realtor.create({
+        firstName,
+        lastName,
+        email: email.toLowerCase().trim(),
+        phone,
+        state,
+        bank,
+        accountName,
+        accountNumber,
+        avatar: avatar || undefined,
+        passwordHash,
+        referralCode,
+        birthDate: new Date(birthDate),
+        recruitedBy: recruiter?._id || null,
+      });
+    } catch (err) {
+      // Catch any duplicate-key races that slipped past the checks above and
+      // translate them into clear, field-specific messages.
+      if (err?.code === 11000) {
+        const dupField = Object.keys(err.keyPattern || {})[0];
+        if (dupField === "email") {
+          return res.status(409).json({
+            message:
+              "An account with this email already exists. Try logging in instead.",
+            code: "EMAIL_TAKEN",
+            field: "email",
+          });
+        }
+        if (dupField === "accountNumber") {
+          return res.status(409).json({
+            message: "This account number is already registered.",
+            code: "ACCOUNT_TAKEN",
+            field: "accountNumber",
+          });
+        }
+        if (dupField === "referralCode") {
+          // Extremely rare after the generator; ask for a simple retry.
+          return res.status(503).json({
+            message:
+              "We hit a momentary glitch assigning your referral code. Please tap Create Account once more.",
+            code: "REFERRAL_RACE",
+          });
+        }
+      }
+      throw err; // unknown error -> handled by outer catch
+    }
 
+    // ---- Respond first so signup stays fast; side-effects are fire-and-forget ----
     res.status(201).json({
       message: "User created successfully",
       user: {
@@ -62,9 +157,50 @@ export const signup = async (req, res) => {
         referralLink: newRealtor.referralLink,
       },
     });
+
+    // ---- Side effects (never block or fail the signup response) ----
+    sendRealtorWelcomeEmail(newRealtor, { password }).catch((e) =>
+      console.error("Welcome email error:", e?.message || e),
+    );
+
+    if (recruiter) {
+      try {
+        const downlineCount = await Realtor.countDocuments({
+          recruitedBy: recruiter._id,
+        });
+
+        await Notification.create({
+          type: "referral_signup",
+          recipient: recruiter._id,
+          recipientRole: "realtor",
+          realtor: newRealtor._id,
+          message: `${newRealtor.firstName} ${newRealtor.lastName} just joined using your referral code`,
+          metadata: {
+            firstName: newRealtor.firstName,
+            lastName: newRealtor.lastName,
+            email: newRealtor.email,
+          },
+          read: false,
+          delivered: true,
+          channels: ["database"],
+        });
+
+        sendUplineReferralEmail(recruiter, newRealtor, { downlineCount }).catch(
+          (e) => console.error("Upline email error:", e?.message || e),
+        );
+      } catch (e) {
+        console.error("Upline notification error:", e?.message || e);
+      }
+    }
   } catch (error) {
     console.error("SIGNUP ERROR:", error);
-    res.status(500).json({ message: "Unable to create Realtor Account" });
+    if (!res.headersSent) {
+      res.status(500).json({
+        message:
+          "Something went wrong on our end while creating your account. Please try again in a moment.",
+        code: "SERVER_ERROR",
+      });
+    }
   }
 };
 
@@ -86,7 +222,7 @@ export const updateAvatar = async (req, res) => {
           (error, result) => {
             if (error) return reject(error);
             resolve(result);
-          }
+          },
         );
         streamifier.createReadStream(buffer).pipe(uploadStream);
       });
@@ -96,7 +232,7 @@ export const updateAvatar = async (req, res) => {
     const updated = await Realtor.findByIdAndUpdate(
       userId,
       { avatar: result.secure_url },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     ).select("firstName lastName avatar referralCode");
 
     if (!updated) {
@@ -119,24 +255,21 @@ export const updateAvatar = async (req, res) => {
   }
 };
 
+// --- Admin-only handlers (unchanged from Sprint 1) ---
+
 export const getRealtors = async (req, res) => {
   try {
     const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
     const limit = Math.min(
       Math.max(parseInt(req.query.limit, 10) || 10, 1),
-      100
+      100,
     );
     const sort = req.query.sort || "-createdAt";
     const search = req.query.search || "";
-    const recruitedBy = req.query.recruitedBy || ""; // ✅ NEW: Filter by recruiter ID
+    const recruitedBy = req.query.recruitedBy || "";
 
     const filter = {};
-
-    // ✅ NEW: If recruitedBy is provided, filter by it
-    if (recruitedBy) {
-      filter.recruitedBy = recruitedBy;
-    }
-
+    if (recruitedBy) filter.recruitedBy = recruitedBy;
     if (search) {
       filter.$or = [
         { firstName: { $regex: search, $options: "i" } },
@@ -156,7 +289,7 @@ export const getRealtors = async (req, res) => {
       .limit(limit)
       .populate("recruitedBy", "firstName lastName referralCode")
       .select(
-        "firstName lastName email phone referralCode createdAt recruitedBy bank accountName accountNumber birthDate"
+        "firstName lastName email phone referralCode createdAt recruitedBy bank accountName accountNumber birthDate",
       )
       .lean();
 
@@ -177,13 +310,7 @@ export const getRealtors = async (req, res) => {
       recruitedByCode: d.recruitedBy ? d.recruitedBy.referralCode : "-",
     }));
 
-    return res.json({
-      docs: formatted,
-      total,
-      page,
-      pages,
-      limit,
-    });
+    return res.json({ docs: formatted, total, page, pages, limit });
   } catch (err) {
     console.error("getRealtors error:", err);
     return res.status(500).json({ message: "Failed to fetch realtors" });
@@ -193,7 +320,6 @@ export const getRealtors = async (req, res) => {
 export const getRealtorById = async (req, res) => {
   try {
     const { id } = req.params;
-
     const realtor = await Realtor.findById(id)
       .populate("recruitedBy", "firstName lastName referralCode")
       .select("-passwordHash")
@@ -203,7 +329,7 @@ export const getRealtorById = async (req, res) => {
       return res.status(404).json({ message: "Realtor not found" });
     }
 
-    const formatted = {
+    return res.json({
       ...realtor,
       recruitedByName: realtor.recruitedBy
         ? `${realtor.recruitedBy.firstName} ${realtor.recruitedBy.lastName}`
@@ -211,9 +337,7 @@ export const getRealtorById = async (req, res) => {
       recruitedByCode: realtor.recruitedBy
         ? realtor.recruitedBy.referralCode
         : null,
-    };
-
-    return res.json(formatted);
+    });
   } catch (err) {
     console.error("getRealtorById error:", err);
     return res.status(500).json({ message: "Failed to fetch realtor" });
@@ -243,7 +367,9 @@ export const updateRealtor = async (req, res) => {
     if (email && email !== existing.email) {
       const emailExists = await Realtor.findOne({ email });
       if (emailExists) {
-        return res.status(400).json({ message: "Email already in use" });
+        return res
+          .status(409)
+          .json({ message: "Email already in use", field: "email" });
       }
     }
 
@@ -266,16 +392,14 @@ export const updateRealtor = async (req, res) => {
       .select("-passwordHash")
       .lean();
 
-    const formatted = {
-      ...updated,
-      recruitedByName: updated.recruitedBy
-        ? `${updated.recruitedBy.firstName} ${updated.recruitedBy.lastName}`
-        : null,
-    };
-
     return res.json({
       message: "Realtor updated successfully",
-      realtor: formatted,
+      realtor: {
+        ...updated,
+        recruitedByName: updated.recruitedBy
+          ? `${updated.recruitedBy.firstName} ${updated.recruitedBy.lastName}`
+          : null,
+      },
     });
   } catch (err) {
     console.error("updateRealtor error:", err);
@@ -286,14 +410,12 @@ export const updateRealtor = async (req, res) => {
 export const deleteRealtor = async (req, res) => {
   try {
     const { id } = req.params;
-
     const realtor = await Realtor.findById(id);
     if (!realtor) {
       return res.status(404).json({ message: "Realtor not found" });
     }
 
     const recruitsCount = await Realtor.countDocuments({ recruitedBy: id });
-
     if (recruitsCount > 0) {
       return res.status(400).json({
         message: `Cannot delete realtor with ${recruitsCount} recruits. Please reassign or remove recruits first.`,
@@ -301,11 +423,7 @@ export const deleteRealtor = async (req, res) => {
     }
 
     await Realtor.findByIdAndDelete(id);
-
-    return res.json({
-      message: "Realtor deleted successfully",
-      id,
-    });
+    return res.json({ message: "Realtor deleted successfully", id });
   } catch (err) {
     console.error("deleteRealtor error:", err);
     return res.status(500).json({ message: "Failed to delete realtor" });

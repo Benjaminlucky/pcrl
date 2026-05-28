@@ -2,8 +2,10 @@
 import Admin from "../models/admin.js";
 import Realtor from "../models/realtor.model.js";
 import Notification from "../models/notification.model.js";
+import EmailLog from "../models/emailLog.model.js";
 import jwt from "jsonwebtoken";
 import { getNextBirthdayAndDaysUntil } from "../utils/birthday.js";
+import { runBirthdayChecks } from "../jobs/birthdayJob.js";
 
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
@@ -61,9 +63,6 @@ export const loginAdmin = async (req, res) => {
 export const getUpcomingBirthdays = async (req, res) => {
   try {
     const realtors = await Realtor.find({ birthDate: { $ne: null } }).lean();
-
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
 
     const upcoming = [];
 
@@ -124,5 +123,59 @@ export const getBirthdayNotifications = async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ message: "Failed to load notifications" });
+  }
+};
+
+// -------------------------------
+// MANUAL BIRTHDAY RUN (admin only)
+// POST /api/admin/birthdays/run
+// Runs the same idempotent checks as the daily cron and returns a summary.
+// Safe to call repeatedly — already-sent emails are skipped via EmailLog.
+// -------------------------------
+export const runBirthdaysNow = async (req, res) => {
+  try {
+    const summary = await runBirthdayChecks();
+    return res.json({ message: "Birthday checks complete", summary });
+  } catch (err) {
+    console.error("runBirthdaysNow error:", err);
+    return res.status(500).json({ message: "Failed to run birthday checks" });
+  }
+};
+
+// -------------------------------
+// EMAIL LOGS (admin only)
+// GET /api/admin/email-logs?type=&status=&limit=
+// Lightweight deliverability/audit view.
+// -------------------------------
+export const getEmailLogs = async (req, res) => {
+  try {
+    const limit = Math.min(
+      Math.max(parseInt(req.query.limit, 10) || 50, 1),
+      200,
+    );
+    const filter = {};
+    if (req.query.type) filter.type = req.query.type;
+    if (req.query.status) filter.status = req.query.status;
+
+    const logs = await EmailLog.find(filter)
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .lean();
+
+    return res.json({
+      total: logs.length,
+      logs: logs.map((l) => ({
+        to: l.to,
+        subject: l.subject,
+        type: l.type,
+        status: l.status,
+        error: l.error,
+        sentAt: l.sentAt,
+        createdAt: l.createdAt,
+      })),
+    });
+  } catch (err) {
+    console.error("getEmailLogs error:", err);
+    return res.status(500).json({ message: "Failed to load email logs" });
   }
 };

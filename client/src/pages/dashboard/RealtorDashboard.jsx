@@ -1,19 +1,13 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
-// Added Landmark to the imports here
 import {
   Copy,
   Check,
   Camera,
   Users,
   ShieldCheck,
-  Zap,
-  Globe,
   Loader2,
-  Smartphone,
-  Mail,
   Calendar,
-  Landmark,
 } from "lucide-react";
 
 const defaultAvatar =
@@ -29,7 +23,7 @@ export default function RealtorDashboard() {
   const [referralsLoading, setReferralsLoading] = useState(false);
   const fileInputRef = useRef(null);
 
-  // --- Logic ---
+  // --- Load dashboard summary (name, avatar, downline count, upline) ---
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
@@ -49,6 +43,11 @@ export default function RealtorDashboard() {
     fetchDashboard();
   }, []);
 
+  // --- Load my own direct downline via the SAFE self-service endpoint ---
+  // FIX (Blocker 4 + security): previously called /api/realtors/list?recruitedBy=...
+  // which (a) 404'd after the route rename and (b) exposed every recruit's bank
+  // account + number to a realtor. Now uses /api/realtors/me/downline which
+  // returns only safe fields for the logged-in realtor's own team.
   useEffect(() => {
     if (!data?.id) return;
     const fetchReferrals = async () => {
@@ -57,8 +56,8 @@ export default function RealtorDashboard() {
         const token = localStorage.getItem("token");
         const BASE_URL = import.meta.env.VITE_API_BASE_URL;
         const res = await axios.get(
-          `${BASE_URL}/api/realtors/list?limit=100&recruitedBy=${data.id}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          `${BASE_URL}/api/realtors/me/downline?limit=100`,
+          { headers: { Authorization: `Bearer ${token}` } },
         );
         setReferrals(res.data.docs || []);
       } catch (err) {
@@ -119,6 +118,13 @@ export default function RealtorDashboard() {
     return (
       <div className="h-screen flex items-center justify-center bg-[#0A0A0A]">
         <div className="w-12 h-12 border-4 border-primary-500/20 border-t-primary-500 rounded-full animate-spin"></div>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="h-screen flex items-center justify-center bg-[#0A0A0A] text-white">
+        {error}
       </div>
     );
 
@@ -194,7 +200,7 @@ export default function RealtorDashboard() {
           </div>
         </section>
 
-        {/* Stats */}
+        {/* Stats: Total Downline + Direct Upline */}
         <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <StatBox
             label="Total Downlines"
@@ -204,11 +210,12 @@ export default function RealtorDashboard() {
           <StatBox
             label="Direct Upline"
             value={data.recruitedBy || "Admin"}
+            sub={data.recruitedByCode ? `Code: ${data.recruitedByCode}` : null}
             icon={<ShieldCheck className="text-primary-500" />}
           />
         </section>
 
-        {/* Table Section */}
+        {/* Team Network (safe fields only) */}
         <section className="space-y-6">
           <h2 className="text-2xl font-bold flex items-center gap-3">
             Team Network{" "}
@@ -224,7 +231,7 @@ export default function RealtorDashboard() {
               </div>
             ) : referrals.length === 0 ? (
               <div className="py-20 text-center text-black-500">
-                No referrals found in your network.
+                No referrals yet. Share your invite link to grow your team.
               </div>
             ) : (
               <>
@@ -237,13 +244,13 @@ export default function RealtorDashboard() {
                           Partner
                         </th>
                         <th className="px-6 py-4 text-[10px] font-black text-black-500 uppercase">
-                          Contact
-                        </th>
-                        <th className="px-6 py-4 text-[10px] font-black text-black-500 uppercase">
                           Ref Code
                         </th>
                         <th className="px-6 py-4 text-[10px] font-black text-black-500 uppercase">
-                          Bank Account
+                          Their Team
+                        </th>
+                        <th className="px-6 py-4 text-[10px] font-black text-black-500 uppercase">
+                          Joined
                         </th>
                       </tr>
                     </thead>
@@ -255,23 +262,6 @@ export default function RealtorDashboard() {
                         >
                           <td className="px-6 py-4">
                             <p className="font-bold text-white">{ref.name}</p>
-                            <p className="text-[10px] text-black-500 mt-1 flex items-center gap-1">
-                              <Calendar size={10} /> Joined{" "}
-                              {formatDate(ref.createdAt)}
-                            </p>
-                          </td>
-                          <td className="px-6 py-4 space-y-1">
-                            <p className="flex items-center gap-2 text-black-300">
-                              <Mail size={12} className="text-primary-500" />{" "}
-                              {ref.email}
-                            </p>
-                            <p className="flex items-center gap-2 text-black-300">
-                              <Smartphone
-                                size={12}
-                                className="text-primary-500"
-                              />{" "}
-                              {ref.phone}
-                            </p>
                           </td>
                           <td className="px-6 py-4">
                             <span className="font-mono text-[11px] bg-black-900 border border-white/10 px-2 py-1 rounded text-primary-400">
@@ -279,24 +269,15 @@ export default function RealtorDashboard() {
                             </span>
                           </td>
                           <td className="px-6 py-4">
-                            {ref.bank ? (
-                              <div className="text-xs">
-                                <p className="font-bold text-white flex items-center gap-1">
-                                  <Landmark
-                                    size={12}
-                                    className="text-primary-500"
-                                  />{" "}
-                                  {ref.bank}
-                                </p>
-                                <p className="text-black-400 font-mono mt-1">
-                                  {ref.accountNumber}
-                                </p>
-                              </div>
-                            ) : (
-                              <span className="text-black-600 italic">
-                                None
-                              </span>
-                            )}
+                            <span className="inline-flex items-center gap-1 text-black-300">
+                              <Users size={12} className="text-primary-500" />
+                              {ref.recruits}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="text-[12px] text-black-400 flex items-center gap-1">
+                              <Calendar size={12} /> {formatDate(ref.createdAt)}
+                            </span>
                           </td>
                         </tr>
                       ))}
@@ -307,7 +288,7 @@ export default function RealtorDashboard() {
                 {/* Mobile View */}
                 <div className="md:hidden divide-y divide-white/5">
                   {referrals.map((ref) => (
-                    <div key={ref._id} className="p-6 space-y-4">
+                    <div key={ref._id} className="p-6 space-y-3">
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="font-bold text-lg">{ref.name}</p>
@@ -319,27 +300,10 @@ export default function RealtorDashboard() {
                           {ref.referralCode}
                         </span>
                       </div>
-                      <div className="space-y-1 text-sm text-black-300">
-                        <p className="flex items-center gap-2">
-                          <Mail size={14} className="text-primary-500" />{" "}
-                          {ref.email}
-                        </p>
-                        <p className="flex items-center gap-2">
-                          <Smartphone size={14} className="text-primary-500" />{" "}
-                          {ref.phone}
-                        </p>
+                      <div className="text-sm text-black-300 flex items-center gap-2">
+                        <Users size={14} className="text-primary-500" />
+                        {ref.recruits} in their team
                       </div>
-                      {ref.bank && (
-                        <div className="bg-black-900/50 p-3 rounded-xl border border-white/5">
-                          <p className="text-[10px] font-black text-black-500 uppercase mb-1">
-                            Payment Info
-                          </p>
-                          <p className="text-xs font-bold">{ref.bank}</p>
-                          <p className="text-xs font-mono text-black-400">
-                            {ref.accountNumber}
-                          </p>
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>
@@ -352,7 +316,7 @@ export default function RealtorDashboard() {
   );
 }
 
-function StatBox({ label, value, icon }) {
+function StatBox({ label, value, icon, sub }) {
   return (
     <div className="bg-white/[0.03] border border-white/5 p-6 rounded-[2rem] flex items-center gap-5">
       <div className="w-14 h-14 rounded-2xl bg-black-900 border border-white/5 flex items-center justify-center text-xl">
@@ -363,6 +327,7 @@ function StatBox({ label, value, icon }) {
         <p className="text-xs font-bold text-black-400 uppercase tracking-widest">
           {label}
         </p>
+        {sub && <p className="text-[11px] text-black-500 mt-1">{sub}</p>}
       </div>
     </div>
   );

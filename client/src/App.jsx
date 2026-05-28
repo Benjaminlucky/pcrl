@@ -23,6 +23,8 @@ import AdminSignup from "./pages/admin/AdminSignup";
 import AdminLogin from "./pages/admin/AdminLogin";
 import GlobalSEO from "./components/GlobalSeo";
 import NotFound from "./components/NotFound";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
 
 function AppWrapper() {
   const location = useLocation();
@@ -52,6 +54,17 @@ function AppWrapper() {
           <Route path="/login" element={<Login />} />
           <Route path="/admin/signup" element={<AdminSignup />} />
           <Route path="/admin/login" element={<AdminLogin />} />
+
+          {/* 🔑 Password reset (public) */}
+          <Route
+            path="/forgot-password"
+            element={<ForgotPassword type="realtor" />}
+          />
+          <Route
+            path="/admin/forgot-password"
+            element={<ForgotPassword type="admin" />}
+          />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* 🔒 Protected Dashboard */}
           <Route
