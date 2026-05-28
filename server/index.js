@@ -8,7 +8,7 @@ import enquiryRoutes from "./routes/enquiry.routes.js";
 import mailingListRoutes from "./routes/mailingList.routes.js";
 import cloudinary from "./utils/cloudinary.config.js";
 import "./jobs/birthdayJob.js";
-import authRoutes from "./routes/auth.routes.js";
+import authRoutes from "./routes/Auth.routes.js";
 
 dotenv.config();
 
