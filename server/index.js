@@ -8,6 +8,7 @@ import enquiryRoutes from "./routes/enquiry.routes.js";
 import mailingListRoutes from "./routes/mailingList.routes.js";
 import cloudinary from "./utils/cloudinary.config.js";
 import "./jobs/birthdayJob.js";
+import authRoutes from "./routes/auth.routes.js";
 
 dotenv.config();
 
@@ -29,7 +30,7 @@ app.use("/api/realtors", realtorRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/enquiry", enquiryRoutes);
 app.use("/api/mailing-list", mailingListRoutes);
-
+app.use("/api/auth", authRoutes);
 const result = await cloudinary.api.ping();
 console.log(result);
 
