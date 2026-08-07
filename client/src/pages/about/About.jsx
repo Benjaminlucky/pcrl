@@ -12,17 +12,17 @@ function About() {
       <PageSEO
         title="About Us"
         description="Learn about Platinum Cape Realtors Group (PCRG) — Africa's fastest-growing real estate brokerage. Built on integrity, innovation and excellence with over 10,000 realtors across Nigeria."
-        canonical="https://yoursite.com/about-us"
-        ogImage="https://yoursite.com/images/og-about.jpg"
+        canonical="https://pcrginitiative.com/about-us"
+        ogImage="https://pcrginitiative.com/images/PCRG-Team.jpg"
         schema={{
           "@context": "https://schema.org",
           "@type": "AboutPage",
-          "@id": "https://yoursite.com/about-us#webpage",
-          url: "https://yoursite.com/about-us",
+          "@id": "https://pcrginitiative.com/about-us#webpage",
+          url: "https://pcrginitiative.com/about-us",
           name: "About PCRG | Platinum Cape Realtors Group",
           description:
             "Africa's fastest-growing real estate brokerage firm built on integrity, innovation and excellence.",
-          isPartOf: { "@id": "https://yoursite.com/#website" },
+          isPartOf: { "@id": "https://pcrginitiative.com/#website" },
           about: {
             "@type": "Organization",
             name: "Platinum Cape Realtors Group",

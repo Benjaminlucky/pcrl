@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { Title, Meta } from "react-head";
 
 export default function NotFound() {
   return (
@@ -9,6 +10,8 @@ export default function NotFound() {
         background: "linear-gradient(to bottom right, #fff1f2, #ffe0e2)",
       }}
     >
+      <Title>Page Not Found | PCRG | Platinum Cape Realtors Group</Title>
+      <Meta name="robots" content="noindex, nofollow" />
       <div className="max-w-2xl w-full text-center">
         <div className="mb-8">
           <h1 className="text-9xl font-bold mb-4" style={{ color: "#ec1c24" }}>

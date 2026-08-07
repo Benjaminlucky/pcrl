@@ -69,7 +69,6 @@ export default function GlobalSEO() {
 
       {/* Favicon */}
       <Link rel="icon" href="/images/platinumFavicon.svg" />
-      <Link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />
       <Link rel="manifest" href="/manifest.json" />
 
       {/* Canonical fallback — overridden per page by PageSEO */}
