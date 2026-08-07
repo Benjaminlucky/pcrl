@@ -16,14 +16,14 @@ function Academy() {
       <PageSEO
         title="PCRG Training & Academy"
         description="Join Africa's leading professional real estate training program. PCRG Academy offers UK-certified courses, mentorship from industry experts, and access to a network of 10,000+ realtors across Nigeria."
-        canonical="https://yoursite.com/pcrg-training-academy"
-        ogImage="https://yoursite.com/images/academyPosterHero.jpg"
+        canonical="https://pcrginitiative.com/pcrg-training-academy"
+        ogImage="https://pcrginitiative.com/images/academyPosterHero.jpg"
         schema={{
           "@context": "https://schema.org",
           "@type": "EducationalOrganization",
-          "@id": "https://yoursite.com/pcrg-training-academy#organization",
+          "@id": "https://pcrginitiative.com/pcrg-training-academy#organization",
           name: "PCRG Training & Academy",
-          url: "https://yoursite.com/pcrg-training-academy",
+          url: "https://pcrginitiative.com/pcrg-training-academy",
           description:
             "Africa's leading professional real estate training program offering UK-certified courses and mentorship.",
           address: {
@@ -34,7 +34,7 @@ function Academy() {
           parentOrganization: {
             "@type": "Organization",
             name: "Platinum Cape Realtors Group",
-            url: "https://yoursite.com",
+            url: "https://pcrginitiative.com",
           },
           hasOfferCatalog: {
             "@type": "OfferCatalog",
@@ -65,13 +65,13 @@ function Academy() {
                 "@type": "ListItem",
                 position: 1,
                 name: "Home",
-                item: "https://yoursite.com",
+                item: "https://pcrginitiative.com",
               },
               {
                 "@type": "ListItem",
                 position: 2,
                 name: "PCRG Academy",
-                item: "https://yoursite.com/pcrg-training-academy",
+                item: "https://pcrginitiative.com/pcrg-training-academy",
               },
             ],
           },

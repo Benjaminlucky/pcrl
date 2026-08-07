@@ -16,20 +16,20 @@ function Home() {
       <PageSEO
         title="Home"
         description="Platinum Cape Realtors Group (PCRG) is Nigeria's premier real estate marketing company — connecting buyers, developers and 10,000+ realtors to profitable property opportunities across Nigeria."
-        canonical="https://yoursite.com"
-        ogImage="https://yoursite.com/images/homeHero.jpg"
+        canonical="https://pcrginitiative.com"
+        ogImage="https://pcrginitiative.com/images/homeHero.jpg"
         schema={{
           "@context": "https://schema.org",
           "@graph": [
             {
               "@type": "Organization",
-              "@id": "https://yoursite.com/#organization",
+              "@id": "https://pcrginitiative.com/#organization",
               name: "Platinum Cape Realtors Group",
               alternateName: "PCRG",
-              url: "https://yoursite.com",
+              url: "https://pcrginitiative.com",
               logo: {
                 "@type": "ImageObject",
-                url: "https://yoursite.com/images/logo.png",
+                url: "https://pcrginitiative.com/images/pcrgLogo.svg",
               },
               contactPoint: {
                 "@type": "ContactPoint",
@@ -43,32 +43,22 @@ function Home() {
                 addressLocality: "Lagos",
                 addressCountry: "NG",
               },
-              sameAs: [
-                "https://instagram.com/yourhandle",
-                "https://facebook.com/yourpage",
-                "https://linkedin.com/company/yourpage",
-              ],
             },
             {
               "@type": "WebSite",
-              "@id": "https://yoursite.com/#website",
+              "@id": "https://pcrginitiative.com/#website",
               name: "Platinum Cape Realtors Group",
-              url: "https://yoursite.com",
-              potentialAction: {
-                "@type": "SearchAction",
-                target: "https://yoursite.com/search?q={search_term_string}",
-                "query-input": "required name=search_term_string",
-              },
+              url: "https://pcrginitiative.com",
             },
             {
               "@type": "WebPage",
-              "@id": "https://yoursite.com/#webpage",
-              url: "https://yoursite.com",
+              "@id": "https://pcrginitiative.com/#webpage",
+              url: "https://pcrginitiative.com",
               name: "Platinum Cape Realtors Group | Excellence in Real Estate, Beyond Borders",
               description:
                 "Nigeria's premier real estate marketing company connecting buyers, developers and realtors to profitable property opportunities.",
-              isPartOf: { "@id": "https://yoursite.com/#website" },
-              about: { "@id": "https://yoursite.com/#organization" },
+              isPartOf: { "@id": "https://pcrginitiative.com/#website" },
+              about: { "@id": "https://pcrginitiative.com/#organization" },
             },
           ],
         }}
