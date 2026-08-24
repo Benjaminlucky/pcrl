@@ -1,7 +1,7 @@
 "use client";
 import { motion, useAnimation } from "framer-motion";
 import { useEffect, useState } from "react";
-import EngageModal from "./EngageModal";
+import EngageModal from "./Engagemodal";
 import BookCallModal from "./BookCallModal";
 
 const fadeInUp = {

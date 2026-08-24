@@ -4,7 +4,7 @@ import DeveloperHero from "../../components/DeveloperHero";
 import DeveloperTimeline from "../../components/DeveloperTimeline";
 import WhatYouGet from "../../components/DeveloperWhatYouGet";
 import WhoWeWorkWith from "../../components/DeveloperWhoweWorkwith";
-import DeveloperReviews from "../../components/developerReviews";
+import DeveloperReviews from "../../components/DeveloperReviews";
 import PartnerWithUs from "../../components/DeveloperPartnerwithus";
 
 function Developers() {

@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FaCheckCircle } from "react-icons/fa";
 import { motion, useInView, useAnimation } from "framer-motion";
-import EngageModal from "./EngageModal";
+import EngageModal from "./Engagemodal";
 
 const WhatYouGet = () => {
   const [engageOpen, setEngageOpen] = useState(false);

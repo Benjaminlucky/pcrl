@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import "./RealtorHero.css";
-import EngageModal from "./EngageModal"; // 👈 import the modal
+import EngageModal from "./Engagemodal"; // 👈 import the modal
 
 const DeveloperHero = () => {
   const controls = useAnimation();
