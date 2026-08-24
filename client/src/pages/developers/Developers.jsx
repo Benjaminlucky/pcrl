@@ -13,17 +13,17 @@ function Developers() {
       <PageSEO
         title="For Property Developers"
         description="Partner with PCRG to sell your real estate developments faster. We provide Nigeria's top developers with a 10,000+ strong sales force, strategic marketing, and results-driven property sales support."
-        canonical="https://yoursite.com/for-developers"
-        ogImage="https://yoursite.com/images/developerHero.webp"
+        canonical="https://pcrginitiative.com/for-developers"
+        ogImage="https://pcrginitiative.com/images/developerHero.webp"
         schema={{
           "@context": "https://schema.org",
           "@type": "WebPage",
-          "@id": "https://yoursite.com/for-developers#webpage",
-          url: "https://yoursite.com/for-developers",
+          "@id": "https://pcrginitiative.com/for-developers#webpage",
+          url: "https://pcrginitiative.com/for-developers",
           name: "For Property Developers | PCRG",
           description:
             "Partner with PCRG's 10,000+ sales force to sell your real estate developments faster across Nigeria.",
-          isPartOf: { "@id": "https://yoursite.com/#website" },
+          isPartOf: { "@id": "https://pcrginitiative.com/#website" },
           mainEntity: {
             "@type": "Service",
             name: "Real Estate Developer Sales Partnership",
@@ -46,13 +46,13 @@ function Developers() {
                 "@type": "ListItem",
                 position: 1,
                 name: "Home",
-                item: "https://yoursite.com",
+                item: "https://pcrginitiative.com",
               },
               {
                 "@type": "ListItem",
                 position: 2,
                 name: "For Developers",
-                item: "https://yoursite.com/for-developers",
+                item: "https://pcrginitiative.com/for-developers",
               },
             ],
           },

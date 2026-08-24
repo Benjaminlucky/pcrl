@@ -1,0 +1,22 @@
+{
+  "name": "Platinum Cape Realtors Group (PCRG)",
+  "short_name": "PCRG",
+  "description": "Join PCRG Initiative, the leading real estate referral network. Build your network, connect with top realtors, and grow your real estate business.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#7a0c0c",
+  "icons": [
+    {
+      "src": "/images/platinumFavicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/pcrgLogo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

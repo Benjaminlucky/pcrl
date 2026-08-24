@@ -13,17 +13,17 @@ function Blog() {
       <PageSEO
         title="Blog & Events"
         description="Stay updated with PCRG's latest real estate events, masterclasses, networking brunches and industry news. Learn, connect and grow with Nigeria's leading realtor community."
-        canonical="https://yoursite.com/blog-and-events"
-        ogImage="https://yoursite.com/images/EventsPosterHero.jpg"
+        canonical="https://pcrginitiative.com/blog-and-events"
+        ogImage="https://pcrginitiative.com/images/EventsPosterHero.jpg"
         schema={{
           "@context": "https://schema.org",
           "@type": "CollectionPage",
-          "@id": "https://yoursite.com/blog-and-events#webpage",
-          url: "https://yoursite.com/blog-and-events",
+          "@id": "https://pcrginitiative.com/blog-and-events#webpage",
+          url: "https://pcrginitiative.com/blog-and-events",
           name: "Blog & Events | PCRG",
           description:
             "Latest real estate events, masterclasses, and industry news from Platinum Cape Realtors Group.",
-          isPartOf: { "@id": "https://yoursite.com/#website" },
+          isPartOf: { "@id": "https://pcrginitiative.com/#website" },
           about: {
             "@type": "Thing",
             name: "Real Estate Events and Training in Nigeria",
@@ -35,13 +35,13 @@ function Blog() {
                 "@type": "ListItem",
                 position: 1,
                 name: "Home",
-                item: "https://yoursite.com",
+                item: "https://pcrginitiative.com",
               },
               {
                 "@type": "ListItem",
                 position: 2,
                 name: "Blog & Events",
-                item: "https://yoursite.com/blog-and-events",
+                item: "https://pcrginitiative.com/blog-and-events",
               },
             ],
           },
