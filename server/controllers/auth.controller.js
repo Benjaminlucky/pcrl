@@ -64,15 +64,17 @@ export const getMe = async (req, res) => {
       return res.status(401).json({ message: "Not authenticated" });
     }
 
-    // Admin: protect() already hydrated req.user from the Admin collection
-    if (req.user.role === "admin") {
+    // Staff: protect() already hydrated req.user from the Admin collection.
+    // Checked by userType so CMS editors/publishers are recognised too.
+    if (req.user.userType === "admin") {
       return res.json({
         user: {
           id: req.user._id,
           email: req.user.email,
           firstName: req.user.firstName || null,
           lastName: req.user.lastName || null,
-          role: "admin",
+          role: req.user.role || "admin",
+          userType: "admin",
         },
       });
     }

@@ -5,6 +5,10 @@ import {
   toDateOrNull,
 } from "../../utils/cms/contentWorkflow.js";
 import { triggerRevalidation } from "../../utils/cms/revalidate.js";
+import { sanitizeJson, ValidationError } from "../../utils/cms/siteValidation.js";
+
+const escapeRegex = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const SAFE_URL = /^(\/|#|https?:\/\/|mailto:|tel:)/i;
 
 function authorFromReq(req) {
   const name =
@@ -27,6 +31,9 @@ function authorFromReq(req) {
  *   publicSort     - default sort for public list (default "-publishedAt")
  *   editableFields - fields accepted from the request body on create/update
  *   revalidatePaths(doc) - array of site paths to revalidate on publish changes
+ *   urlFields      - dotted paths that must hold safe links ("/x", https://, …)
+ *   publicFilter(req) - extra Mongo filter + sort for the public list, e.g.
+ *                    upcoming vs past events: returns { filter, sort }
  */
 export function createContentController(Model, options) {
   const {
@@ -39,15 +46,30 @@ export function createContentController(Model, options) {
     publicSort = "-publishedAt",
     editableFields = [],
     revalidatePaths = () => [],
+    urlFields = [],
+    publicFilter = null,
   } = options;
 
+  // Accepts only the editable fields, cleaned of Mongo operators and unsafe
+  // URL schemes (same rules as the website builder).
   const pickEditable = (body = {}) => {
     const out = {};
     for (const f of editableFields) {
-      if (body[f] !== undefined) out[f] = body[f];
+      if (body[f] !== undefined) out[f] = sanitizeJson(body[f], f);
+    }
+    for (const path of urlFields) {
+      const value = path.split(".").reduce((o, k) => (o == null ? o : o[k]), out);
+      if (typeof value === "string" && value.trim() && !SAFE_URL.test(value.trim())) {
+        throw new ValidationError(
+          `${path} must start with "/", "https://", "mailto:" or "tel:".`,
+        );
+      }
     }
     return out;
   };
+
+  const validationResponse = (res, err) =>
+    res.status(400).json({ message: err.message });
 
   const revalidate = (doc) => {
     try {
@@ -75,7 +97,7 @@ export function createContentController(Model, options) {
         if (status) filter.status = status;
         if (search) {
           filter.$or = searchFields.map((f) => ({
-            [f]: { $regex: search, $options: "i" },
+            [f]: { $regex: escapeRegex(search), $options: "i" },
           }));
         }
 
@@ -135,6 +157,7 @@ export function createContentController(Model, options) {
           .status(201)
           .json({ message: `${resourceName} created`, doc });
       } catch (err) {
+        if (err instanceof ValidationError) return validationResponse(res, err);
         if (err?.code === 11000) {
           return res
             .status(409)
@@ -154,12 +177,22 @@ export function createContentController(Model, options) {
         if (!doc)
           return res.status(404).json({ message: `${resourceName} not found` });
 
+        // Optimistic concurrency: the editor sends the updatedAt it loaded.
+        const expected = req.body?.expectedUpdatedAt;
+        if (expected && new Date(expected).getTime() !== doc.updatedAt?.getTime()) {
+          return res.status(409).json({
+            message:
+              "This was changed by someone else since you opened it. Reload to get the latest version.",
+            currentUpdatedAt: doc.updatedAt,
+          });
+        }
+
         const data = pickEditable(req.body);
 
-        // Maintain slug if the title or slug changed.
-        if (hasSlug && (req.body.slug || data[titleField])) {
-          const base = req.body.slug || data[titleField] || doc[titleField];
-          data.slug = await uniqueSlug(Model, base, doc._id);
+        // The slug is the public URL: it only changes when explicitly edited,
+        // never as a side effect of retitling (that would break shared links).
+        if (hasSlug && req.body.slug && req.body.slug !== doc.slug) {
+          data.slug = await uniqueSlug(Model, req.body.slug, doc._id);
         }
 
         Object.assign(doc, data);
@@ -170,6 +203,7 @@ export function createContentController(Model, options) {
 
         return res.json({ message: `${resourceName} updated`, doc });
       } catch (err) {
+        if (err instanceof ValidationError) return validationResponse(res, err);
         if (err?.code === 11000) {
           return res
             .status(409)
@@ -283,10 +317,15 @@ export function createContentController(Model, options) {
           Math.max(parseInt(req.query.limit, 10) || 12, 1),
           50,
         );
-        const filter = publicMatch({ hasScheduling });
-
-        // Optional public sort override for ordered collections (team/testimonials)
-        const sort = req.query.sort || publicSort;
+        let filter = publicMatch({ hasScheduling });
+        let sort = publicSort;
+        if (publicFilter) {
+          const extra = publicFilter(req) || {};
+          if (extra.filter) filter = { $and: [filter, extra.filter] };
+          if (extra.sort) sort = extra.sort;
+        }
+        // Explicit ?sort= still wins (previous behaviour).
+        if (req.query.sort) sort = req.query.sort;
 
         const total = await Model.countDocuments(filter);
         const docs = await Model.find(filter)

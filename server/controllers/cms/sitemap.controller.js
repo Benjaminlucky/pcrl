@@ -1,7 +1,7 @@
 // controllers/cms/sitemap.controller.js
-import BlogPost from "./blogPost.model.js";
-import Event from "./event.model.js";
-import Page from "./page.model.js";
+import BlogPost from "../../models/cms/blogPost.model.js";
+import Event from "../../models/cms/event.model.js";
+import SiteDocument from "../../models/cms/siteDocument.model.js";
 import { publicMatch } from "../../utils/cms/contentWorkflow.js";
 
 const SITE_URL = (
@@ -10,14 +10,17 @@ const SITE_URL = (
   "https://pcrginitiative.com"
 ).replace(/\/$/, "");
 
-// Static routes that always exist on the marketing site.
+// Static routes that always exist on the marketing site. Priorities match
+// the original client/public/sitemap.xml.
 const STATIC_PATHS = [
   { path: "/", priority: "1.0", changefreq: "weekly" },
-  { path: "/for-realtors", priority: "0.8", changefreq: "monthly" },
-  { path: "/for-developers", priority: "0.8", changefreq: "monthly" },
-  { path: "/pcrg-training-academy", priority: "0.8", changefreq: "monthly" },
+  { path: "/about-us", priority: "0.8", changefreq: "monthly" },
+  { path: "/for-realtors", priority: "0.9", changefreq: "weekly" },
+  { path: "/for-developers", priority: "0.9", changefreq: "weekly" },
+  { path: "/pcrg-training-academy", priority: "0.9", changefreq: "weekly" },
   { path: "/blog-and-events", priority: "0.7", changefreq: "weekly" },
-  { path: "/about-us", priority: "0.6", changefreq: "monthly" },
+  { path: "/blog", priority: "0.7", changefreq: "weekly" },
+  { path: "/events", priority: "0.7", changefreq: "weekly" },
 ];
 
 function xmlEscape(s = "") {
@@ -52,8 +55,8 @@ export const sitemap = async (req, res) => {
       Event.find(publicMatch({ hasScheduling: true }))
         .select("slug updatedAt publishedAt")
         .lean(),
-      Page.find(publicMatch({ hasScheduling: true }))
-        .select("key updatedAt publishedAt")
+      SiteDocument.find({ kind: "page", published: { $ne: null } })
+        .select("key path publishedAt")
         .lean(),
     ]);
 
@@ -91,13 +94,14 @@ export const sitemap = async (req, res) => {
       );
     }
 
+    const staticSet = new Set(STATIC_PATHS.map((s) => s.path));
     for (const pg of pages) {
-      // Skip "home" (already covered by "/")
-      if (pg.key === "home") continue;
+      // Static routes are already listed above.
+      if (!pg.path || staticSet.has(pg.path)) continue;
       entries.push(
         urlEntry({
-          loc: `${SITE_URL}/${pg.key}`,
-          lastmod: pg.updatedAt || pg.publishedAt,
+          loc: `${SITE_URL}${pg.path}`,
+          lastmod: pg.publishedAt,
           changefreq: "monthly",
           priority: "0.5",
         }),

@@ -6,9 +6,8 @@
 // so this cron is about normalizing stored status + triggering site rebuilds,
 // not about correctness of what visitors see.
 import cron from "node-cron";
-import BlogPost from "../controllers/cms/blogPost.model.js";
-import Event from "../controllers/cms/event.model.js";
-import Page from "../controllers/cms/page.model.js";
+import BlogPost from "../models/cms/blogPost.model.js";
+import Event from "../models/cms/event.model.js";
 import { triggerRevalidation } from "../utils/cms/revalidate.js";
 
 const BIRTHDAY_ZONE = "Africa/Lagos";
@@ -39,11 +38,6 @@ export async function runScheduledPublish() {
     );
     paths.push(
       ...(await publishDue(Event, (d) => ["/events", `/events/${d.slug}`])),
-    );
-    paths.push(
-      ...(await publishDue(Page, (d) => [
-        d.key === "home" ? "/" : `/${d.key}`,
-      ])),
     );
 
     if (paths.length) {

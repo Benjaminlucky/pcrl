@@ -6,7 +6,6 @@ import {
   events,
   team,
   testimonials,
-  pages,
 } from "../controllers/cms/index.js";
 
 const router = express.Router();
@@ -24,8 +23,5 @@ router.get("/team", team.publicList);
 
 // Testimonials
 router.get("/testimonials", testimonials.publicList);
-
-// Pages (by key)
-router.get("/pages/:key", pages.publicGetByKey);
 
 export default router;

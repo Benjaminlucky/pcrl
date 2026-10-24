@@ -48,7 +48,8 @@ export const loginAdmin = async (req, res) => {
       user: {
         id: admin._id,
         email: admin.email,
-        role: "admin",
+        role: admin.role || "admin",
+        userType: "admin",
       },
     });
   } catch (err) {
