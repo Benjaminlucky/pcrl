@@ -10,6 +10,10 @@ import {
   FaBars,
   FaTimes,
   FaEnvelope,
+  FaGlobeAfrica,
+  FaImages,
+  FaNewspaper,
+  FaCalendarAlt,
 } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -30,8 +34,17 @@ export default function DashboardLayout({ children }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const websiteItems = [
+    { name: "Website", path: "/dashboard/site", icon: <FaGlobeAfrica /> },
+    { name: "Blog", path: "/dashboard/blog", icon: <FaNewspaper /> },
+    { name: "Events", path: "/dashboard/events", icon: <FaCalendarAlt /> },
+    { name: "Media", path: "/dashboard/media", icon: <FaImages /> },
+  ];
+
   const sidebarItems =
-    user?.role === "admin"
+    user?.role === "publisher" || user?.role === "editor"
+      ? [...websiteItems, { name: "Back to Home", path: "/", icon: <RiHome9Fill /> }]
+      : user?.role === "admin"
       ? [
           {
             name: "Dashboard",
@@ -48,6 +61,7 @@ export default function DashboardLayout({ children }) {
             path: "/dashboard/mailing-list",
             icon: <FaEnvelope />, // add: import { FaEnvelope } from "react-icons/fa"
           },
+          ...websiteItems,
           { name: "Reports", path: "/admin/reports", icon: <FaChartLine /> },
         ]
       : [
@@ -94,7 +108,9 @@ export default function DashboardLayout({ children }) {
             <h1 className="text-2xl font-bold mb-8 pl-4">PCRG Dashboard</h1>
             <nav className="space-y-2">
               {sidebarItems.map((item) => {
-                const isActive = pathname === item.path;
+                const isActive =
+                  pathname === item.path ||
+                  (item.path.startsWith("/dashboard/") && pathname.startsWith(`${item.path}/`));
                 return (
                   <Link
                     to={item.path}
@@ -130,7 +146,9 @@ export default function DashboardLayout({ children }) {
             <h1 className="text-2xl font-bold mb-8 pl-4">PCRG Dashboard</h1>
             <nav className="space-y-2">
               {sidebarItems.map((item) => {
-                const isActive = pathname === item.path;
+                const isActive =
+                  pathname === item.path ||
+                  (item.path.startsWith("/dashboard/") && pathname.startsWith(`${item.path}/`));
                 return (
                   <Link
                     to={item.path}
