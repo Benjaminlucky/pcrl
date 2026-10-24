@@ -2,6 +2,17 @@
   command = "npm run build"
   publish = "dist" # or "build" — depends on Vite vs CRA
 
+# Serve the always-up-to-date sitemap from the API (includes blog posts,
+# events and pages created in the dashboard). Must come before the SPA
+# catch-all below. force = true overrides public/sitemap.xml.
+# !! Only deploy this once the API is live at this address — change the host
+# here if the API ends up on a different domain.
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "https://api.pcrginitiative.com/sitemap.xml"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

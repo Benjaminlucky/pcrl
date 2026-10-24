@@ -1,8 +1,15 @@
 // src/components/GlobalSeo.jsx
-import React from "react";
+import React, { useEffect } from "react";
 import { Title, Meta, Link } from "react-head";
 
 export default function GlobalSEO() {
+  // index.html carries static copies of these tags for link previews that
+  // don't run JavaScript. Once the app is running, react-head manages them,
+  // so drop the static copies to avoid duplicate description/og/twitter tags.
+  useEffect(() => {
+    document.head.querySelectorAll("[data-static-seo]").forEach((el) => el.remove());
+  }, []);
+
   return (
     <>
       {/* 🌐 Default Fallback Title — overridden by PageSEO on each page */}
@@ -12,6 +19,10 @@ export default function GlobalSEO() {
       </Title>
 
       {/* Core Meta */}
+      <Meta
+        name="description"
+        content="Platinum Cape Realtors Group (PCRG) is bridging local and international investors to legally compliant, profitable real estate opportunities across Nigeria."
+      />
       <Meta name="author" content="Platinum Cape Realtors Group" />
       <Meta name="robots" content="index, follow" />
       <Meta name="theme-color" content="#7a0c0c" />
@@ -71,8 +82,8 @@ export default function GlobalSEO() {
       <Link rel="icon" href="/images/platinumFavicon.svg" />
       <Link rel="manifest" href="/manifest.json" />
 
-      {/* Canonical fallback — overridden per page by PageSEO */}
-      <Link rel="canonical" href="https://pcrginitiative.com" />
+      {/* No canonical fallback here: each page sets its own via PageSEO
+          (link tags aren't de-duplicated, so a fallback would duplicate it). */}
     </>
   );
 }
