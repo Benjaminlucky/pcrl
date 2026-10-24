@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { useSection } from "../cms/hooks";
+import { EVENTS_NEWS_ALERT } from "../cms/defaults/events";
 
 /**
  * SubscribeSection - responsive email subscription banner
@@ -7,6 +9,7 @@ import { motion } from "framer-motion";
  * Includes subtle animations and validation handling.
  */
 export default function SubscribeSection() {
+  const c = useSection(EVENTS_NEWS_ALERT);
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
@@ -28,7 +31,7 @@ export default function SubscribeSection() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          Subscribe to the PCRG Event Alerts
+          {c.title}
         </motion.h2>
 
         {/* Form */}
@@ -51,7 +54,7 @@ export default function SubscribeSection() {
             type="submit"
             className="bg-black text-white px-6 py-3 font-semibold hover:bg-gray-900 transition duration-300"
           >
-            {submitted ? "Subscribed!" : "Join our mailing list"}
+            {submitted ? "Subscribed!" : c.buttonLabel}
           </button>
         </motion.form>
       </div>

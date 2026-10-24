@@ -8,9 +8,11 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
-import { developerReviews } from "../data/data.js";
+import { useSection } from "../cms/hooks";
+import { DEVELOPER_REVIEWS } from "../cms/defaults/developers";
 
 function DeveloperReviews() {
+  const c = useSection(DEVELOPER_REVIEWS);
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
@@ -44,14 +46,13 @@ function DeveloperReviews() {
         >
           <div className="center">
             <SectionTitle
-              text="Let’s Turn Your Project Into a Success Story"
+              text={c.title}
               textClass="!text-gray-100 tracking-wide"
               underlineClass="!bg-primary-500 !w-[15%] h-[3px]"
             />
           </div>
           <p className="text-gray-300 text-sm md:text-base mt-4 max-w-2xl">
-            Hear testimonies of impact, financial transformation, and
-            sustainable growth.
+            {c.intro}
           </p>
         </motion.div>
 
@@ -75,7 +76,7 @@ function DeveloperReviews() {
           }}
           className="mySwiper w-full flex justify-center items-center pb-14"
         >
-          {developerReviews.map((review, index) => (
+          {c.reviews.map((review, index) => (
             <SwiperSlide
               key={index}
               className="flex justify-center items-center"

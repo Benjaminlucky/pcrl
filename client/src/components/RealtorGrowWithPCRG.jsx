@@ -2,6 +2,10 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { FaWhatsapp } from "react-icons/fa";
+import { useSection } from "../cms/hooks";
+import { REALTOR_GROW } from "../cms/defaults/realtors";
+import InlineText from "../cms/InlineText";
+import ActionLink from "../cms/ActionLink";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40, filter: "blur(10px)", scale: 0.97 },
@@ -15,6 +19,7 @@ const fadeInUp = {
 };
 
 export default function RealtorGrowWithPCRG() {
+  const c = useSection(REALTOR_GROW);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [pulseIntensity, setPulseIntensity] = useState(0.25);
 
@@ -41,7 +46,7 @@ export default function RealtorGrowWithPCRG() {
       <motion.div
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: "url('/images/burbleBg.jpg')",
+          backgroundImage: `url("${encodeURI(c.backgroundImage)}")`,
         }}
         initial={{ scale: 1.1 }}
         whileInView={{
@@ -90,8 +95,10 @@ export default function RealtorGrowWithPCRG() {
           }}
           viewport={{ once: true }}
         >
-          Ready to Grow with{" "}
-          <span className="text-[var(--color-primary-500)]">PCRG?</span>
+          <InlineText
+            text={c.title}
+            strongClassName="text-[var(--color-primary-500)]"
+          />
         </motion.h2>
 
         <motion.p
@@ -104,26 +111,28 @@ export default function RealtorGrowWithPCRG() {
           }}
           viewport={{ once: true }}
         >
-          Take your real estate career global. <br />
-          Join a network of 10,000+ Realtors making impact and income every day.
+          <InlineText text={c.body} />
         </motion.p>
 
         <div className="flex flex-wrap justify-center gap-4">
           {/* Primary CTA */}
-          <motion.button
-            whileHover={{
-              boxShadow: "0 0 25px rgba(255,255,255,0.6)",
-              scale: 1.05,
+          <ActionLink
+            url={c.primaryButton?.url}
+            motionProps={{
+              whileHover: {
+                boxShadow: "0 0 25px rgba(255,255,255,0.6)",
+                scale: 1.05,
+              },
+              whileTap: { scale: 0.95 },
             }}
-            whileTap={{ scale: 0.95 }}
             className="px-8 py-3 rounded-md border-2 border-white text-white font-semibold hover:bg-white hover:text-[var(--color-primary-700)] transition-all duration-300"
           >
-            Join as a Realtor
-          </motion.button>
+            {c.primaryButton?.label}
+          </ActionLink>
 
           {/* WhatsApp Chat Button */}
           <motion.a
-            href="https://wa.me/2348053642425?text=Hello%20PCRG!%20I%27d%20like%20to%20learn%20more%20about%20partnering%20as%20a%20Realtor."
+            href={c.chatButton?.url}
             target="_blank"
             rel="noopener noreferrer"
             whileHover={{
@@ -134,7 +143,7 @@ export default function RealtorGrowWithPCRG() {
             className="flex items-center gap-2 px-8 py-3 rounded-md bg-white text-gray-800 font-semibold hover:bg-[var(--color-primary-700)] hover:text-white transition-all duration-300"
           >
             <FaWhatsapp className="text-white text-2xl" />
-            Chat Support
+            {c.chatButton?.label}
           </motion.a>
         </div>
       </motion.div>

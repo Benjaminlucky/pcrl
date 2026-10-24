@@ -3,6 +3,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useSection } from "../cms/hooks";
+import { ACADEMY_HERO } from "../cms/defaults/academy";
 
 /**
  * Hero component using framer-motion with ambient and button glow.
@@ -13,6 +15,7 @@ import { Link } from "react-router-dom";
  * - "View Faculty" button smoothly scrolls to #faculty section.
  */
 export default function AcademyHero() {
+  const c = useSection(ACADEMY_HERO);
   const videoRef = useRef(null);
   const [videoError, setVideoError] = useState(false);
   const controls = useAnimation();
@@ -80,16 +83,23 @@ export default function AcademyHero() {
           muted
           loop
           preload="metadata"
-          poster="/images/academyPosterHero.jpg"
+          poster={c.poster}
           onError={handleVideoError}
           aria-hidden="true"
         >
-          <source src="/videos/academyHero.webm" type="video/webm" />
-          <source src="/videos/academyHero.mp4" type="video/mp4" />
+          {/* An uploaded CMS video replaces both built-in formats. */}
+          {c.video ? (
+            <source src={c.video} />
+          ) : (
+            <>
+              <source src="/videos/academyHero.webm" type="video/webm" />
+              <source src="/videos/academyHero.mp4" type="video/mp4" />
+            </>
+          )}
         </video>
       ) : (
         <img
-          src="/images/academyPosterHero.jpg"
+          src={c.poster}
           alt="Training session background"
           className="absolute inset-0 w-full h-full object-cover"
           aria-hidden="true"
@@ -109,7 +119,7 @@ export default function AcademyHero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
         >
-          Elevate Your Game With PCRG Academy
+          {c.title}
         </motion.h1>
 
         <motion.p
@@ -118,7 +128,7 @@ export default function AcademyHero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.4, ease: "easeOut" }}
         >
-          The Leading Professional Realtors Training Program in Africa
+          {c.subtitle}
         </motion.p>
 
         <motion.div
@@ -138,10 +148,10 @@ export default function AcademyHero() {
             className="rounded-md py-3 overflow-hidden"
           >
             <Link
-              to="/sign-up"
+              to={c.primaryButton?.url || "/sign-up"}
               className="px-8 py-3 bg-[var(--color-primary-500)] text-white font-semibold rounded-md transition duration-300 shadow-[0_0_15px_var(--color-primary-400)] hover:shadow-[0_0_40px_var(--color-primary-500)]"
             >
-              Apply to Academy
+              {c.primaryButton?.label}
             </Link>
           </motion.div>
 
@@ -167,7 +177,7 @@ export default function AcademyHero() {
               onClick={handleViewFaculty}
               className="px-8 py-3 border border-white text-white rounded-md font-semibold hover:bg-white hover:text-[var(--color-primary-500)] transition duration-300 block"
             >
-              View Faculty
+              {c.secondaryButtonLabel}
             </a>
           </motion.div>
         </motion.div>

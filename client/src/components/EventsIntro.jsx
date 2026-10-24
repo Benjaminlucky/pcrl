@@ -2,16 +2,11 @@
 import React, { useRef } from "react";
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import SectionTitle from "./SectionTitle";
+import { useSection } from "../cms/hooks";
+import { EVENTS_INTRO } from "../cms/defaults/events";
 
-export default function EventsIntro({
-  image = "/images/eventImg1.jpeg",
-  title = "Where Knowledge Meets Lifestyle",
-  paragraphs = [
-    "Welcome to the heartbeat of the PCRG community — where realtors, investors, and enthusiasts come together to learn, network, and stay inspired. At PCRG, we believe real estate is more than business — it’s a lifestyle, a mindset, and a movement.",
-    "Our Events Hub keeps you connected to the trends, trainings, and transformational moments shaping the future of real estate across Africa.",
-  ],
-  reverse = false, // 🔁 Flip layout automatically
-}) {
+export default function EventsIntro() {
+  const { image, title, paragraphs, reverse } = useSection(EVENTS_INTRO);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const { scrollYProgress } = useScroll({

@@ -2,8 +2,11 @@
 import React from "react";
 import { motion } from "framer-motion";
 import SectionTitle from "./SectionTitle";
+import { useSection } from "../cms/hooks";
+import { HOME_SERVICES } from "../cms/defaults/home";
 
 function HomeServices() {
+  const c = useSection(HOME_SERVICES);
   // Cinematic animation variants
   const containerVariants = {
     hidden: {},
@@ -66,48 +69,35 @@ function HomeServices() {
             className="titleWrapper flex flex-col justify-center min-h-[320px] transition-all duration-300"
           >
             <SectionTitle
-              text="Our Services"
+              text={c.title}
               textClass="!text-white tracking-wide text-3xl md:text-4xl font-semibold"
               underlineClass="!bg-primary-500 !w-[20%] h-[3px] mt-2"
             />
             <p className="text-gray-300 mt-4 text-sm md:text-base leading-relaxed">
-              PCRG delivers excellence through transparency, innovation, and a
-              client-first approach in every service we provide.
+              {c.intro}
             </p>
           </motion.div>
 
-          {/* Service 1 */}
-          <motion.div
-            variants={fadeLeftVariant}
-            className="investorWrapper bg-primary-800 p-8 rounded-2xl shadow-lg flex flex-col justify-center min-h-[320px] hover:shadow-xl hover:bg-primary-500/50 transition-all duration-300"
-          >
-            <div className="investorContent">
-              <h3 className="text-white text-xl font-semibold mb-3">
-                Property Marketing & Listings
-              </h3>
-              <p className="text-gray-300 leading-relaxed">
-                From Lagos to selected states across Nigeria, we market and list
-                properties that meet strict legal and compliance checks to
-                ensure buyer confidence and transparency.
-              </p>
-            </div>
-          </motion.div>
-
-          {/* Service 2 */}
-          <motion.div
-            variants={fadeRightVariant}
-            className="clientWrapper bg-primary-800 p-8 rounded-2xl shadow-lg flex flex-col justify-center min-h-[320px] hover:shadow-xl hover:bg-primary-500/50 transition-all duration-300"
-          >
-            <div className="clientContent">
-              <h3 className="text-white text-xl font-semibold mb-3">
-                Client Investment Advisory
-              </h3>
-              <p className="text-gray-300 leading-relaxed">
-                Expert guidance for both local and international investors
-                seeking secure and profitable real estate opportunities.
-              </p>
-            </div>
-          </motion.div>
+          {c.services.map((service, i) => {
+            // Cards alternate entrance direction, as in the original layout.
+            const first = i % 2 === 0;
+            return (
+              <motion.div
+                key={i}
+                variants={first ? fadeLeftVariant : fadeRightVariant}
+                className={`${first ? "investorWrapper" : "clientWrapper"} bg-primary-800 p-8 rounded-2xl shadow-lg flex flex-col justify-center min-h-[320px] hover:shadow-xl hover:bg-primary-500/50 transition-all duration-300`}
+              >
+                <div className={first ? "investorContent" : "clientContent"}>
+                  <h3 className="text-white text-xl font-semibold mb-3">
+                    {service.title}
+                  </h3>
+                  <p className="text-gray-300 leading-relaxed">
+                    {service.description}
+                  </p>
+                </div>
+              </motion.div>
+            );
+          })}
         </motion.div>
       </div>
     </motion.section>

@@ -1,10 +1,13 @@
 "use client";
 import React from "react";
 import { motion } from "framer-motion";
-import { WhyChoose } from "../data/data.js";
+import { useSection } from "../cms/hooks";
+import { WHY_CHOOSE } from "../cms/defaults/shared";
+import { iconFor } from "../cms/icons";
 import SectionTitle from "./SectionTitle";
 
 function HomeChoose() {
+  const c = useSection(WHY_CHOOSE);
   // Animation variants
   const containerVariants = {
     hidden: {},
@@ -50,7 +53,7 @@ function HomeChoose() {
           {/* Title */}
           <motion.div variants={fadeUpVariant} className="center">
             <SectionTitle
-              text="Why Choose PCRG?"
+              text={c.title}
               textClass="!text-gray-900 tracking-wide"
               underlineClass="!bg-primary-500 !w-[20%] h-[3px]"
             />
@@ -61,7 +64,7 @@ function HomeChoose() {
             variants={containerVariants}
             className="perks w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-12 lg:px-0 gap-10 py-16"
           >
-            {WhyChoose.map((perk, index) => (
+            {c.perks.map((perk, index) => (
               <motion.div
                 key={index}
                 variants={fadeInVariant}
@@ -69,7 +72,7 @@ function HomeChoose() {
               >
                 {/* Icon */}
                 <div className="icon text-primary-500 text-6xl mb-4 transition-colors duration-300 group-hover:text-white">
-                  {React.createElement(perk.icon)}
+                  {React.createElement(iconFor(perk.icon))}
                 </div>
 
                 {/* Title */}

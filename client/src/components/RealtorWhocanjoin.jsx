@@ -1,9 +1,13 @@
 import React from "react";
 import { motion, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
-import joinImg from "/images/RealtorPageJoinModel.png";
+import { useSection } from "../cms/hooks";
+import { REALTOR_WHO_CAN_JOIN } from "../cms/defaults/realtors";
+import InlineText from "../cms/InlineText";
+import ActionLink from "../cms/ActionLink";
 
 export default function RealtorWhocanjoin() {
+  const c = useSection(REALTOR_WHO_CAN_JOIN);
   const controls = useAnimation();
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.2 });
 
@@ -57,26 +61,25 @@ export default function RealtorWhocanjoin() {
         animate={controls}
       >
         <h2 className="text-4xl lg:text-5xl font-extrabold text-[var(--color-primary-600)] mb-4">
-          Who Can Join?
+          {c.title}
         </h2>
         <p className="text-base lg:text-2xl text-gray-700 leading-relaxed mb-6">
-          Whether you’re a beginner, a freelance realtor, or a real estate
-          professional, PCRG is your launchpad to success.
-          <br />
-          If you’re passionate about real estate, ready to learn, and driven to
-          succeed — you belong here.
+          <InlineText text={c.body} />
         </p>
 
-        <motion.button
+        <ActionLink
+          url={c.button?.url}
           className="mt-6 px-8 py-3 rounded-md border-2 border-primary-500 text-lg font-semibold text-primary-500 hover:bg-primary-500 hover:text-white transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_var(--color-primary-400)]"
-          whileHover={{
-            boxShadow: "0 0 25px var(--color-primary-400)",
-            scale: 1.05,
-            transition: { duration: 0.3 },
+          motionProps={{
+            whileHover: {
+              boxShadow: "0 0 25px var(--color-primary-400)",
+              scale: 1.05,
+              transition: { duration: 0.3 },
+            },
           }}
         >
-          Get Started
-        </motion.button>
+          {c.button?.label}
+        </ActionLink>
       </motion.div>
 
       {/* Right Image */}
@@ -95,8 +98,8 @@ export default function RealtorWhocanjoin() {
         animate={controls}
       >
         <img
-          src={joinImg}
-          alt="Smiling realtor pointing"
+          src={c.image?.url}
+          alt={c.image?.alt}
           className="object-contain relative"
         />
       </motion.div>

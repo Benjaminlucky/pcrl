@@ -1,14 +1,13 @@
 "use client";
 import React, { useRef } from "react";
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
-import {
-  FaChalkboardTeacher,
-  FaChartLine,
-  FaNetworkWired,
-} from "react-icons/fa";
 import SectionTitle from "./SectionTitle";
+import { useSection } from "../cms/hooks";
+import { ABOUT_INTRO } from "../cms/defaults/about";
+import { iconFor } from "../cms/icons";
 
 export default function AboutIntro() {
+  const c = useSection(ABOUT_INTRO);
   const ref = useRef(null);
 
   // Parallax motion
@@ -62,23 +61,19 @@ export default function AboutIntro() {
           className="text-center max-w-3xl mx-auto"
         >
           <SectionTitle
-            text="WE ARE THE FASTEST–GROWING BROKERAGE GROUP"
+            text={c.block1Title}
             textClass="text-center text-gray-900"
             underlineClass="!bg-red-500 !w-[14%] mx-auto h-[3px]"
           />
 
-          <p className="mt-3 text-gray-600 leading-relaxed text-md md:text-lg text-justify">
-            PCRG is a powerful network of independent real estate marketers and
-            strategic professionals delivering integrated solutions for real
-            estate developers.
-          </p>
-
-          <p className="mt-2 text-gray-600 leading-relaxed text-md md:text-lg text-justify">
-            With a strong workforce, years of experience, and deep local market
-            insight, we stand out as Nigeria’s foremost real estate brokerage
-            firm — a trusted bridge between developers, investors, and
-            homebuyers.
-          </p>
+          {c.block1Paragraphs.map((text, i) => (
+            <p
+              key={i}
+              className={`${i === 0 ? "mt-3" : "mt-2"} text-gray-600 leading-relaxed text-md md:text-lg text-justify`}
+            >
+              {text}
+            </p>
+          ))}
         </motion.div>
 
         {/* ================================
@@ -91,23 +86,19 @@ export default function AboutIntro() {
           className="text-center max-w-3xl mx-auto mt-20"
         >
           <SectionTitle
-            text="WE ARE A SOLUTION–DRIVEN NETWORK"
+            text={c.block2Title}
             textClass="text-center text-gray-900"
             underlineClass="!bg-red-500 !w-[14%] mx-auto h-[3px]"
           />
 
-          <p className="mt-6 text-gray-600 leading-[1.9] text-lg md:text-xl text-justify">
-            At PCRG, we don’t just market properties — we create opportunities.
-            Using data-driven insights, innovative marketing, and digital tools,
-            we connect buyers, investors, and developers with projects that
-            deliver real value.
-          </p>
-
-          <p className="mt-4 text-gray-600 leading-[1.9] text-lg md:text-xl text-justify">
-            Built on integrity, innovation, and excellence, our mission is
-            simple: to simplify real estate transactions and maximize results
-            for our clients and partners.
-          </p>
+          {c.block2Paragraphs.map((text, i) => (
+            <p
+              key={i}
+              className={`${i === 0 ? "mt-6" : "mt-4"} text-gray-600 leading-[1.9] text-lg md:text-xl text-justify`}
+            >
+              {text}
+            </p>
+          ))}
         </motion.div>
 
         {/* ================================
@@ -120,14 +111,13 @@ export default function AboutIntro() {
           className="text-center max-w-3xl mx-auto mt-24"
         >
           <SectionTitle
-            text="WE HELP YOU GROW YOUR REAL ESTATE CAREER"
+            text={c.block3Title}
             textClass="text-center text-gray-900"
             underlineClass="!bg-red-500 !w-[14%] mx-auto h-[3px]"
           />
 
           <p className="mt-6 text-gray-600 leading-[1.9] text-lg md:text-xl">
-            Whether you’re just starting or scaling your real estate career,
-            PCRG is your launchpad. We provide our members with:
+            {c.block3Text}
           </p>
         </motion.div>
 
@@ -144,18 +134,16 @@ export default function AboutIntro() {
           transition={{ duration: 0.9, ease: "easeOut", delay: 0.3 }}
           className="grid grid-cols-1 md:grid-cols-3 mt-14 gap-6"
         >
-          <FeatureCard
-            icon={<FaChalkboardTeacher className="text-red-500 text-5xl" />}
-            title="World-class training and mentorship"
-          />
-          <FeatureCard
-            icon={<FaChartLine className="text-red-500 text-5xl" />}
-            title="Market insights and sales support"
-          />
-          <FeatureCard
-            icon={<FaNetworkWired className="text-red-500 text-5xl" />}
-            title="Growth-focused systems and a vibrant network"
-          />
+          {c.features.map((feature, i) => {
+            const Icon = iconFor(feature.icon);
+            return (
+              <FeatureCard
+                key={i}
+                icon={<Icon className="text-red-500 text-5xl" />}
+                title={feature.title}
+              />
+            );
+          })}
         </motion.div>
 
         {/* ================================
@@ -168,16 +156,10 @@ export default function AboutIntro() {
           className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-28"
         >
           {/* Vision Card */}
-          <VisionMissionCard
-            title="Our Vision"
-            text="To become Africa’s No.1 real estate brokerage firm, recognized for excellence, innovation, and trust."
-          />
+          <VisionMissionCard title={c.visionTitle} text={c.visionText} />
 
           {/* Mission Card */}
-          <VisionMissionCard
-            title="Our Mission"
-            text="To deliver genuine, high-value real estate products through strategic partnerships with reputable developers — powered by technology, teamwork, and a strong, motivated sales force."
-          />
+          <VisionMissionCard title={c.missionTitle} text={c.missionText} />
         </motion.div>
       </div>
     </motion.section>

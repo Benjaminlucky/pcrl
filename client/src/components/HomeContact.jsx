@@ -8,8 +8,12 @@ import {
   FaLinkedinIn,
 } from "react-icons/fa";
 import { motion, useInView, useTransform, useScroll } from "framer-motion";
+import { useSection } from "../cms/hooks";
+import { HOME_CONTACT } from "../cms/defaults/home";
+import InlineText from "../cms/InlineText";
 
 export default function HomeContact() {
+  const c = useSection(HOME_CONTACT);
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
@@ -61,8 +65,8 @@ export default function HomeContact() {
         >
           <img
             loading="lazy"
-            src="/images/homeContact.jpeg"
-            alt="Contact representative"
+            src={c.image?.url}
+            alt={c.image?.alt}
             className="rounded-xl w-full max-w-md object-cover shadow-lg"
           />
         </motion.div>
@@ -74,12 +78,11 @@ export default function HomeContact() {
           transition={{ duration: 1.2, delay: 0.6 }}
           className="text-gray-900 flex flex-col gap-6"
         >
-          <h2 className="text-3xl font-bold">Contact us</h2>
+          <h2 className="text-3xl font-bold">{c.title}</h2>
           <div className="w-16 h-[3px] bg-[#EC1C24] mb-2"></div>
 
           <p className="text-base text-gray-700 leading-relaxed">
-            We are here to serve you better. <br />
-            Reach out through any of the channels below:
+            <InlineText text={c.intro} />
           </p>
 
           {/* Contact Info */}
@@ -93,7 +96,7 @@ export default function HomeContact() {
               <div className="bg-[#EC1C24] p-3 rounded-md text-white text-lg">
                 <FaEnvelope />
               </div>
-              <p className="text-base font-medium">info@pcrginitiative.com</p>
+              <p className="text-base font-medium">{c.email}</p>
             </motion.div>
 
             <motion.div
@@ -105,10 +108,7 @@ export default function HomeContact() {
               <div className="bg-[#EC1C24] p-3 rounded-md text-white text-lg">
                 <FaPhoneAlt />
               </div>
-              <p className="text-base font-medium">
-                +234 (0)812 632 6511, +234 (0)901 190 8119, +234 (0)814 776
-                6885, +234 (0)9123212589
-              </p>
+              <p className="text-base font-medium">{c.phones}</p>
             </motion.div>
           </div>
 
@@ -120,19 +120,19 @@ export default function HomeContact() {
             className="flex gap-4 mt-6"
           >
             <a
-              href="#"
+              href={c.facebookUrl}
               className="bg-[#EC1C24] hover:bg-[#b51419] text-white p-3 rounded-full transition-all duration-300"
             >
               <FaFacebookF />
             </a>
             <a
-              href="#"
+              href={c.instagramUrl}
               className="bg-[#EC1C24] hover:bg-[#b51419] text-white p-3 rounded-full transition-all duration-300"
             >
               <FaInstagram />
             </a>
             <a
-              href="#"
+              href={c.linkedinUrl}
               className="bg-[#EC1C24] hover:bg-[#b51419] text-white p-3 rounded-full transition-all duration-300"
             >
               <FaLinkedinIn />

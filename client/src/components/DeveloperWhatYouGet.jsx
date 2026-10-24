@@ -3,17 +3,13 @@ import React, { useEffect, useRef, useState } from "react";
 import { FaCheckCircle } from "react-icons/fa";
 import { motion, useInView, useAnimation } from "framer-motion";
 import EngageModal from "./Engagemodal";
+import { useSection } from "../cms/hooks";
+import { DEVELOPER_WHAT_YOU_GET } from "../cms/defaults/developers";
+import InlineText from "../cms/InlineText";
 
 const WhatYouGet = () => {
+  const c = useSection(DEVELOPER_WHAT_YOU_GET);
   const [engageOpen, setEngageOpen] = useState(false);
-
-  const benefits = [
-    "Access to a vetted salesforce of 10,000+ trained realtors",
-    "Dynamic project marketing campaigns (digital + field)",
-    "Market insights & buyer trend analysis",
-    "Seamless reporting, accountability & transparency",
-    "Brand representation with class and credibility",
-  ];
 
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, threshold: 0.2 });
@@ -92,11 +88,11 @@ const WhatYouGet = () => {
               animate={controls}
               className="text-4xl md:text-5xl font-extrabold mb-8"
             >
-              What <span className="text-red-500">You Get</span>
+              <InlineText text={c.title} strongClassName="text-red-500" />
             </motion.h2>
 
             <ul className="space-y-5 mb-10">
-              {benefits.map((benefit, index) => (
+              {c.benefits.map((benefit, index) => (
                 <motion.li
                   key={index}
                   custom={index}
@@ -125,7 +121,7 @@ const WhatYouGet = () => {
               transition={{ type: "spring", stiffness: 250, damping: 12 }}
               className="mt-6 px-8 py-3 rounded-md border-2 border-white text-lg font-semibold text-white hover:bg-red-600 hover:border-red-600 transition-all duration-300 shadow-lg"
             >
-              Get Started
+              {c.buttonLabel}
             </motion.button>
           </div>
 
@@ -136,8 +132,8 @@ const WhatYouGet = () => {
             className="w-full lg:w-1/2 flex justify-center lg:justify-end"
           >
             <img
-              src="/images/whatYouDeveloperModel.png"
-              alt="Man pointing"
+              src={c.image?.url}
+              alt={c.image?.alt}
               className="w-[360px] md:w-[420px] lg:w-full object-contain transition-transform duration-700 hover:scale-105"
             />
           </motion.div>

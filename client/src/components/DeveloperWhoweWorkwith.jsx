@@ -2,26 +2,9 @@
 import React, { useRef, useEffect, useState } from "react";
 import { motion, useInView, useAnimation } from "framer-motion";
 import SectionTitle from "../components/SectionTitle";
-
-const partners = [
-  { src: "/images/partners/mkh.png", alt: "MKH Properties" },
-  { src: "/images/partners/veritasi.png", alt: "Veritasi Homes" },
-  { src: "/images/partners/gracias.png", alt: "Gracias" },
-  { src: "/images/partners/lcr.png", alt: "LCR" },
-  { src: "/images/partners/oceanGrowth.svg", alt: "Ocean Growth Homes" },
-  { src: "/images/partners/efficacy.jpg", alt: "Efficacy" },
-  { src: "/images/partners/highbridge.png", alt: "Highbridge Homes" },
-  { src: "/images/partners/vopnucity.jpg", alt: "Vopnucity" },
-  { src: "/images/partners/evermark.png", alt: "Evermark" },
-  { src: "/images/partners/spl.png", alt: "SPL" },
-  { src: "/images/partners/zylus.png", alt: "Zylus" },
-  { src: "/images/partners/lexshield.webp", alt: "Lexshield" },
-  { src: "/images/partners/bluedutch.png", alt: "BlueDutch" },
-  { src: "/images/partners/onyx.png", alt: "Onyx" },
-  { src: "/images/partners/cruxstone.png", alt: "Cruxstone" },
-  { src: "/images/partners/ayhomes.png", alt: "AyHomes" },
-  { src: "/images/partners/hazibian.png", alt: "Hazibian" },
-];
+import { useSection } from "../cms/hooks";
+import { PARTNERS } from "../cms/defaults/shared";
+import InlineText from "../cms/InlineText";
 
 // Motion variants
 const sectionVariants = {
@@ -106,7 +89,7 @@ const SpotlightCard = ({ partner }) => {
       )}
 
       <img
-        src={partner.src}
+        src={partner.url}
         alt={partner.alt}
         className="w-28 sm:w-32 md:w-36 object-contain grayscale hover:grayscale-0 transition-all duration-300 relative z-10"
       />
@@ -115,6 +98,7 @@ const SpotlightCard = ({ partner }) => {
 };
 
 const WhoWeWorkWith = () => {
+  const c = useSection(PARTNERS);
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, threshold: 0.3 });
   const controls = useAnimation();
@@ -157,12 +141,10 @@ const WhoWeWorkWith = () => {
         <div className="center mx-auto">
           <SectionTitle
             text={
-              <>
-                Who We Work{" "}
-                <span className="text-[var(--color-primary-600)] mx-auto">
-                  With
-                </span>
-              </>
+              <InlineText
+                text={c.title}
+                strongClassName="text-[var(--color-primary-600)] mx-auto"
+              />
             }
             textClass="text-3xl md:text-4xl font-bold text-gray-800 text-center"
             underlineClass="h-[3px] !w-20"
@@ -176,7 +158,7 @@ const WhoWeWorkWith = () => {
           animate={controls}
           className="mt-16 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8 place-items-center"
         >
-          {partners.map((partner, index) => (
+          {c.partners.map((partner, index) => (
             <SpotlightCard key={index} partner={partner} />
           ))}
         </motion.div>

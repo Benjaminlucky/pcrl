@@ -2,8 +2,12 @@
 import React, { useRef } from "react";
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import SectionTitle from "./SectionTitle";
+import { useSection } from "../cms/hooks";
+import { HOME_FOUNDERS_NOTE } from "../cms/defaults/home";
+import InlineText from "../cms/InlineText";
 
 export default function HomeFoundersNote() {
+  const c = useSection(HOME_FOUNDERS_NOTE);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const { scrollYProgress } = useScroll({
@@ -54,33 +58,21 @@ export default function HomeFoundersNote() {
           >
             <div className="leftContent flex flex-col gap-6">
               <SectionTitle
-                text="Founder's Note"
+                text={c.title}
                 textClass="!text-gray-900 tracking-wide"
                 underlineClass="!bg-primary-500 !w-[12%] h-[3px]"
               />
 
               <p className="text-justify leading-[1.8] text-[1.125rem] md:text-[1.25rem] text-gray-600 hyphens-auto">
-                At PCRG, we see real estate as more than property—it’s about
-                vision, transformation, and lasting impact. Under the leadership
-                of{" "}
-                <span className="text-black font-bold">
-                  Dr Mrs Vivian Pollard Okiche
-                </span>
-                , our Founder and President, PCRG stands as a symbol of
-                innovation, integrity, and growth in real estate marketing. Her
-                passion for excellence and empowerment drives everything we do.
-                To our investors, we offer confidence built on strategy and
-                results. To our realtors, we provide a platform for success and
-                shared prosperity. Together, we’re not just shaping the market —
-                we’re building the future of real estate.
+                <InlineText text={c.body} strongClassName="text-black font-bold" />
               </p>
 
               <div className="mt-4">
                 <span className="block font-semibold text-lg text-primary-500">
-                  Dr Mrs Vivian Pollard Okiche
+                  {c.name}
                 </span>
                 <p className="text-gray-600 text-sm uppercase tracking-wide">
-                  Founder & President, PCRG
+                  {c.role}
                 </p>
               </div>
             </div>
@@ -104,8 +96,8 @@ export default function HomeFoundersNote() {
             <div className="rightContent relative w-[100%] md:w-[80%] max-w-[800px] rounded-2xl overflow-hidden shadow-lg shadow-red-500/10">
               <img
                 loading="lazy"
-                src="/images/drOkichie1.jpg"
-                alt="Dr. Mrs. Vivian Okiche"
+                src={c.image?.url}
+                alt={c.image?.alt}
                 className="w-full h-full object-cover scale-105 hover:scale-110 transition-transform duration-[3000ms] ease-out"
               />
 

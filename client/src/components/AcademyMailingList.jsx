@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { useSection } from "../cms/hooks";
+import { ACADEMY_MAILING_LIST } from "../cms/defaults/academy";
 
 export default function AcademyMailingList() {
+  const c = useSection(ACADEMY_MAILING_LIST);
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("idle"); // idle | loading | success | duplicate | error
   const API_URL = import.meta.env.VITE_API_BASE_URL;
@@ -38,7 +41,7 @@ export default function AcademyMailingList() {
   };
 
   const buttonLabel = {
-    idle: "Join our mailing list",
+    idle: c.buttonLabel,
     loading: "Subscribing...",
     success: "Subscribed! 🎉",
     duplicate: "Already subscribed",
@@ -63,7 +66,7 @@ export default function AcademyMailingList() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          Get notified of upcoming trainings
+          {c.title}
         </motion.h2>
 
         {/* Form */}
@@ -101,9 +104,7 @@ export default function AcademyMailingList() {
         className="mt-4 text-sm"
       >
         {status === "success" && (
-          <p className="text-green-400">
-            You're on the list! We'll notify you of upcoming trainings.
-          </p>
+          <p className="text-green-400">{c.successMessage}</p>
         )}
         {status === "duplicate" && (
           <p className="text-yellow-400">This email is already subscribed.</p>

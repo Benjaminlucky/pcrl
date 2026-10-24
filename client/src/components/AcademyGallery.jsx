@@ -9,8 +9,12 @@ import {
 } from "framer-motion";
 import { FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { useSection } from "../cms/hooks";
+import { ACADEMY_GALLERY } from "../cms/defaults/academy";
+import InlineText from "../cms/InlineText";
 
 export default function AcademyGallery() {
+  const c = useSection(ACADEMY_GALLERY);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -23,23 +27,7 @@ export default function AcademyGallery() {
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "-8%"]);
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.05]);
 
-  const images = [
-    "/images/gallery/gallery1.jpeg",
-    "/images/gallery/gallery2.jpeg",
-    "/images/gallery/gallery3.jpeg",
-    "/images/gallery/gallery4.jpeg",
-    "/images/gallery/gallery5.jpeg",
-    "/images/gallery/gallery6.jpeg",
-    "/images/gallery/gallery7.jpeg",
-    "/images/gallery/gallery8.jpeg",
-    "/images/gallery/gallery9.jpeg",
-    "/images/gallery/gallery10.jpeg",
-    "/images/gallery/gallery11.jpeg",
-    "/images/gallery/gallery12.jpeg",
-    "/images/gallery/gallery13.jpeg",
-    "/images/gallery/gallery14.jpeg",
-    "/images/gallery/gallery15.jpeg",
-  ];
+  const images = Array.isArray(c.images) ? c.images : [];
 
   const handlePrev = () =>
     setSelectedIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
@@ -99,10 +87,10 @@ export default function AcademyGallery() {
           className="text-center mb-24"
         >
           <h2 className="text-3xl md:text-4xl font-bold">
-            PCRG <span className="text-red-500">Event Moments</span>
+            <InlineText text={c.title} strongClassName="text-red-500" />
           </h2>
           <p className="mt-3 text-gray-400 text-lg">
-            Celebrating achievements, community and excellence
+            {c.subtitle}
           </p>
         </motion.div>
 
@@ -124,8 +112,8 @@ export default function AcademyGallery() {
               onClick={() => setSelectedIndex(index)}
             >
               <motion.img
-                src={img}
-                alt={`PCRG Event ${index + 1}`}
+                src={img.url}
+                alt={img.alt || `PCRG Event ${index + 1}`}
                 className="w-full h-[200px] md:h-[250px] object-cover transition-all duration-700 group-hover:scale-110"
                 loading="lazy"
               />
@@ -173,10 +161,10 @@ export default function AcademyGallery() {
           className="rounded-md !w-fit mx-auto mt-16 overflow-hidden"
         >
           <Link
-            to="https://www.youtube.com/@platinumcaperealtorgroup3638"
+            to={c.button?.url}
             className="px-8 py-3 border border-white text-white rounded-md font-semibold hover:bg-white hover:text-[var(--color-primary-500)] transition duration-300 block"
           >
-            See Events
+            {c.button?.label}
           </Link>
         </motion.div>
       </motion.div>
@@ -204,7 +192,7 @@ export default function AcademyGallery() {
             </button>
             <motion.img
               key={selectedIndex}
-              src={images[selectedIndex]}
+              src={images[selectedIndex]?.url}
               alt="Expanded event"
               className="max-h-[90vh] max-w-[95vw] rounded-2xl object-contain shadow-lg"
               initial={{ opacity: 0, scale: 0.9 }}

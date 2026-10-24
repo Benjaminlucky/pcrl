@@ -2,26 +2,11 @@
 import React, { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import SectionTitle from "./SectionTitle";
-
-const teamMembers = [
-  {
-    name: "Dr Mrs Vivian Pollard Okiche",
-    role: "Madam President, Pcrg",
-    image: "/images/faculty/drOkichie1.jpg",
-  },
-  {
-    name: "Mr Mark Iorliam",
-    role: "Vice President & Chief Operations Officer",
-    image: "/images/MrMark.jpg",
-  },
-  {
-    name: "Mr. Ifeanyichukwu Ogbenna",
-    role: "Chief Logistics Officer",
-    image: "/images/pcrgLogistics.jpg",
-  },
-];
+import { useSection } from "../cms/hooks";
+import { ABOUT_TEAM } from "../cms/defaults/about";
 
 export default function AboutTeam() {
+  const c = useSection(ABOUT_TEAM);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-120px" });
 
@@ -60,7 +45,7 @@ export default function AboutTeam() {
         <div className="w-full flex justify-center mb-4">
           <div className="text-center">
             <SectionTitle
-              text="Meet the Team"
+              text={c.title}
               textClass="text-gray-900 text-3xl md:text-4xl font-extrabold tracking-tight text-center"
               underlineClass="!bg-[var(--color-primary-500)] text-center !w-[60px] !h-[3px]"
             />
@@ -69,14 +54,12 @@ export default function AboutTeam() {
 
         {/* Subtitle */}
         <p className="text-center  max-w-3xl mx-auto text-gray-600 mb-16 leading-relaxed">
-          The Platinum Cape Realtors’ Group leadership team brings together
-          experience, vision, and passion – committed to helping clients and
-          agents achieve their real estate goals.
+          {c.intro}
         </p>
 
         {/* Team Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-12">
-          {teamMembers.map((member, i) => (
+          {c.members.map((member, i) => (
             <motion.div
               key={i}
               className="text-center"

@@ -3,8 +3,12 @@ import { motion, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import "./RealtorHero.css";
 import { Link } from "react-router-dom";
+import { useSection } from "../cms/hooks";
+import { REALTOR_HERO } from "../cms/defaults/realtors";
+import InlineText from "../cms/InlineText";
 
 const RealtorHero = () => {
+  const c = useSection(REALTOR_HERO);
   const controls = useAnimation();
   const [ref, inView] = useInView({ threshold: 0.3, triggerOnce: true });
 
@@ -75,19 +79,14 @@ const RealtorHero = () => {
             variants={fadeBlur}
             className="text-4xl sm:text-4xl md:text-5xl font-bold mt-24 md:mt-0 leading-tight text-white"
           >
-            Join the Fastest-Growing Realtors Network in Nigeria
+            {c.title}
           </motion.h1>
 
           <motion.p
             variants={fadeBlur}
             className="text-gray-300 text-base sm:text-lg leading-relaxed"
           >
-            At Platinum Cape Realtors Group (PCRG), we’re not just building a
-            company — we’re building people. Here, realtors don’t just sell
-            properties;{" "}
-            <span className="font-bold text-white">
-              they build wealth, credibility, and a lasting career.
-            </span>
+            <InlineText text={c.body} strongClassName="font-bold text-white" />
           </motion.p>
 
           <motion.button
@@ -98,7 +97,7 @@ const RealtorHero = () => {
             }}
             className="mt-6 px-8 py-3 rounded-md border-2 border-white text-lg font-semibold text-white hover:bg-white hover:text-[var(--color-primary-700)] transition-all duration-300 shadow-lg"
           >
-            <Link to="/sign-up">Get Started</Link>
+            <Link to={c.button?.url || "/sign-up"}>{c.button?.label}</Link>
           </motion.button>
         </div>
 
@@ -108,8 +107,8 @@ const RealtorHero = () => {
           className="md:w-1/2 flex justify-center md:justify-end pt-16"
         >
           <img
-            src="/images/realtorPageModel.png"
-            alt="Smiling Realtor"
+            src={c.image?.url}
+            alt={c.image?.alt}
             className="w-72 sm:w-80 md:w-full"
           />
         </motion.div>

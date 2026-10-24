@@ -1,10 +1,13 @@
 "use client";
 import React, { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { awards } from "../data/data.js";
+import { useSection } from "../cms/hooks";
+import { HOME_RECOGNITION } from "../cms/defaults/home";
+import { iconFor } from "../cms/icons";
 import SectionTitle from "./SectionTitle.jsx";
 
 function HomeRecognition() {
+  const c = useSection(HOME_RECOGNITION);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
@@ -26,14 +29,14 @@ function HomeRecognition() {
         <div className="recognitionContent text-center w-full flex flex-col justify-center items-center gap-10">
           <div className="center">
             <SectionTitle
-              text="Recognized for"
+              text={c.title}
               textClass="!text-gray-900 tracking-wide "
               underlineClass="!bg-primary-500 !w-[20%] !h-[3px]"
             />
           </div>
 
           <div className="awards w-full grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 py-8">
-            {awards.map((award, index) => {
+            {c.awards.map((award, index) => {
               const { base, hover } = bgColors[index % bgColors.length];
               return (
                 <motion.div
@@ -51,7 +54,7 @@ function HomeRecognition() {
                 >
                   <div className="awardContent flex flex-col justify-center items-center gap-2">
                     <div className="icon text-7xl text-primary-500 mb-2">
-                      {React.createElement(award.icon)}
+                      {React.createElement(iconFor(award.icon))}
                     </div>
                     <p className="font-semibold text-2xl text-white">
                       {award.title}

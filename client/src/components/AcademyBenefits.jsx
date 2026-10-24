@@ -2,13 +2,16 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import SectionTitle from "./SectionTitle";
+import { useSection } from "../cms/hooks";
+import { ACADEMY_BENEFITS } from "../cms/defaults/academy";
 
 const RealtorPremiumBenefits = () => {
+  const c = useSection(ACADEMY_BENEFITS);
   return (
     <section
       className="relative bg-cover bg-center bg-no-repeat py-20 md:py-28"
       style={{
-        backgroundImage: "url('/images/realtorBg1.jpeg')",
+        backgroundImage: `url("${encodeURI(c.backgroundImage)}")`,
       }}
     >
       {/* Soft white overlay for text clarity */}
@@ -28,37 +31,27 @@ const RealtorPremiumBenefits = () => {
         >
           {/* Title using SectionTitle */}
           <SectionTitle
-            text="Enjoy Premium Benefits and Opportunities"
+            text={c.title}
             textClass="!text-gray-900 !font-extrabold text-3xl md:text-4xl leading-snug"
             underlineClass="!bg-[var(--color-primary-500)] !w-[20%] !h-[3px]"
           />
 
           <p className="text-gray-700 mt-6 mb-10 max-w-lg mx-auto md:mx-0">
-            At PCRG, training goes beyond classrooms—it’s an experience designed
-            to position you for success.
+            {c.intro}
           </p>
 
           {/* Feature blocks */}
           <div className="space-y-8 mb-12">
-            <div>
-              <h3 className="text-xl font-semibold text-[var(--color-primary-500)] mb-2">
-                Foreign Certification
-              </h3>
-              <p className="text-gray-700 leading-relaxed">
-                Earn globally recognized certifications from renowned Schools of
-                Business and Management, guided by world-class facilitators.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-xl font-semibold text-[var(--color-primary-500)] mb-2">
-                Digital Integration
-              </h3>
-              <p className="text-gray-700 leading-relaxed">
-                Get onboarded onto our exclusive Digital App Platform designed
-                to connect you to opportunities, listings, and fellow realtors.
-              </p>
-            </div>
+            {c.benefits.map((benefit, i) => (
+              <div key={i}>
+                <h3 className="text-xl font-semibold text-[var(--color-primary-500)] mb-2">
+                  {benefit.title}
+                </h3>
+                <p className="text-gray-700 leading-relaxed">
+                  {benefit.description}
+                </p>
+              </div>
+            ))}
           </div>
 
           {/* Animated Red Glowing Button */}
@@ -79,10 +72,10 @@ const RealtorPremiumBenefits = () => {
             className="rounded-md !w-fit mx-auto md:mx-0 mt-8 overflow-hidden"
           >
             <Link
-              to="/sign-up"
+              to={c.button?.url || "/sign-up"}
               className="px-8 py-3 border border-[var(--color-primary-500)] text-[var(--color-primary-500)] rounded-md font-semibold hover:bg-[var(--color-primary-500)] hover:text-white transition duration-300 block"
             >
-              Join PCRG Academy
+              {c.button?.label}
             </Link>
           </motion.div>
         </motion.div>

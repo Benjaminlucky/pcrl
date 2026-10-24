@@ -1,5 +1,6 @@
 import React from "react";
-import PageSEO from "../../components/PageSEO";
+import CmsPageSEO from "../../cms/CmsPageSEO";
+import PageSections from "../../cms/PageSections";
 import Hero from "../../components/Hero";
 import HomeRecognition from "../../components/HomeRecognition";
 import HomeWhoWeAre from "../../components/HomeWhoWeAre";
@@ -13,7 +14,8 @@ import HomeContact from "../../components/HomeContact";
 function Home() {
   return (
     <div className="home">
-      <PageSEO
+      <CmsPageSEO
+        pageKey="home"
         title="Home"
         description="Platinum Cape Realtors Group (PCRG) is Nigeria's premier real estate marketing company — connecting buyers, developers and 10,000+ realtors to profitable property opportunities across Nigeria."
         canonical="https://pcrginitiative.com"
@@ -64,33 +66,20 @@ function Home() {
         }}
       />
       <div className="homewrapper">
-        <div className="heroSection">
-          <Hero />
-        </div>
-        <div className="recognitionSection">
-          <HomeRecognition />
-        </div>
-        <div className="whoWeAre">
-          <HomeWhoWeAre />
-        </div>
-        <div className="foundersNoteSection">
-          <HomefoundersNote />
-        </div>
-        <div className="homeServicesSection">
-          <HomeServices />
-        </div>
-        <div className="homeChooseSection">
-          <HomeChoose />
-        </div>
-        <div className="homeReviewSection">
-          <Homereviews />
-        </div>
-        <div className="homeConsultancySection">
-          <HomeConsultancy />
-        </div>
-        <div className="homeContactSection">
-          <HomeContact />
-        </div>
+        <PageSections
+          pageKey="home"
+          components={{
+            Hero,
+            HomeRecognition,
+            HomeWhoWeAre,
+            HomeFoundersNote: HomefoundersNote,
+            HomeServices,
+            HomeChoose,
+            HomeReviews: Homereviews,
+            HomeConsultancy,
+            HomeContact,
+          }}
+        />
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import React from "react";
-import PageSEO from "../../components/PageSEO";
+import CmsPageSEO from "../../cms/CmsPageSEO";
+import PageSections from "../../cms/PageSections";
 import RealtorHero from "../../components/RealtorHero";
 import RealtorWhyjoinpcrg from "../../components/RealtorWhyjoinpcrg";
 import RealtorWhatYouGet from "../../components/RealtorWhatYouGet";
@@ -10,7 +11,8 @@ import RealtorGrowWithPCRG from "../../components/RealtorGrowWithPCRG";
 function Realtor() {
   return (
     <>
-      <PageSEO
+      <CmsPageSEO
+        pageKey="for-realtors"
         title="Join Our Realtors Network"
         description="Join Nigeria's fastest-growing realtors network with PCRG. Get access to UK-certified training, exclusive listings, mentorship, and earn competitive commissions as a professional realtor in Nigeria."
         canonical="https://pcrginitiative.com/for-realtors"
@@ -43,24 +45,17 @@ function Realtor() {
           },
         }}
       />
-      <div className="heroSection">
-        <RealtorHero />
-      </div>
-      <div className="whyJoinsection">
-        <RealtorWhyjoinpcrg />
-      </div>
-      <div className="whatyougetSection">
-        <RealtorWhatYouGet />
-      </div>
-      <div className="whocanjoinSection">
-        <RealtorWhocanjoin />
-      </div>
-      <div className="realtorReviewsSection">
-        <RealtorReviews />
-      </div>
-      <div className="growWithus">
-        <RealtorGrowWithPCRG />
-      </div>
+      <PageSections
+        pageKey="for-realtors"
+        components={{
+          RealtorHero,
+          RealtorWhyJoin: RealtorWhyjoinpcrg,
+          RealtorWhatYouGet,
+          RealtorWhoCanJoin: RealtorWhocanjoin,
+          RealtorReviews,
+          RealtorGrowWithPCRG,
+        }}
+      />
     </>
   );
 }

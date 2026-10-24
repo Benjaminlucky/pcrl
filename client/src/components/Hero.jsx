@@ -2,8 +2,11 @@
 import React, { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useSection } from "../cms/hooks";
+import { HOME_HERO } from "../cms/defaults/home";
 
 export default function Hero() {
+  const c = useSection(HOME_HERO);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
@@ -35,7 +38,7 @@ export default function Hero() {
       <motion.div
         className="absolute inset-0 bg-center bg-no-repeat"
         style={{
-          backgroundImage: "url('/images/homeHero.jpg')",
+          backgroundImage: `url("${encodeURI(c.backgroundImage)}")`,
           backgroundSize: "cover",
         }}
         animate={isInView ? { scale: [1, 1.08, 1] } : {}}
@@ -69,16 +72,14 @@ export default function Hero() {
           variants={item}
           className="text-4xl md:text-6xl font-extrabold mb-4 leading-tight drop-shadow-lg"
         >
-          Excellence in Real Estate, Beyond Borders.
+          {c.title}
         </motion.h1>
 
         <motion.p
           variants={item}
           className="max-w-2xl mx-auto text-lg md:text-xl mb-10 text-gray-200"
         >
-          Platinum Cape Realtors Group (PCRG) is bridging local and
-          international investors to legally compliant, profitable real estate
-          opportunities across Nigeria.
+          {c.subtitle}
         </motion.p>
 
         {/* Buttons */}
@@ -94,10 +95,10 @@ export default function Hero() {
             className="rounded-sm overflow-hidden"
           >
             <Link
-              to="/about-us"
+              to={c.primaryButton.url}
               className="px-8 py-3 bg-primary-500 text-white rounded-sm font-semibold transition duration-300 block"
             >
-              Learn More About PCRG
+              {c.primaryButton.label}
             </Link>
           </motion.div>
 
@@ -119,10 +120,10 @@ export default function Hero() {
             className="rounded-sm overflow-hidden"
           >
             <Link
-              to="/sign-up"
+              to={c.secondaryButton.url}
               className="px-8 py-3 border border-white text-white rounded-sm font-semibold hover:bg-white hover:text-primary-500 transition duration-300 block"
             >
-              Join Our Realtors Network
+              {c.secondaryButton.label}
             </Link>
           </motion.div>
         </motion.div>

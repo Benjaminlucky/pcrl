@@ -1,5 +1,6 @@
 import React from "react";
-import PageSEO from "../../components/PageSEO";
+import CmsPageSEO from "../../cms/CmsPageSEO";
+import PageSections from "../../cms/PageSections";
 import DeveloperHero from "../../components/DeveloperHero";
 import DeveloperTimeline from "../../components/DeveloperTimeline";
 import WhatYouGet from "../../components/DeveloperWhatYouGet";
@@ -10,7 +11,8 @@ import PartnerWithUs from "../../components/DeveloperPartnerwithus";
 function Developers() {
   return (
     <>
-      <PageSEO
+      <CmsPageSEO
+        pageKey="for-developers"
         title="For Property Developers"
         description="Partner with PCRG to sell your real estate developments faster. We provide Nigeria's top developers with a 10,000+ strong sales force, strategic marketing, and results-driven property sales support."
         canonical="https://pcrginitiative.com/for-developers"
@@ -58,24 +60,17 @@ function Developers() {
           },
         }}
       />
-      <div className="heroSection">
-        <DeveloperHero />
-      </div>
-      <div className="timeLine">
-        <DeveloperTimeline />
-      </div>
-      <div className="whatYouGet">
-        <WhatYouGet />
-      </div>
-      <div className="whoweworkwith">
-        <WhoWeWorkWith />
-      </div>
-      <div className="reviews">
-        <DeveloperReviews />
-      </div>
-      <div className="partnerwithus">
-        <PartnerWithUs />
-      </div>
+      <PageSections
+        pageKey="for-developers"
+        components={{
+          DeveloperHero,
+          DeveloperTimeline,
+          DeveloperWhatYouGet: WhatYouGet,
+          DeveloperWhoWeWorkWith: WhoWeWorkWith,
+          DeveloperReviews,
+          DeveloperPartnerWithUs: PartnerWithUs,
+        }}
+      />
     </>
   );
 }

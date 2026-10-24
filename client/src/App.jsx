@@ -10,7 +10,7 @@ import TopNavigation from "./components/TopNavigation";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProctectedRoute";
 import GlobalSEO from "./components/GlobalSeo";
-import NotFound from "./components/NotFound";
+import { ContentProvider } from "./cms/ContentProvider";
 
 // 🚀 Route-level code splitting — each page ships its own chunk instead of
 // bloating the single initial bundle every visitor has to download.
@@ -19,6 +19,10 @@ const Realtor = lazy(() => import("./pages/realtors/Realtor"));
 const Developers = lazy(() => import("./pages/developers/Developers"));
 const Academy = lazy(() => import("./pages/academy/Academy"));
 const Blog = lazy(() => import("./pages/blog/Blog"));
+const BlogIndex = lazy(() => import("./pages/blog/BlogIndex"));
+const BlogPost = lazy(() => import("./pages/blog/BlogPost"));
+const EventsIndex = lazy(() => import("./pages/blog/EventsIndex"));
+const EventDetail = lazy(() => import("./pages/blog/EventDetail"));
 const About = lazy(() => import("./pages/about/About"));
 // import Services from "./pages/services/Services";
 const Signup = lazy(() => import("./pages/signup/Signup"));
@@ -28,6 +32,8 @@ const AdminSignup = lazy(() => import("./pages/admin/AdminSignup"));
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
 const ForgotPassword = lazy(() => import("./pages/auth/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
+// Pages created in the CMS dashboard; falls back to the 404 page.
+const CmsDynamicPage = lazy(() => import("./cms/CmsDynamicPage"));
 
 function RouteLoading() {
   return (
@@ -60,6 +66,10 @@ function AppWrapper() {
             <Route path="/for-developers" element={<Developers />} />
             <Route path="/pcrg-training-academy" element={<Academy />} />
             <Route path="/blog-and-events" element={<Blog />} />
+            <Route path="/blog" element={<BlogIndex />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
+            <Route path="/events" element={<EventsIndex />} />
+            <Route path="/events/:slug" element={<EventDetail />} />
             <Route path="/about-us" element={<About />} />
             {/* <Route path="/services" element={<Services />} /> */}
             <Route path="/sign-up" element={<Signup />} />
@@ -87,8 +97,8 @@ function AppWrapper() {
                 </ProtectedRoute>
               }
             />
-            {/* ❓ Fallback Route */}
-            <Route path="*" element={<NotFound />} />
+            {/* ❓ Fallback Route — CMS-created page, otherwise 404 */}
+            <Route path="*" element={<CmsDynamicPage />} />
           </Routes>
         </Suspense>
 
@@ -104,10 +114,13 @@ export default function App() {
     <Router>
       {/* ✅ HeadProvider wraps the entire app for SEO meta support */}
       <HeadProvider>
-        <GlobalSEO />
-        <div className="relative overflow-x-hidden overflow-y-auto">
-          <AppWrapper />
-        </div>
+        {/* Published website content from the CMS (falls back to built-in) */}
+        <ContentProvider>
+          <GlobalSEO />
+          <div className="relative overflow-x-hidden overflow-y-auto">
+            <AppWrapper />
+          </div>
+        </ContentProvider>
       </HeadProvider>
     </Router>
   );

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
-import spotlight1 from "/images/academystudents1.jpeg";
-import spotlight2 from "/images/academystudent4.jpeg";
+import { useSection } from "../cms/hooks";
+import { EVENTS_SPOTLIGHT } from "../cms/defaults/events";
+import InlineText from "../cms/InlineText";
 
 // ✨ Floating Star Component (infinite loop sparkles)
 const FloatingStar = ({ delay, size, top, left, mouseX, mouseY }) => {
@@ -38,6 +39,7 @@ const FloatingStar = ({ delay, size, top, left, mouseX, mouseY }) => {
 };
 
 export default function EventsSpotlightMoments() {
+  const c = useSection(EVENTS_SPOTLIGHT);
   const mouseX = useMotionValue(window.innerWidth / 2);
   const mouseY = useMotionValue(window.innerHeight / 2);
   const [isIdle, setIsIdle] = useState(false);
@@ -113,18 +115,16 @@ export default function EventsSpotlightMoments() {
         {/* LEFT TEXT */}
         <div className="flex-1 text-left space-y-6">
           <h2 className="text-4xl md:text-5xl font-bold leading-tight text-yellow-100 drop-shadow-[0_0_8px_rgba(255,215,0,0.3)]">
-            Spotlight <br /> Moments
+            <InlineText text={c.title} />
           </h2>
           <p className="text-gray-300 text-lg leading-relaxed max-w-md">
-            Because at PCRG, we celebrate our people! Explore event highlights,
-            graduation ceremonies, training sessions, and behind-the-scenes
-            moments that showcase our growing family of realtors and developers.
+            {c.body}
           </p>
         </div>
 
         {/* RIGHT IMAGES */}
         <div className="flex-1 grid grid-cols-2 gap-4 md:gap-6">
-          {[spotlight1, spotlight2].map((img, i) => (
+          {c.images.map((img, i) => (
             <motion.div
               key={i}
               whileHover={{ scale: 1.05, rotate: 1 }}
@@ -132,8 +132,8 @@ export default function EventsSpotlightMoments() {
               className="overflow-hidden rounded-2xl shadow-lg shadow-yellow-500/10"
             >
               <img
-                src={img}
-                alt={`PCRG Spotlight ${i + 1}`}
+                src={img.url}
+                alt={img.alt || `PCRG Spotlight ${i + 1}`}
                 className="object-cover w-full h-full rounded-2xl"
               />
             </motion.div>

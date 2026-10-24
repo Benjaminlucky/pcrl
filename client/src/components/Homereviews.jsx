@@ -2,7 +2,8 @@
 import React, { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import SectionTitle from "./SectionTitle";
-import { reviews } from "../data/data.js";
+import { useSection } from "../cms/hooks";
+import { HOME_REVIEWS } from "../cms/defaults/home";
 
 // Swiper imports
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -11,6 +12,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 
 function Homereviews() {
+  const c = useSection(HOME_REVIEWS);
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
@@ -44,14 +46,13 @@ function Homereviews() {
         >
           <div className="center">
             <SectionTitle
-              text="What Our Clients Say"
+              text={c.title}
               textClass="!text-gray-100 tracking-wide"
               underlineClass="!bg-primary-500 !w-[15%] h-[3px]"
             />
           </div>
           <p className="text-gray-300 text-sm md:text-base mt-4 max-w-2xl">
-            Hear from some of our satisfied clients and partners who trust PCRG
-            for their real estate success.
+            {c.intro}
           </p>
         </motion.div>
 
@@ -75,7 +76,7 @@ function Homereviews() {
           }}
           className="mySwiper w-full flex justify-center items-center pb-14"
         >
-          {reviews.map((review, index) => (
+          {c.reviews.map((review, index) => (
             <SwiperSlide
               key={index}
               className="flex justify-center items-center"

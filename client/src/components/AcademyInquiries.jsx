@@ -2,6 +2,9 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { FaWhatsapp } from "react-icons/fa";
+import { useSection } from "../cms/hooks";
+import { ACADEMY_INQUIRIES } from "../cms/defaults/academy";
+import InlineText from "../cms/InlineText";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40, filter: "blur(10px)", scale: 0.97 },
@@ -15,6 +18,7 @@ const fadeInUp = {
 };
 
 export default function AcademyInquiries() {
+  const c = useSection(ACADEMY_INQUIRIES);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [pulseIntensity, setPulseIntensity] = useState(0.25);
 
@@ -41,7 +45,7 @@ export default function AcademyInquiries() {
       <motion.div
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: "url('/images/burbleBg.jpg')",
+          backgroundImage: `url("${encodeURI(c.backgroundImage)}")`,
         }}
         initial={{ scale: 1.1 }}
         whileInView={{
@@ -90,8 +94,10 @@ export default function AcademyInquiries() {
           }}
           viewport={{ once: true }}
         >
-          Got inquiries, reach out{" "}
-          <span className="text-[var(--color-primary-500)]">via</span>
+          <InlineText
+            text={c.title}
+            strongClassName="text-[var(--color-primary-500)]"
+          />
         </motion.h2>
 
         <motion.p
@@ -104,9 +110,7 @@ export default function AcademyInquiries() {
           }}
           viewport={{ once: true }}
         >
-          +234 (0)812 632 6511, +234 (0)901 190 8119, +234 (0)814 776 6885, +234
-          (0)9123212589 <br />
-          platinumcaperealtors@gmail.com
+          <InlineText text={c.contact} />
         </motion.p>
 
         <div className="flex flex-wrap justify-center gap-4">

@@ -1,5 +1,6 @@
 import React from "react";
-import PageSEO from "../../components/PageSEO";
+import CmsPageSEO from "../../cms/CmsPageSEO";
+import PageSections from "../../cms/PageSections";
 import AcademyBenefits from "@/components/AcademyBenefits";
 import AcademyFaculty from "@/components/AcademyFaculty";
 import AcademyGallery from "@/components/AcademyGallery";
@@ -13,7 +14,8 @@ import RealtorNetwork from "@/components/RealtorNetwork";
 function Academy() {
   return (
     <>
-      <PageSEO
+      <CmsPageSEO
+        pageKey="academy"
         title="PCRG Training & Academy"
         description="Join Africa's leading professional real estate training program. PCRG Academy offers UK-certified courses, mentorship from industry experts, and access to a network of 10,000+ realtors across Nigeria."
         canonical="https://pcrginitiative.com/pcrg-training-academy"
@@ -77,33 +79,20 @@ function Academy() {
           },
         }}
       />
-      <div className="heroSection">
-        <AcademyHero />
-      </div>
-      <div className="mailingList">
-        <AcademyMailingList />
-      </div>
-      <div className="academyIntro">
-        <AcademyIntro />
-      </div>
-      <div className="realtorNetwork">
-        <RealtorNetwork />
-      </div>
-      <div className="gallery">
-        <AcademyGallery />
-      </div>
-      <div className="benefits">
-        <AcademyBenefits />
-      </div>
-      <div id="faculty" className="faculty">
-        <AcademyFaculty />
-      </div>
-      <div className="review">
-        <AcademyReview />
-      </div>
-      <div className="inquiries">
-        <AcademyInquiries />
-      </div>
+      <PageSections
+        pageKey="academy"
+        components={{
+          AcademyHero,
+          AcademyMailingList,
+          AcademyIntro,
+          RealtorNetwork,
+          AcademyGallery,
+          AcademyBenefits,
+          AcademyFaculty,
+          AcademyReview,
+          AcademyInquiries,
+        }}
+      />
     </>
   );
 }

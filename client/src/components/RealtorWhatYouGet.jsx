@@ -1,42 +1,13 @@
 import React, { useEffect } from "react";
-import {
-  FaIdBadge,
-  FaChalkboardTeacher,
-  FaCheckCircle,
-  FaChartLine,
-  FaNetworkWired,
-} from "react-icons/fa";
-import { RiVerifiedBadgeFill } from "react-icons/ri";
-import { FaUsersRectangle } from "react-icons/fa6";
-import { PiShareNetworkBold } from "react-icons/pi";
 import { motion, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import SectionTitle from "./SectionTitle";
-
-const features = [
-  {
-    icon: <FaUsersRectangle className="w-16 h-16 text-white" />,
-    title: "Free Realtor Registration",
-  },
-  {
-    icon: <FaChalkboardTeacher className="w-16 h-16 text-white" />,
-    title: "Weekly training & mentorship sessions",
-  },
-  {
-    icon: <RiVerifiedBadgeFill className="w-16 h-16 text-white" />,
-    title: "Access to verified property listings",
-  },
-  {
-    icon: <FaChartLine className="w-16 h-16 text-white" />,
-    title: "Sales rewards & recognition programs",
-  },
-  {
-    icon: <PiShareNetworkBold className="w-16 h-16 text-white" />,
-    title: "Networking events & real estate summits",
-  },
-];
+import { useSection } from "../cms/hooks";
+import { REALTOR_WHAT_YOU_GET } from "../cms/defaults/realtors";
+import { iconFor } from "../cms/icons";
 
 const RealtorWhatYouGet = () => {
+  const c = useSection(REALTOR_WHAT_YOU_GET);
   const controls = useAnimation();
   const [ref, inView] = useInView({ threshold: 0.3, triggerOnce: true });
 
@@ -97,7 +68,7 @@ const RealtorWhatYouGet = () => {
         className="absolute mb-14"
       >
         <SectionTitle
-          text="What You Get"
+          text={c.title}
           textClass="!text-gray-900 tracking-wide"
           underlineClass="!bg-[var(--color-primary-500)] !w-[20%] !h-[3px]"
         />
@@ -110,7 +81,9 @@ const RealtorWhatYouGet = () => {
         animate={controls}
         className="max-w-5xl mt-36 mx-auto grid grid-cols-1 sm:grid-cols-2 gap-6 px-6 md:px-0 relative z-10"
       >
-        {features.map((feature, i) => (
+        {c.features.map((feature, i) => {
+          const Icon = iconFor(feature.icon);
+          return (
           <motion.div
             key={i}
             variants={fadeBlur}
@@ -120,10 +93,13 @@ const RealtorWhatYouGet = () => {
                 "0 0 20px rgba(255,0,0,0.4), 0 0 40px rgba(255,0,0,0.2)",
             }}
           >
-            <div className="flex-shrink-0">{feature.icon}</div>
+            <div className="flex-shrink-0">
+              <Icon className="w-16 h-16 text-white" />
+            </div>
             <p className="text-lg font-medium leading-snug">{feature.title}</p>
           </motion.div>
-        ))}
+          );
+        })}
       </motion.div>
     </section>
   );

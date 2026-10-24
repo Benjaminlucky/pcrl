@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import { FaWhatsapp, FaFacebook } from "react-icons/fa";
 import { RiInstagramFill } from "react-icons/ri";
 import { BsTwitterX } from "react-icons/bs";
+import { useSection } from "../cms/hooks";
+import { EVENTS_CONNECTS } from "../cms/defaults/events";
+import InlineText from "../cms/InlineText";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40, filter: "blur(10px)", scale: 0.97 },
@@ -17,6 +20,7 @@ const fadeInUp = {
 };
 
 export default function EventsConnects() {
+  const c = useSection(EVENTS_CONNECTS);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [pulseIntensity, setPulseIntensity] = useState(0.25);
 
@@ -60,7 +64,7 @@ export default function EventsConnects() {
       <motion.div
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: "url('/images/burbleBg.jpg')",
+          backgroundImage: `url("${encodeURI(c.backgroundImage)}")`,
         }}
         initial={{ scale: 1.1 }}
         whileInView={{
@@ -110,7 +114,7 @@ export default function EventsConnects() {
           }}
           viewport={{ once: true }}
         >
-          Stay <span className="text-red-500 font-extrabold">Connected</span>
+          <InlineText text={c.title} strongClassName="text-red-500 font-extrabold" />
         </motion.h2>
 
         {/* Paragraph */}
@@ -124,22 +128,19 @@ export default function EventsConnects() {
           }}
           viewport={{ once: true }}
         >
-          Don’t miss out on the next big opportunity — Follow us across all
-          social media platforms for updates, event invites, and insider tips
-          straight from the PCRG network.
+          {c.body}
         </motion.p>
 
         {/* Social Icons */}
         <div className="flex flex-col items-center gap-4 text-white">
           <h3 className="text-lg font-medium tracking-wide">
-            Follow <span className="text-red-500">@platinumcaperealtors</span>{" "}
-            on
+            <InlineText text={c.followText} strongClassName="text-red-500" />
           </h3>
 
           <div className="flex justify-center gap-6 mt-3 text-3xl">
             {/* Facebook */}
             <motion.a
-              href="https://web.facebook.com/profile.php?id=100075965786400&mibextid=wwXIfr&rdid=hv6TCdFZc35gfl0Z&share_url=https%3A%2F%2Fweb.facebook.com%2Fshare%2F1AQexbxrE2%2F%3Fmibextid%3DwwXIfr%26_rdc%3D1%26_rdr#"
+              href={c.facebookUrl}
               target="_blank"
               rel="noopener noreferrer"
               variants={iconPulse}
@@ -155,7 +156,7 @@ export default function EventsConnects() {
 
             {/* Instagram */}
             <motion.a
-              href="https://www.instagram.com/platinumcaperealtors/?igsh=MTJtMXBodjlmOGRnaw%3D%3D#"
+              href={c.instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
               variants={iconPulse}
@@ -171,7 +172,7 @@ export default function EventsConnects() {
 
             {/* Twitter (X) */}
             <motion.a
-              href="https://x.com/platinumcaperealtors"
+              href={c.xUrl}
               target="_blank"
               rel="noopener noreferrer"
               variants={iconPulse}
@@ -187,7 +188,7 @@ export default function EventsConnects() {
 
             {/* WhatsApp */}
             <motion.a
-              href="https://wa.me/2349123212589?text=Hello%20PCRG!%20I%27d%20love%20to%20learn%20more%20about%20partnering%20as%20a%20Realtor."
+              href={c.whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               variants={iconPulse}

@@ -3,10 +3,35 @@ import { Link, useLocation } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { topNavLinks } from "../data/data.js";
 import { motion, AnimatePresence } from "motion/react";
+import { useMenu, useSiteSettings } from "../cms/hooks";
+
+// Built-in links, used whenever the CMS has no published "main" menu.
+const DEFAULT_LINKS = topNavLinks.map((link) => ({
+  ...link,
+  variant:
+    link.label === "Sign up"
+      ? "primary"
+      : link.label === "Login"
+      ? "outline"
+      : "link",
+}));
+
+// Internal routes use the router; external URLs open as normal links.
+function MenuLink({ link, ...props }) {
+  return link.external || !link.url.startsWith("/") ? (
+    <a href={link.url} target={link.external ? "_blank" : undefined} rel={link.external ? "noopener noreferrer" : undefined} {...props} />
+  ) : (
+    <Link to={link.url} {...props} />
+  );
+}
 
 export default function TopNavigation() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const cmsLinks = useMenu("main");
+  const brand = useSiteSettings()?.brand;
+  const settingsFooter = useSiteSettings()?.mobileMenuFooter;
+  const links = (cmsLinks || DEFAULT_LINKS).filter((l) => l.visible !== false);
 
   // Close mobile menu on resize if screen becomes large to prevent UI glitches
   useEffect(() => {
@@ -49,8 +74,8 @@ export default function TopNavigation() {
           className="flex-shrink-0 transition-transform hover:scale-105"
         >
           <img
-            src="/images/pcrgLogo.svg"
-            alt="PCRG Logo"
+            src={brand?.logo || "/images/pcrgLogo.svg"}
+            alt={brand?.logoAlt || "PCRG Logo"}
             className="w-40 sm:w-48 xl:w-56 object-contain"
           />
         </Link>
@@ -66,39 +91,39 @@ export default function TopNavigation() {
 
         {/* Desktop Navigation (Visible from XL screens upwards) */}
         <ul className="hidden xl:flex items-center gap-1 2xl:gap-4">
-          {topNavLinks.map((link) => {
+          {links.map((link) => {
             const isActive = location.pathname === link.url;
 
-            if (link.label === "Sign up") {
+            if (link.variant === "primary") {
               return (
                 <li key={link.url} className="ml-2">
-                  <Link
-                    to={link.url}
+                  <MenuLink
+                    link={link}
                     className="px-4 py-3 rounded-lg bg-[#E31E24] text-white font-bold hover:bg-red-700 transition-all shadow-md active:scale-95"
                   >
                     {link.label}
-                  </Link>
+                  </MenuLink>
                 </li>
               );
             }
 
-            if (link.label === "Login") {
+            if (link.variant === "outline") {
               return (
                 <li key={link.url} className="ml-1">
-                  <Link
-                    to={link.url}
+                  <MenuLink
+                    link={link}
                     className="px-4 py-3 rounded-lg border-2 border-[#E31E24] text-[#E31E24] font-bold hover:bg-[#E31E24] hover:text-white transition-all active:scale-95"
                   >
                     {link.label}
-                  </Link>
+                  </MenuLink>
                 </li>
               );
             }
 
             return (
               <li key={link.url}>
-                <Link
-                  to={link.url}
+                <MenuLink
+                  link={link}
                   className={`px-3 py-2 text-sm 2xl:text-[16px] font-semibold transition-colors whitespace-nowrap ${
                     isActive
                       ? "text-[#E31E24]"
@@ -106,7 +131,7 @@ export default function TopNavigation() {
                   }`}
                 >
                   {link.label}
-                </Link>
+                </MenuLink>
               </li>
             );
           })}
@@ -134,18 +159,18 @@ export default function TopNavigation() {
                 className="fixed top-20 right-0 bottom-0 w-[85%] max-w-sm bg-white shadow-2xl xl:hidden flex flex-col z-50 overflow-y-auto"
               >
                 <ul className="flex flex-col p-6 gap-2">
-                  {topNavLinks.map((link) => {
+                  {links.map((link) => {
                     const isActive = location.pathname === link.url;
 
                     return (
                       <li key={link.url}>
-                        <Link
-                          to={link.url}
+                        <MenuLink
+                          link={link}
                           onClick={() => setIsOpen(false)}
                           className={`block p-4 text-lg font-bold rounded-xl transition-all ${
-                            link.label === "Sign up"
+                            link.variant === "primary"
                               ? "mt-4 bg-[#E31E24] text-white text-center shadow-lg"
-                              : link.label === "Login"
+                              : link.variant === "outline"
                               ? "mt-2 border-2 border-[#E31E24] text-[#E31E24] text-center"
                               : isActive
                               ? "text-[#E31E24] bg-red-50"
@@ -153,13 +178,13 @@ export default function TopNavigation() {
                           }`}
                         >
                           {link.label}
-                        </Link>
+                        </MenuLink>
                       </li>
                     );
                   })}
                 </ul>
                 <div className="mt-auto p-8 text-center text-gray-400 text-sm italic">
-                  Platinum Cape Realtor Group
+                  {settingsFooter || "Platinum Cape Realtor Group"}
                 </div>
               </motion.div>
             </>

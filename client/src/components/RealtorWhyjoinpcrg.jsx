@@ -1,40 +1,14 @@
 import React, { useEffect } from "react";
-import {
-  FaGem,
-  FaBriefcase,
-  FaHandshake,
-  FaGraduationCap,
-} from "react-icons/fa6";
 import { motion, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import SectionTitle from "./SectionTitle";
-
-const features = [
-  {
-    icon: <FaGem className="w-10 h-10 text-[var(--color-primary-500)]" />,
-    title: "Access Exclusive Listings",
-    desc: "Get direct access to verified, high-demand properties across Nigeria — all legally compliant and ready to market.",
-  },
-  {
-    icon: <FaBriefcase className="w-10 h-10 text-[var(--color-primary-500)]" />,
-    title: "Learn, Learn & Grow",
-    desc: "From your first sale to scaling as a property consultant, PCRG provides tools, mentorship, and trainings that help you grow your income and your brand.",
-  },
-  {
-    icon: <FaHandshake className="w-10 h-10 text-[var(--color-primary-500)]" />,
-    title: "Trusted Support System",
-    desc: "We guide you every step of the way — from client handling to closing deals. You’re never alone in the field.",
-  },
-  {
-    icon: (
-      <FaGraduationCap className="w-10 h-10 text-[var(--color-primary-500)]" />
-    ),
-    title: "Career Advancement Opportunities",
-    desc: "Stand out with certification programs, leadership roles, and recognition as part of our Top Realtors Network.",
-  },
-];
+import { useSection } from "../cms/hooks";
+import { REALTOR_WHY_JOIN } from "../cms/defaults/realtors";
+import { iconFor } from "../cms/icons";
 
 const RealtorWhyJoinPCRG = () => {
+  const c = useSection(REALTOR_WHY_JOIN);
+  const bg = `url("${encodeURI(c.backgroundImage)}")`;
   const controls = useAnimation();
   const [ref, inView] = useInView({ threshold: 0.3, triggerOnce: true });
 
@@ -61,7 +35,7 @@ const RealtorWhyJoinPCRG = () => {
       ref={ref}
       className="relative overflow-hidden py-20 md:py-28 bg-cover bg-center"
       style={{
-        backgroundImage: "url('/images/realtorBg1.jpeg')",
+        backgroundImage: bg,
         backgroundAttachment: "fixed",
       }}
     >
@@ -71,7 +45,7 @@ const RealtorWhyJoinPCRG = () => {
         animate={{ scale: [1, 1.05, 1], x: [0, 10, 0], y: [0, -10, 0] }}
         transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
         style={{
-          backgroundImage: "url('/images/realtorBg1.jpeg')",
+          backgroundImage: bg,
           backgroundSize: "cover",
           backgroundPosition: "center",
           filter: "brightness(1.05)",
@@ -113,7 +87,7 @@ const RealtorWhyJoinPCRG = () => {
             className="mb-14 text-center md:text-left"
           >
             <SectionTitle
-              text="Why Join PCRG?"
+              text={c.title}
               textClass="!text-gray-900 tracking-wide"
               underlineClass="!bg-[var(--color-primary-500)] !w-[20%] !h-[3px]"
             />
@@ -124,23 +98,26 @@ const RealtorWhyJoinPCRG = () => {
             variants={container}
             className="grid grid-cols-1 sm:grid-cols-2 gap-12 md:gap-14"
           >
-            {features.map((feature, i) => (
+            {c.features.map((feature, i) => {
+              const Icon = iconFor(feature.icon);
+              return (
               <motion.div
                 key={i}
                 variants={fadeBlur}
                 className="flex flex-col items-center md:items-start text-center md:text-left gap-3 transition-transform hover:scale-[1.03] duration-300"
               >
                 <div className="flex items-center !text-4xl justify-center">
-                  {feature.icon}
+                  <Icon className="w-10 h-10 text-[var(--color-primary-500)]" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">
                   {feature.title}
                 </h3>
                 <p className="text-gray-700 text-sm leading-relaxed">
-                  {feature.desc}
+                  {feature.description}
                 </p>
               </motion.div>
-            ))}
+              );
+            })}
           </motion.div>
         </div>
       </motion.div>

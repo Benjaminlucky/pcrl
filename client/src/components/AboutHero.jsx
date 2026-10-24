@@ -5,16 +5,13 @@ import { Pagination, Autoplay } from "swiper/modules";
 
 import "swiper/css";
 import "swiper/css/pagination";
+import { useSection } from "../cms/hooks";
+import { ABOUT_HERO } from "../cms/defaults/about";
 
 export default function HeroSection() {
+  const c = useSection(ABOUT_HERO);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
-
-  const slides = [
-    "/images/gallery/gallery1.jpeg",
-    "/images/gallery/gallery2.jpeg",
-    "/images/gallery/gallery3.jpeg",
-  ];
 
   return (
     <section className="relative w-full bg-black text-white py-16 md:py-20 overflow-hidden">
@@ -43,13 +40,11 @@ export default function HeroSection() {
           }
         >
           <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-            West Africa’s Fastest-Growing Real Estate Brokerage Network.
+            {c.title}
           </h1>
 
           <p className="mt-6 text-lg text-gray-300 leading-relaxed">
-            At PCRG, we’re more than a brokerage — we’re a movement redefining
-            how real estate is marketed, sold, and experienced across Nigeria
-            and beyond.
+            {c.body}
           </p>
         </motion.div>
 
@@ -94,12 +89,12 @@ export default function HeroSection() {
             loop={true}
             className="w-full h-[420px] sm:h-[480px] md:h-[680px] rounded-2xl relative z-20"
           >
-            {slides.map((src, index) => (
+            {c.slides.map((slide, index) => (
               <SwiperSlide key={index}>
                 <div className="w-full h-full">
                   <img
-                    src={src}
-                    alt={`slide-${index}`}
+                    src={slide.url}
+                    alt={slide.alt || `slide-${index}`}
                     className="w-full h-full object-cover transition-transform duration-[1600ms] group-hover:scale-[1.08]"
                   />
                 </div>

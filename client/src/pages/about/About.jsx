@@ -1,5 +1,6 @@
 import React from "react";
-import PageSEO from "../../components/PageSEO";
+import CmsPageSEO from "../../cms/CmsPageSEO";
+import PageSections from "../../cms/PageSections";
 import AboutChoose from "@/components/AboutChoose";
 import AboutHero from "@/components/AboutHero";
 import AboutIntro from "@/components/AboutIntro";
@@ -9,7 +10,8 @@ import WhoWeWorkWith from "@/components/DeveloperWhoweWorkwith";
 function About() {
   return (
     <>
-      <PageSEO
+      <CmsPageSEO
+        pageKey="about-us"
         title="About Us"
         description="Learn about Platinum Cape Realtors Group (PCRG) — Africa's fastest-growing real estate brokerage. Built on integrity, innovation and excellence with over 10,000 realtors across Nigeria."
         canonical="https://pcrginitiative.com/about-us"
@@ -37,21 +39,16 @@ function About() {
           },
         }}
       />
-      <div className="heroSection">
-        <AboutHero />
-      </div>
-      <div className="introSection">
-        <AboutIntro />
-      </div>
-      <div className="choose">
-        <AboutChoose />
-      </div>
-      <div className="team">
-        <AboutTeam />
-      </div>
-      <div className="partners">
-        <WhoWeWorkWith />
-      </div>
+      <PageSections
+        pageKey="about-us"
+        components={{
+          AboutHero,
+          AboutIntro,
+          AboutChoose,
+          AboutTeam,
+          DeveloperWhoWeWorkWith: WhoWeWorkWith,
+        }}
+      />
     </>
   );
 }

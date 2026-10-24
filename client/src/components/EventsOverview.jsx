@@ -1,15 +1,22 @@
 "use client";
 import React, { useRef, useEffect, useState } from "react";
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
-import {
-  FaUsers,
-  FaCheckCircle,
-  FaChalkboardTeacher,
-  FaNetworkWired,
-  FaMedal,
-} from "react-icons/fa";
+import { useSection } from "../cms/hooks";
+import { EVENTS_OVERVIEW } from "../cms/defaults/events";
+import { iconFor } from "../cms/icons";
+import ActionLink from "../cms/ActionLink";
+
+// Card backgrounds, cycled across however many events are listed.
+const EVENT_BGS = [
+  "bg-neutral-900 text-white",
+  "bg-neutral-800 text-white",
+  "bg-neutral-700 text-white",
+  "bg-neutral-600 text-white",
+  "bg-neutral-500 text-white",
+];
 
 export default function EventsOverview() {
+  const c = useSection(EVENTS_OVERVIEW);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const { scrollYProgress } = useScroll({
@@ -38,34 +45,6 @@ export default function EventsOverview() {
     }, 2000);
     return () => clearInterval(interval);
   }, []);
-
-  const events = [
-    {
-      icon: <FaUsers className="text-red-500 text-7xl mb-4" />,
-      title: "Quarterly Realtor Hangouts",
-      bg: "bg-neutral-900 text-white",
-    },
-    {
-      icon: <FaCheckCircle className="text-red-500 text-7xl mb-4" />,
-      title: "Real Estate Investment Summits",
-      bg: "bg-neutral-800 text-white",
-    },
-    {
-      icon: <FaChalkboardTeacher className="text-red-500 text-7xl mb-4" />,
-      title: "Developer Partnership Exhibitions",
-      bg: "bg-neutral-700 text-white",
-    },
-    {
-      icon: <FaNetworkWired className="text-red-500 text-7xl mb-4" />,
-      title: "Networking & Mentorship Mixers",
-      bg: "bg-neutral-600 text-white",
-    },
-    {
-      icon: <FaMedal className="text-red-500 text-7xl mb-4" />,
-      title: "PCRG Awards & Recognition Nights",
-      bg: "bg-neutral-500 text-white",
-    },
-  ];
 
   return (
     <motion.section
@@ -109,12 +88,10 @@ export default function EventsOverview() {
         className="max-w-3xl mx-auto relative z-10"
       >
         <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-4 leading-tight">
-          Be part of the most vibrant realtor ecosystem in Africa
+          {c.title}
         </h2>
         <p className="text-gray-600 text-lg md:text-xl leading-relaxed">
-          Whether it’s a power-packed masterclass, networking brunch, or real
-          estate bootcamp, our events are designed to elevate your career and
-          expand your network.
+          {c.body}
         </p>
       </motion.div>
 
@@ -125,7 +102,9 @@ export default function EventsOverview() {
         transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
         className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-0 w-full max-w-7xl overflow-hidden rounded-2xl shadow-sm relative z-10"
       >
-        {events.map((event, i) => (
+        {c.events.map((event, i) => {
+          const Icon = iconFor(event.icon);
+          return (
           <motion.div
             key={i}
             whileHover={{
@@ -133,14 +112,15 @@ export default function EventsOverview() {
               boxShadow: "0 0 25px rgba(239,68,68,0.4)",
             }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className={`${event.bg} flex flex-col items-center justify-center py-10 px-6 rounded-lg md:rounded-none`}
+            className={`${EVENT_BGS[i % EVENT_BGS.length]} flex flex-col items-center justify-center py-10 px-6 rounded-lg md:rounded-none`}
           >
-            {event.icon}
+            <Icon className="text-red-500 text-7xl mb-4" />
             <h3 className="text-lg font-semibold leading-snug">
               {event.title}
             </h3>
           </motion.div>
-        ))}
+          );
+        })}
       </motion.div>
 
       {/* 🎟️ Buttons */}
@@ -150,26 +130,26 @@ export default function EventsOverview() {
         transition={{ duration: 1, ease: "easeOut", delay: 0.5 }}
         className="mt-12 flex flex-col sm:flex-row gap-4 justify-center relative z-10"
       >
-        <motion.button
-          whileHover={{
-            scale: 1.07,
-            boxShadow: "0 0 25px rgba(239,68,68,0.6)",
+        <ActionLink
+          url={c.primaryButton?.url}
+          motionProps={{
+            whileHover: { scale: 1.07, boxShadow: "0 0 25px rgba(239,68,68,0.6)" },
+            whileTap: { scale: 0.95 },
           }}
-          whileTap={{ scale: 0.95 }}
           className="bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-6 rounded-md transition-all duration-300"
         >
-          View Upcoming Events
-        </motion.button>
-        <motion.button
-          whileHover={{
-            scale: 1.07,
-            boxShadow: "0 0 25px rgba(239,68,68,0.6)",
+          {c.primaryButton?.label}
+        </ActionLink>
+        <ActionLink
+          url={c.secondaryButton?.url}
+          motionProps={{
+            whileHover: { scale: 1.07, boxShadow: "0 0 25px rgba(239,68,68,0.6)" },
+            whileTap: { scale: 0.95 },
           }}
-          whileTap={{ scale: 0.95 }}
           className="border border-red-500 text-red-600 hover:bg-red-500 hover:text-white font-semibold py-3 px-6 rounded-md transition-all duration-300"
         >
-          Get Notified
-        </motion.button>
+          {c.secondaryButton?.label}
+        </ActionLink>
       </motion.div>
     </motion.section>
   );

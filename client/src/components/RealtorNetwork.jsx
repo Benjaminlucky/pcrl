@@ -7,8 +7,12 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/autoplay";
 import { FaCheckCircle } from "react-icons/fa";
+import { useSection } from "../cms/hooks";
+import { REALTOR_NETWORK } from "../cms/defaults/academy";
+import InlineText from "../cms/InlineText";
 
 export default function RealtorNetwork() {
+  const c = useSection(REALTOR_NETWORK);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const { scrollYProgress } = useScroll({
@@ -18,23 +22,6 @@ export default function RealtorNetwork() {
 
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.05]);
   const y = useTransform(scrollYProgress, [0, 1], [0, -40]);
-
-  // 🖼️ Array of images for Swiper carousel
-  const realtorsImages = [
-    "/images/academystudents1.jpeg",
-    "/images/academystudent2.jpeg",
-    "/images/academystudent3.jpeg",
-    "/images/academystudent4.jpeg",
-  ];
-
-  const benefits = [
-    "Network with High Performing Realtors for mentorship and Collaboration",
-    "One on One Coaching with industry Experts",
-    "Exclusive Access to our Digital Realtor App",
-    "A PCRG Premium ID Card",
-    "UK Certified Courses and many more benefits",
-    "Networking opportunities with Africa’s fastest-growing realtor community",
-  ];
 
   return (
     <motion.div
@@ -79,11 +66,11 @@ export default function RealtorNetwork() {
                 slidesPerView={1}
                 className="realtors-swiper"
               >
-                {realtorsImages.map((img, i) => (
+                {c.images.map((img, i) => (
                   <SwiperSlide key={i}>
                     <img
-                      src={img}
-                      alt={`PCRG Realtors Slide ${i + 1}`}
+                      src={img.url}
+                      alt={img.alt || `PCRG Realtors Slide ${i + 1}`}
                       className="w-full h-[380px] md:h-[550px] object-cover"
                       loading="lazy"
                     />
@@ -105,22 +92,19 @@ export default function RealtorNetwork() {
             transition={{ duration: 0.9, ease: "easeOut", delay: 0.4 }}
           >
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 leading-snug">
-              <span className="text-red-600">Building 10,000+</span>
-              <br /> Realtors Across Africa
+              <InlineText text={c.title} strongClassName="text-red-600" />
             </h2>
 
             <p className="mt-4 text-gray-600 text-lg leading-relaxed">
-              Join a thriving network of over 10,000 realtors who have chosen to
-              unlearn, learn and relearn through our transformative training
-              sessions led by world-class facilitators and mentors.
+              {c.body}
             </p>
 
             <h3 className="mt-6 font-semibold text-lg text-red-600">
-              By enrolling in PCRG Training & Academy, you gain:
+              {c.benefitsTitle}
             </h3>
 
             <ul className="mt-4 flex flex-col gap-3">
-              {benefits.map((benefit, index) => (
+              {c.benefits.map((benefit, index) => (
                 <li
                   key={index}
                   className="flex items-start gap-3 text-gray-700 text-[1.05rem] leading-snug"

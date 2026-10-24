@@ -7,8 +7,11 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/autoplay";
 import SectionTitle from "./SectionTitle";
+import { useSection } from "../cms/hooks";
+import { ACADEMY_INTRO } from "../cms/defaults/academy";
 
 export default function HomeAcademyIntro() {
+  const c = useSection(ACADEMY_INTRO);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const { scrollYProgress } = useScroll({
@@ -18,14 +21,6 @@ export default function HomeAcademyIntro() {
 
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.05]);
   const y = useTransform(scrollYProgress, [0, 1], [0, -40]);
-
-  // 🖼️ Array of images for Swiper carousel
-  const academyImages = [
-    "/images/academystudents1.jpeg",
-    "/images/academystudent2.jpeg",
-    "/images/academystudent3.jpeg",
-    "/images/academystudent4.jpeg",
-  ];
 
   return (
     <motion.div
@@ -59,17 +54,13 @@ export default function HomeAcademyIntro() {
           >
             <div className="leftContent flex flex-col gap-6">
               <SectionTitle
-                text="Welcome to PCRG Training & Academy"
+                text={c.title}
                 textClass="!text-gray-900  tracking-wide"
                 underlineClass="!bg-red-500 !w-[14%] h-[3px]"
               />
 
               <p className="text-justify leading-[1.8] text-[1.125rem] md:text-[1.25rem] text-gray-600 hyphens-auto">
-                A citadel of learning for aspiring and established real estate
-                professionals. At PCRG, we equip realtors with modern-day
-                industry knowledge, practical skills and cutting-edge technology
-                they need to develop their expertise as high-performing
-                salespersons in the real estate industry.
+                {c.body}
               </p>
             </div>
           </motion.div>
@@ -103,11 +94,11 @@ export default function HomeAcademyIntro() {
                 slidesPerView={1}
                 className="academy-swiper"
               >
-                {academyImages.map((img, i) => (
+                {c.images.map((img, i) => (
                   <SwiperSlide key={i}>
                     <img
-                      src={img}
-                      alt={`PCRG Academy Slide ${i + 1}`}
+                      src={img.url}
+                      alt={img.alt || `PCRG Academy Slide ${i + 1}`}
                       className="w-full h-[380px] md:h-[600px] object-cover"
                       loading="lazy"
                     />

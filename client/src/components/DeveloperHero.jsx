@@ -3,8 +3,12 @@ import { motion, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import "./RealtorHero.css";
 import EngageModal from "./Engagemodal"; // 👈 import the modal
+import { useSection } from "../cms/hooks";
+import { DEVELOPER_HERO } from "../cms/defaults/developers";
+import InlineText from "../cms/InlineText";
 
 const DeveloperHero = () => {
+  const c = useSection(DEVELOPER_HERO);
   const controls = useAnimation();
   const [ref, inView] = useInView({ threshold: 0.3, triggerOnce: true });
   const [modalOpen, setModalOpen] = useState(false); // 👈 modal state
@@ -75,19 +79,14 @@ const DeveloperHero = () => {
               variants={fadeBlur}
               className="text-4xl sm:text-4xl md:text-5xl font-bold mt-24 md:mt-0 leading-tight text-white"
             >
-              Your Project. Our Sales Power. Unstoppable Results{" "}
-              <span>Together</span>
+              <InlineText text={c.title} strongClassName="" />
             </motion.h1>
 
             <motion.p
               variants={fadeBlur}
               className="text-gray-300 text-base sm:text-lg leading-relaxed"
             >
-              At Platinum Cape Realtors Group (PCRG), we don't just sell your
-              projects — we elevate them with{" "}
-              <span className="font-bold">
-                strategy, storytelling, and serious sales power.
-              </span>
+              <InlineText text={c.body} />
             </motion.p>
 
             {/* 👇 onClick opens the modal */}
@@ -100,7 +99,7 @@ const DeveloperHero = () => {
               }}
               className="mt-6 px-8 py-3 rounded-md border-2 border-white text-lg font-semibold text-white hover:bg-white hover:text-[var(--color-primary-700)] transition-all duration-300 shadow-lg"
             >
-              Engage us Today
+              {c.buttonLabel}
             </motion.button>
           </div>
 
@@ -110,8 +109,8 @@ const DeveloperHero = () => {
             className="md:w-1/2 flex justify-center items-center md:justify-end py-16"
           >
             <motion.img
-              src="/images/developerHero.webp"
-              alt="Smiling Realtor"
+              src={c.image?.url}
+              alt={c.image?.alt}
               className="w-72 sm:w-full md:w-10/12 border-8 border-gray-200 rounded-3xl"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{

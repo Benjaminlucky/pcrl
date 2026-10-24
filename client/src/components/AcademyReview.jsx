@@ -6,52 +6,11 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
-
-const testimonials = [
-  {
-    title: "Confidence Awakened",
-    review:
-      "Before joining PCRG Academy, I had zero knowledge about real estate. Today, I can confidently identify good property deals, handle clients professionally, and even close my first sale! The training was practical, detailed, and life-changing.",
-    name: "Mary O.",
-    designation: "Training Class of 2024",
-    avatar: "/images/realtor.jpeg",
-  },
-  {
-    title: "From Curiosity to Career",
-    review:
-      "Before joining PCRG Academy, I had zero knowledge about real estate. Today, I can confidently identify good property deals, handle clients professionally, and even close my first sale! The training was practical, detailed, and life-changing.",
-    name: "Chinedu A.",
-    designation: "Realtor, Lagos",
-    avatar: "/images/realtor.jpeg",
-  },
-  {
-    title: "Real Value for Money",
-    review:
-      "This wasn’t just another real estate course. PCRG Academy gave me real tools — negotiation scripts, client management systems, and access to developers. It’s the best investment I’ve made in my personal growth.",
-    name: "Chika O",
-    designation: "Training Class of 2023",
-    avatar: "/images/realtor.jpeg",
-  },
-  // Add more testimonials as needed
-  {
-    title: "From Student to Realtor",
-    review:
-      "I started the training with little confidence, but now I’m a certified realtor with listings and clients of my own. PCRG didn’t just train me—they transformed me.",
-    name: "— Fatima A., ",
-    designation: "Graduate Realtor",
-    avatar: "/images/realtor.jpeg",
-  },
-  {
-    title: "Game-Changer for My Career",
-    review:
-      "The course structure was easy to follow, yet very powerful. The sessions on property marketing, client relations, and sales closing techniques were absolute game changers for me.",
-    name: "— Victor E, ",
-    designation: "Delta",
-    avatar: "/images/realtor.jpeg",
-  },
-];
+import { useSection } from "../cms/hooks";
+import { ACADEMY_REVIEWS } from "../cms/defaults/academy";
 
 function AcademyReview() {
+  const c = useSection(ACADEMY_REVIEWS);
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
@@ -68,14 +27,12 @@ function AcademyReview() {
         <div className="container">
           <div className="center mx-auto justify-center max-w-3xl">
             <SectionTitle
-              text="Hear What Our Graduands Have to Say"
+              text={c.title}
               textClass="!text-white !text-center text-3xl md:text-4xl font-bold"
               underlineClass="!bg-[#E53E3E] !w-[80px] h-[3px]"
             />
             <p className="text-gray-300 text-sm md:text-base mt-4 max-w-2xl">
-              At PCRG, we understand the value of knowledge and this is
-              exemplified through the PCRG Trainings & Academy. See what our
-              trainees are saying.
+              {c.intro}
             </p>
           </div>
         </div>
@@ -100,7 +57,7 @@ function AcademyReview() {
           }}
           className="w-full mt-24 pb-14"
         >
-          {testimonials.map((item, i) => (
+          {c.testimonials.map((item, i) => (
             <SwiperSlide key={i} className="flex justify-center">
               <motion.div
                 initial={{ opacity: 0, y: 50, scale: 0.95 }}

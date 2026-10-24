@@ -2,31 +2,11 @@
 import React, { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import SectionTitle from "./SectionTitle";
-
-const facultyMembers = [
-  {
-    name: "Dr. Mrs. Vivian Okiche",
-    role: "President, Pcrg",
-    image: "/images/faculty/drOkichie1.jpg",
-  },
-  {
-    name: "Mr Mark Iorliam",
-    role: "Vice President, pcrg academy",
-    image: "/images/MrMark.jpg",
-  },
-  // {
-  //   name: "Dr. Mrs. Vivian Okiche",
-  //   role: "Vice President, Pcrg",
-  //   image: "/images/faculty/faculty2.jpg",
-  // },
-  // {
-  //   name: "Dr. Mrs. Vivian Okiche",
-  //   role: "Chaplain, Pcrg",
-  //   image: "/images/faculty/faculty3.jpg",
-  // },
-];
+import { useSection } from "../cms/hooks";
+import { ACADEMY_FACULTY } from "../cms/defaults/academy";
 
 const AcademyFaculty = () => {
+  const c = useSection(ACADEMY_FACULTY);
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
@@ -66,7 +46,7 @@ const AcademyFaculty = () => {
         <div className="flex justify-center mb-16">
           <div>
             <SectionTitle
-              text="Faculty"
+              text={c.title}
               textClass="text-gray-900 text-3xl md:text-4xl font-extrabold tracking-tight text-center"
               underlineClass="!bg-[var(--color-primary-500)] !w-[60px] !h-[3px]"
             />
@@ -75,7 +55,7 @@ const AcademyFaculty = () => {
 
         {/* Faculty Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-10 md:gap-12">
-          {facultyMembers.map((member, i) => (
+          {c.members.map((member, i) => (
             <motion.div
               key={i}
               className="text-center"

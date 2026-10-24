@@ -1,8 +1,13 @@
 "use client";
 import React, { useRef } from "react";
 import { motion, useInView, useTransform, useScroll } from "framer-motion";
+import { useSection } from "../cms/hooks";
+import { HOME_CONSULTANCY } from "../cms/defaults/home";
+import InlineText from "../cms/InlineText";
+import ActionLink from "../cms/ActionLink";
 
 function HomeConsultancy() {
+  const c = useSection(HOME_CONSULTANCY);
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
@@ -43,7 +48,7 @@ function HomeConsultancy() {
           transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
           className="relative rounded-2xl overflow-hidden group h-[500px] flex items-end"
           style={{
-            backgroundImage: "url('/images/clientConsultancy.jpeg')",
+            backgroundImage: `url("${encodeURI(c.clients.image)}")`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
@@ -62,13 +67,14 @@ function HomeConsultancy() {
           {/* Content */}
           <div className="relative z-10 p-8 text-white bg-gradient-to-t from-black/80 via-black/60 to-transparent w-full rounded-b-2xl">
             <p className="text-lg md:text-xl leading-relaxed">
-              <span className="font-bold">For Clients:</span> Looking for the
-              right company to walk you through real estate investment
-              opportunities and growth? PCRG should be top on your list.
+              <InlineText text={c.clients.text} />
             </p>
-            <button className="mt-6 bg-[#EC1C24] hover:bg-[#d4141b] text-white font-semibold px-6 py-3 rounded-md transition-all duration-300">
-              Contact Our Advisory Team
-            </button>
+            <ActionLink
+              url={c.clients.button?.url}
+              className="mt-6 bg-[#EC1C24] hover:bg-[#d4141b] text-white font-semibold px-6 py-3 rounded-md transition-all duration-300"
+            >
+              {c.clients.button?.label}
+            </ActionLink>
           </div>
         </motion.div>
 
@@ -79,7 +85,7 @@ function HomeConsultancy() {
           transition={{ duration: 1.2, delay: 0.6, ease: "easeOut" }}
           className="relative rounded-2xl overflow-hidden group h-[500px] flex items-end"
           style={{
-            backgroundImage: "url('/images/realtorConsultancy.jpg')",
+            backgroundImage: `url("${encodeURI(c.realtors.image)}")`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
@@ -98,13 +104,14 @@ function HomeConsultancy() {
           {/* Content */}
           <div className="relative z-10 p-8 text-white bg-gradient-to-t from-primary-900/90 via-primary-700/80 to-transparent w-full rounded-b-2xl">
             <p className="text-lg md:text-xl leading-relaxed">
-              <span className="font-bold">For Realtors:</span> Join a thriving
-              network of over 10,000 professionals where you can access
-              listings, training, and opportunities to grow.
+              <InlineText text={c.realtors.text} />
             </p>
-            <button className="mt-6 bg-black/70 hover:bg-black text-white font-semibold px-6 py-3 rounded-md transition-all duration-300">
-              Join as a Realtor
-            </button>
+            <ActionLink
+              url={c.realtors.button?.url}
+              className="mt-6 bg-black/70 hover:bg-black text-white font-semibold px-6 py-3 rounded-md transition-all duration-300"
+            >
+              {c.realtors.button?.label}
+            </ActionLink>
           </div>
         </motion.div>
       </div>

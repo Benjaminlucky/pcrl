@@ -3,9 +3,11 @@ import React, { useRef } from "react";
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import SectionTitle from "./SectionTitle";
 import { MdOutlineCheckCircle } from "react-icons/md";
-import { impact } from "../data/data.js";
+import { useSection } from "../cms/hooks";
+import { HOME_WHO_WE_ARE } from "../cms/defaults/home";
 
 export default function HomeWhoWeAre() {
+  const c = useSection(HOME_WHO_WE_ARE);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
@@ -56,18 +58,12 @@ export default function HomeWhoWeAre() {
           >
             <div className="leftContent flex flex-col gap-6">
               <SectionTitle
-                text="Who We Are"
+                text={c.title}
                 textClass="!text-white tracking-wide"
                 underlineClass="!bg-gray-400 !w-[12%] h-[3px]"
               />
               <p className="text-gray-300 leading-[1.988] text-justify text-[1.125rem] md:text-[1.25rem] hyphens-auto">
-                Platinum Cape Realtors Group (PCRG) is a thriving real estate
-                marketing company with its headquarter in Lagos, Nigeria. In
-                just three years, we have built a network of over 10,000
-                realtors, serving both local and international investors with
-                excellence, integrity, and professionalism. Our dedication to
-                redefining standards in real estate makes us a trusted partner
-                for investors seeking value and growth.
+                {c.body}
               </p>
             </div>
           </motion.div>
@@ -86,30 +82,26 @@ export default function HomeWhoWeAre() {
             {/* Vision Section */}
             <div className="top">
               <SectionTitle
-                text="Our Vision"
+                text={c.visionTitle}
                 textClass="text-gray-900 tracking-wide"
                 underlineClass="!bg-primary-500 !w-[12%] h-[3px]"
               />
               <p className="text-gray-500 leading-relaxed text-justify text-[1rem] md:text-[1.1rem] mt-6 hyphens-auto">
-                To redefine the standards of excellence in Nigeria’s real estate
-                industry and create value that benefits clients, realtors,
-                developers, and the economy at large. We aim to build a
-                sustainable system where innovation, transparency, and
-                partnership thrive.
+                {c.visionBody}
               </p>
             </div>
 
             {/* Impact Section */}
             <div className="bottom">
               <h3 className="text-2xl font-semibold text-gray-900 mb-2">
-                Our Impact
+                {c.impactTitle}
               </h3>
               <span className="text-gray-600 block mb-5">
-                In three years, PCRG has:
+                {c.impactIntro}
               </span>
 
               <div className="impacts flex flex-col gap-4">
-                {impact.map((item, index) => (
+                {c.impact.map((item, index) => (
                   <motion.div
                     key={index}
                     className="impact flex items-center gap-3 text-gray-500"
@@ -127,7 +119,7 @@ export default function HomeWhoWeAre() {
                   >
                     <MdOutlineCheckCircle className="icon text-red-600 text-[1.5rem] md:text-[1.75rem] flex-shrink-0" />
                     <p className="text-[1rem] md:text-[1.05rem] leading-relaxed text-justify">
-                      {item.item}
+                      {item}
                     </p>
                   </motion.div>
                 ))}

@@ -1,16 +1,20 @@
 import React from "react";
-import PageSEO from "../../components/PageSEO";
+import CmsPageSEO from "../../cms/CmsPageSEO";
+import PageSections from "../../cms/PageSections";
 import EventsConnects from "@/components/EventsConnects";
 import EventsHero from "@/components/EventsHero";
 import EventsIntro from "@/components/EventsIntro";
 import EventsNewsAlert from "@/components/EventsNewsAlert";
 import EventsOverview from "@/components/EventsOverview";
 import EventsSpotlightMoments from "@/components/EventsSpotlightMoments";
+import EventsUpcoming from "@/components/EventsUpcoming";
+import BlogLatest from "@/components/BlogLatest";
 
 function Blog() {
   return (
     <>
-      <PageSEO
+      <CmsPageSEO
+        pageKey="blog-and-events"
         title="Blog & Events"
         description="Stay updated with PCRG's latest real estate events, masterclasses, networking brunches and industry news. Learn, connect and grow with Nigeria's leading realtor community."
         canonical="https://pcrginitiative.com/blog-and-events"
@@ -47,24 +51,19 @@ function Blog() {
           },
         }}
       />
-      <div className="heroSection">
-        <EventsHero />
-      </div>
-      <div className="newsAlertSection">
-        <EventsNewsAlert />
-      </div>
-      <div className="IntroSection">
-        <EventsIntro />
-      </div>
-      <div className="overviewSection">
-        <EventsOverview />
-      </div>
-      <div className="spotlightSection">
-        <EventsSpotlightMoments />
-      </div>
-      <div className="ConnectSection">
-        <EventsConnects />
-      </div>
+      <PageSections
+        pageKey="blog-and-events"
+        components={{
+          EventsHero,
+          EventsNewsAlert,
+          EventsIntro,
+          EventsOverview,
+          EventsUpcoming,
+          BlogLatest,
+          EventsSpotlightMoments,
+          EventsConnects,
+        }}
+      />
     </>
   );
 }

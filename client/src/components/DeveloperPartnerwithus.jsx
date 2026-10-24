@@ -3,6 +3,9 @@ import { motion, useAnimation } from "framer-motion";
 import { useEffect, useState } from "react";
 import EngageModal from "./Engagemodal";
 import BookCallModal from "./BookCallModal";
+import { useSection } from "../cms/hooks";
+import { DEVELOPER_PARTNER } from "../cms/defaults/developers";
+import InlineText from "../cms/InlineText";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40, filter: "blur(10px)", scale: 0.97 },
@@ -16,6 +19,7 @@ const fadeInUp = {
 };
 
 export default function PartnerWithUs() {
+  const c = useSection(DEVELOPER_PARTNER);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [pulseIntensity, setPulseIntensity] = useState(0.25);
   const [engageOpen, setEngageOpen] = useState(false);
@@ -40,7 +44,7 @@ export default function PartnerWithUs() {
       <section className="relative py-24 flex items-center justify-center text-center overflow-hidden bg-black">
         <motion.div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/images/burbleBg.jpg')" }}
+          style={{ backgroundImage: `url("${encodeURI(c.backgroundImage)}")` }}
           initial={{ scale: 1.1 }}
           whileInView={{
             scale: 1,
@@ -81,7 +85,7 @@ export default function PartnerWithUs() {
             }}
             viewport={{ once: true }}
           >
-            Partner with <span className="text-red-500">PCRG</span> Today
+            <InlineText text={c.title} strongClassName="text-red-500" />
           </motion.h2>
 
           <motion.p
@@ -94,9 +98,7 @@ export default function PartnerWithUs() {
             }}
             viewport={{ once: true }}
           >
-            Let's connect your property to the market that's waiting for it.
-            Together, we'll create visibility, credibility, and unstoppable
-            sales momentum.
+            {c.body}
           </motion.p>
 
           <div className="flex flex-wrap justify-center gap-4">
@@ -109,7 +111,7 @@ export default function PartnerWithUs() {
               whileTap={{ scale: 0.95 }}
               className="px-8 py-3 rounded-md border-2 border-white text-white font-semibold hover:bg-white hover:text-[var(--color-primary-500)] transition-all duration-300"
             >
-              Book a Strategy Call
+              {c.callButtonLabel}
             </motion.button>
 
             <motion.button
@@ -121,7 +123,7 @@ export default function PartnerWithUs() {
               whileTap={{ scale: 0.95 }}
               className="px-8 py-3 rounded-md bg-white text-[var(--color-primary-500)] font-semibold hover:bg-[var(--color-primary-500)] hover:text-white transition-all duration-300"
             >
-              Partner With Us
+              {c.partnerButtonLabel}
             </motion.button>
           </div>
         </motion.div>
