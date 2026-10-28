@@ -11,15 +11,45 @@ import { EVENTS_NEWS_ALERT } from "../cms/defaults/events";
 export default function SubscribeSection() {
   const c = useSection(EVENTS_NEWS_ALERT);
   const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState("idle"); // idle | loading | success | duplicate | error
+  const API_URL = import.meta.env.VITE_API_BASE_URL;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email.trim()) return;
-    setSubmitted(true);
-    // TODO: integrate actual subscription logic (API call)
-    setTimeout(() => setSubmitted(false), 3000);
+    if (!email.trim() || status === "loading") return;
+
+    setStatus("loading");
+
+    try {
+      const res = await fetch(`${API_URL}/api/mailing-list/subscribe`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (res.status === 409) {
+        setStatus("duplicate");
+      } else if (!res.ok) {
+        setStatus("error");
+      } else {
+        setStatus("success");
+        setEmail("");
+      }
+    } catch (err) {
+      setStatus("error");
+    } finally {
+      // Reset back to idle after 4 seconds
+      setTimeout(() => setStatus("idle"), 4000);
+    }
   };
+
+  const buttonLabel = {
+    idle: c.buttonLabel,
+    loading: "Subscribing...",
+    success: "Subscribed!",
+    duplicate: "Already subscribed",
+    error: "Try again",
+  }[status];
 
   return (
     <section className="bg-primary-500 py-16 px-4 text-white text-center">
@@ -52,9 +82,10 @@ export default function SubscribeSection() {
           />
           <button
             type="submit"
-            className="bg-black text-white px-6 py-3 font-semibold hover:bg-gray-900 transition duration-300"
+            disabled={status === "loading"}
+            className="bg-black text-white px-6 py-3 font-semibold hover:bg-gray-900 transition duration-300 disabled:opacity-70"
           >
-            {submitted ? "Subscribed!" : c.buttonLabel}
+            {buttonLabel}
           </button>
         </motion.form>
       </div>
