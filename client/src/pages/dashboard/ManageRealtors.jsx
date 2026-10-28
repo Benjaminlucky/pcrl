@@ -166,7 +166,7 @@ export default function ManageRealtors() {
   return (
     <div className="space-y-6 mt-8">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold text-gray-800">Manage Realtors</h2>
+        <h2 className="text-3xl font-bold text-white">Manage Realtors</h2>
         <div className="flex gap-2">
           <button
             onClick={handleExportEmails}

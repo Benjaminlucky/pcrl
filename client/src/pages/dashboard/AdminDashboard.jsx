@@ -128,7 +128,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6 mt-8">
-      <h2 className="text-3xl font-bold text-gray-800">Admin Overview</h2>
+      <h2 className="text-3xl font-bold text-white">Admin Overview</h2>
 
       {/* Debug Info - REMOVE IN PRODUCTION
       {process.env.NODE_ENV === "development" && (
