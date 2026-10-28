@@ -1,4 +1,6 @@
-// Staff-side API client for the website CMS (/api/cms/*).
+// Staff-side API client (/api/cms/* and /api/admin/*).
+import { can, isStaff } from "../../../context/permissions";
+
 export const API_BASE = (
   import.meta.env.VITE_CMS_API_BASE_URL ||
   import.meta.env.VITE_API_BASE_URL ||
@@ -17,18 +19,21 @@ const token = () => localStorage.getItem("token");
 
 function errorFrom(status, data) {
   if (status === 401) {
-    return new ApiError("Your session has expired. Please log in again.", status, data);
+    const msg = /deactivated/i.test(data?.message || "")
+      ? data.message
+      : "Your session has expired. Please log in again.";
+    return new ApiError(msg, status, data);
   }
   if (status === 403) {
-    return new ApiError(data?.message || "Your role doesn't allow this action.", status, data);
+    return new ApiError(data?.message || "You don't have permission to do this.", status, data);
   }
   return new ApiError(data?.message || `Request failed (${status}).`, status, data);
 }
 
-export async function cmsRequest(method, path, body) {
+async function apiRequest(prefix, method, path, body) {
   let res;
   try {
-    res = await fetch(`${API_BASE}/api/cms${path}`, {
+    res = await fetch(`${API_BASE}${prefix}${path}`, {
       method,
       headers: {
         Authorization: `Bearer ${token()}`,
@@ -43,6 +48,9 @@ export async function cmsRequest(method, path, body) {
   if (!res.ok) throw errorFrom(res.status, data);
   return data;
 }
+
+export const cmsRequest = (method, path, body) => apiRequest("/api/cms", method, path, body);
+export const adminRequest = (method, path, body) => apiRequest("/api/admin", method, path, body);
 
 // Upload with progress (fetch has no upload progress events).
 export function uploadMediaFile(file, { alt = "" } = {}, onProgress) {
@@ -71,12 +79,12 @@ export function uploadMediaFile(file, { alt = "" } = {}, onProgress) {
   });
 }
 
-// Staff roles: editor < publisher < admin
+// Website-editor permissions for the signed-in user (see context/permissions).
 export function staffPermissions(user) {
-  const role = user?.role;
   return {
-    isStaff: ["admin", "publisher", "editor"].includes(role),
-    canPublish: role === "admin" || role === "publisher",
-    canDelete: role === "admin",
+    isStaff: isStaff(user),
+    canEdit: can(user, "site.edit"),
+    canPublish: can(user, "site.publish"),
+    canDelete: can(user, "site.delete"),
   };
 }

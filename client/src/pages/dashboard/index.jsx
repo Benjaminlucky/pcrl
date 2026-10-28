@@ -10,9 +10,9 @@ import AdminDashboard from "./AdminDashboard";
 import ManageRealtors from "./ManageRealtors";
 import MailingListSubscribers from "./MailingListSubscribers";
 import { useAuth } from "../../context/AuthContext";
-import { staffPermissions } from "./site/cmsApi";
+import { can, isStaff, staffHome } from "../../context/permissions";
 
-// Website CMS screens — loaded only when a staff member opens them.
+// Staff screens — loaded only when opened.
 const SiteContent = lazy(() => import("./site/SiteContent"));
 const PageEditor = lazy(() => import("./site/PageEditor"));
 const MenuEditor = lazy(() => import("./site/MenuEditor"));
@@ -20,35 +20,51 @@ const SettingsEditor = lazy(() => import("./site/SettingsEditor"));
 const MediaLibrary = lazy(() => import("./site/MediaLibrary"));
 const CollectionList = lazy(() => import("./site/CollectionList"));
 const CollectionEditor = lazy(() => import("./site/CollectionEditor"));
+const TeamPage = lazy(() => import("./team/TeamPage"));
+const RolesPage = lazy(() => import("./team/RolesPage"));
+const ActivityPage = lazy(() => import("./team/ActivityPage"));
 
 export default function Dashboard() {
   return (
     <DashboardLayout>
       <Routes>
         <Route index element={<RoleBasedDashboard />} />
-        <Route path="/realtors" element={<ManageRealtors />} />
-        <Route path="/mailing-list" element={<MailingListSubscribers />} />
+        <Route path="/realtors" element={<Guard perm="realtors.view"><ManageRealtors /></Guard>} />
+        <Route path="/mailing-list" element={<Guard perm="mailing.view"><MailingListSubscribers /></Guard>} />
         <Route path="earnings" element={<Earnings />} />
         <Route path="recruits" element={<Recruits />} />
         <Route path="reports" element={<Reports />} />
 
-        <Route path="site" element={<StaffOnly><SiteContent /></StaffOnly>} />
-        <Route path="site/page/:key" element={<StaffOnly><PageEditor /></StaffOnly>} />
-        <Route path="site/menu/:key" element={<StaffOnly><MenuEditor /></StaffOnly>} />
-        <Route path="site/settings" element={<StaffOnly><SettingsEditor /></StaffOnly>} />
-        <Route path="media" element={<StaffOnly><MediaLibrary /></StaffOnly>} />
-        <Route path="blog" element={<StaffOnly><CollectionList key="blog" collection="blog" /></StaffOnly>} />
-        <Route path="blog/:id" element={<StaffOnly><CollectionEditor key="blog" collection="blog" /></StaffOnly>} />
-        <Route path="events" element={<StaffOnly><CollectionList key="events" collection="events" /></StaffOnly>} />
-        <Route path="events/:id" element={<StaffOnly><CollectionEditor key="events" collection="events" /></StaffOnly>} />
+        <Route path="site" element={<Guard perm="site.view"><SiteContent /></Guard>} />
+        <Route path="site/page/:key" element={<Guard perm="site.view"><PageEditor /></Guard>} />
+        <Route path="site/menu/:key" element={<Guard perm="site.view"><MenuEditor /></Guard>} />
+        <Route path="site/settings" element={<Guard perm="site.view"><SettingsEditor /></Guard>} />
+        <Route path="media" element={<Guard perm="media.upload"><MediaLibrary /></Guard>} />
+        <Route path="blog" element={<Guard perm="blog.edit"><CollectionList key="blog" collection="blog" /></Guard>} />
+        <Route path="blog/:id" element={<Guard perm="blog.edit"><CollectionEditor key="blog" collection="blog" /></Guard>} />
+        <Route path="events" element={<Guard perm="events.edit"><CollectionList key="events" collection="events" /></Guard>} />
+        <Route path="events/:id" element={<Guard perm="events.edit"><CollectionEditor key="events" collection="events" /></Guard>} />
+
+        <Route path="team" element={<Guard perm="staff.view"><TeamPage /></Guard>} />
+        <Route path="roles" element={<Guard perm={["staff.view", "roles.manage"]}><RolesPage /></Guard>} />
+        <Route path="activity" element={<Guard perm="audit.view"><ActivityPage /></Guard>} />
       </Routes>
     </DashboardLayout>
   );
 }
 
-function StaffOnly({ children }) {
+// Shows the page only to staff holding `perm` (or any of a list).
+function Guard({ perm, children }) {
   const { user } = useAuth();
-  if (!staffPermissions(user).isStaff) return <Navigate to="/dashboard" replace />;
+  const perms = Array.isArray(perm) ? perm : [perm];
+  if (!isStaff(user) || !can(user, ...perms)) {
+    return (
+      <div className="pt-24 text-center text-gray-400">
+        <p className="text-lg text-white mb-2">You don't have access to this page.</p>
+        <p className="text-sm">Ask an administrator if you need it.</p>
+      </div>
+    );
+  }
   return (
     <Suspense
       fallback={
@@ -63,10 +79,17 @@ function StaffOnly({ children }) {
 }
 
 function RoleBasedDashboard() {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const { user } = useAuth();
   if (!user) return null;
-  if (user.role === "admin") return <AdminDashboard />;
-  // CMS editors/publishers have no realtor data — send them to the website editor.
-  if (staffPermissions(user).isStaff) return <Navigate to="/dashboard/site" replace />;
-  return <RealtorDashboard />;
+  if (!isStaff(user)) return <RealtorDashboard />;
+  // The overview shows realtors + birthdays; others go to their first area.
+  if (can(user, "realtors.view")) return <AdminDashboard />;
+  const home = staffHome(user);
+  if (home && home !== "/dashboard") return <Navigate to={home} replace />;
+  return (
+    <div className="pt-24 text-center text-gray-400">
+      <p className="text-lg text-white mb-2">Your account doesn't have access to any areas yet.</p>
+      <p className="text-sm">Ask an administrator to give your role some permissions.</p>
+    </div>
+  );
 }

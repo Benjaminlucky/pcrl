@@ -15,7 +15,7 @@ import {
   getMyNotifications,
   markNotificationsRead,
 } from "../controllers/realtorDashboardController.js";
-import { protect, protectAdmin } from "../middlewares/authMiddleware.js";
+import { protect, requirePermission } from "../middlewares/authMiddleware.js";
 import { uploadSingleImage } from "../middlewares/upload.middleware.js";
 
 const router = express.Router();
@@ -58,12 +58,12 @@ router.put(
 // FIX (Blocker 4): the frontend admin views call "/list". Keep BOTH "/" and
 // "/list" pointing at the same admin-gated handler so existing callers work
 // and the canonical "/" is also available.
-router.get("/", protectAdmin, getRealtors);
-router.get("/list", protectAdmin, getRealtors);
+router.get("/", protect, requirePermission("realtors.view"), getRealtors);
+router.get("/list", protect, requirePermission("realtors.view"), getRealtors);
 
 // Admin CRUD by id (these expose/modify sensitive data — admin only)
-router.get("/:id", protectAdmin, getRealtorById);
-router.put("/:id", protectAdmin, updateRealtor);
-router.delete("/:id", protectAdmin, deleteRealtor);
+router.get("/:id", protect, requirePermission("realtors.view"), getRealtorById);
+router.put("/:id", protect, requirePermission("realtors.edit"), updateRealtor);
+router.delete("/:id", protect, requirePermission("realtors.delete"), deleteRealtor);
 
 export default router;

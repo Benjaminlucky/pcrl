@@ -2,7 +2,7 @@
 
 import express from "express";
 
-import { protectAdmin } from "../middlewares/authMiddleware.js";
+import { protect, requirePermission } from "../middlewares/authMiddleware.js";
 import {
   deleteSubscriber,
   getAllSubscribers,
@@ -14,8 +14,8 @@ const router = express.Router();
 // Public — subscribe
 router.post("/subscribe", subscribe);
 
-// Admin only
-router.get("/subscribers", protectAdmin, getAllSubscribers);
-router.delete("/subscribers/:id", protectAdmin, deleteSubscriber);
+// Staff with mailing-list permissions
+router.get("/subscribers", protect, requirePermission("mailing.view"), getAllSubscribers);
+router.delete("/subscribers/:id", protect, requirePermission("mailing.delete"), deleteSubscriber);
 
 export default router;

@@ -2,6 +2,7 @@
 import jwt from "jsonwebtoken";
 import Realtor from "../models/realtor.model.js";
 import Admin from "../models/admin.js";
+import { resolveRole, isFullAccess } from "../utils/rbac.js";
 
 export const protect = async (req, res, next) => {
   try {
@@ -15,16 +16,26 @@ export const protect = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Staff (Admin collection) first.
+    // Staff (Admin collection) first. Permissions are resolved on every
+    // request, so role changes and deactivation take effect immediately.
     const admin = await Admin.findById(decoded.id).select(
-      "_id email firstName lastName role",
+      "_id email firstName lastName role isActive",
     );
     if (admin) {
+      if (admin.isActive === false) {
+        return res
+          .status(401)
+          .json({ message: "This account has been deactivated. Contact an administrator." });
+      }
       const obj = admin.toObject();
+      const roleKey = obj.role || "admin"; // legacy admins without a role => "admin"
+      const { perms, role } = await resolveRole(roleKey);
       req.user = {
         ...obj,
         id: obj._id,
-        role: obj.role || "admin", // legacy admins without a role => "admin"
+        role: roleKey,
+        roleName: role?.name || roleKey,
+        permissions: perms,
         userType: "admin",
       };
       return next();
@@ -42,25 +53,37 @@ export const protect = async (req, res, next) => {
       ...robj,
       id: robj._id,
       role: robj.role || "realtor",
+      permissions: [],
       userType: "realtor",
     };
     next();
   } catch (error) {
-    console.error("Auth error:", error);
+    console.error("Auth error:", error?.message || error);
     return res.status(401).json({ message: "Invalid or expired token." });
   }
 };
 
-// Strict admin gate (role === "admin"). Editors/publishers do NOT pass here,
-// so realtor PII / birthday routes stay admin-only.
-export const isAdmin = async (req, res, next) => {
-  if (!req.user) {
-    return res.status(401).json({ message: "Not authenticated" });
-  }
-  if (req.user.userType !== "admin" || req.user.role !== "admin") {
+// Staff only, and holding at least one of `perms`.
+// Usage: router.get("/x", protect, requirePermission("realtors.view"), handler)
+export const requirePermission =
+  (...perms) =>
+  (req, res, next) => {
+    if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+    if (req.user.userType !== "admin") {
+      return res.status(403).json({ message: "Staff access required." });
+    }
+    if (perms.some((p) => req.user.permissions?.includes(p))) return next();
     return res.status(403).json({
-      message: "Access denied. Admin privileges required.",
+      message: "You don't have permission to do this.",
+      required: perms,
     });
+  };
+
+// Full-access staff only (every permission). Kept for compatibility.
+export const isAdmin = (req, res, next) => {
+  if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+  if (req.user.userType !== "admin" || !isFullAccess(req.user.permissions)) {
+    return res.status(403).json({ message: "Access denied. Admin privileges required." });
   }
   next();
 };

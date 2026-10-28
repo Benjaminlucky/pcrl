@@ -8,13 +8,14 @@ const AdminSchema = new mongoose.Schema({
   firstName: { type: String },
   lastName: { type: String },
 
-  // Editorial role for the CMS. Legacy admins (no role) are treated as "admin"
-  // at runtime via authMiddleware, so existing accounts keep full access.
-  role: {
-    type: String,
-    enum: ["admin", "publisher", "editor"],
-    default: "admin",
-  },
+  // Key of a Role (models/role.model.js) — its permissions decide access.
+  // Accounts without a role are treated as "admin" (legacy behaviour).
+  role: { type: String, default: "admin", trim: true, lowercase: true },
+
+  // Deactivated accounts can't sign in and existing sessions stop working.
+  isActive: { type: Boolean, default: true },
+  lastLoginAt: { type: Date, default: null },
+  createdBy: { type: String, default: null },
 
   // 🔐 Password reset (hashed, never returned by default)
   resetPasswordToken: { type: String, default: null, select: false },

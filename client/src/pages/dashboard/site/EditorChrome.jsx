@@ -107,9 +107,13 @@ export function PublishBar({ editor, perms, previewHref, onHistory }) {
           <FaEye /> Preview
         </Btn>
       )}
-      <Btn size="sm" disabled={!dirty || !!busy} onClick={() => act(() => editor.save(), "Draft saved.")}>
-        <FaSave /> {busy === "saving" ? "Saving…" : "Save draft"}
-      </Btn>
+      {perms.canEdit === false ? (
+        <span className="text-xs text-gray-500">View only — your role can't edit this.</span>
+      ) : (
+        <Btn size="sm" disabled={!dirty || !!busy} onClick={() => act(() => editor.save(), "Draft saved.")}>
+          <FaSave /> {busy === "saving" ? "Saving…" : "Save draft"}
+        </Btn>
+      )}
       {perms.canPublish ? (
         <>
           {hasLive && !dirty && !doc?.hasUnpublishedChanges && (
@@ -127,7 +131,7 @@ export function PublishBar({ editor, perms, previewHref, onHistory }) {
           </Btn>
         </>
       ) : (
-        <span className="text-xs text-gray-500">A publisher must publish your draft.</span>
+        <span className="text-xs text-gray-500">Someone with publishing rights must publish your draft.</span>
       )}
     </div>
   );

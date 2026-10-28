@@ -9,6 +9,8 @@ import adminRoutes from "./routes/adminRoutes.js";
 import enquiryRoutes from "./routes/enquiry.routes.js";
 import mailingListRoutes from "./routes/mailingList.routes.js";
 import cmsRoutes from "./routes/cms.routes.js";
+import staffRoutes from "./routes/staff.routes.js";
+import { ensureSystemRoles } from "./utils/rbac.js";
 import contentRoutes from "./routes/content.routes.js";
 import siteRoutes from "./routes/site.routes.js";
 import { sitemap, robots } from "./controllers/cms/sitemap.controller.js";
@@ -48,7 +50,13 @@ app.use(express.json({ limit: "2mb" }));
 
 mongoose
   .connect(process.env.MONGODB_URI)
-  .then(() => console.log("Connected to MongoDb"))
+  .then(() => {
+    console.log("Connected to MongoDb");
+    // Built-in roles (admin / publisher / editor). Safe to run every start.
+    return ensureSystemRoles().catch((err) =>
+      console.error("Failed to ensure system roles:", err?.message || err),
+    );
+  })
   .catch((err) => console.error("MongoDB connection error:", err));
 
 // Root health check
@@ -62,6 +70,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/realtors", realtorRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/admin", staffRoutes); // team, roles, activity log
 app.use("/api/enquiry", enquiryRoutes);
 app.use("/api/mailing-list", mailingListRoutes);
 app.use("/api/auth", authRoutes);

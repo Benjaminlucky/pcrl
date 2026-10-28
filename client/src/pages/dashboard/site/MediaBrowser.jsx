@@ -3,7 +3,8 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FaCloudUploadAlt, FaSearch, FaPlay, FaCopy, FaTrash } from "react-icons/fa";
 import { useAuth } from "../../../context/AuthContext";
-import { cmsRequest, uploadMediaFile, staffPermissions } from "./cmsApi";
+import { cmsRequest, uploadMediaFile } from "./cmsApi";
+import { can } from "../../../context/permissions";
 import { Alert, Btn, Field, Panel, Select, Spinner, TextInput } from "./ui";
 
 const ACCEPT = {
@@ -27,7 +28,7 @@ function Thumb({ media }) {
 
 export default function MediaBrowser({ mode = "manage", accept, onPick }) {
   const { user } = useAuth();
-  const { canPublish } = staffPermissions(user);
+  const canDeleteMedia = can(user, "media.delete");
   const fileInput = useRef(null);
 
   const [search, setSearch] = useState("");
@@ -242,7 +243,7 @@ export default function MediaBrowser({ mode = "manage", accept, onPick }) {
         key={selected?._id || "none"}
         media={selected}
         mode={mode}
-        canDelete={canPublish}
+        canDelete={canDeleteMedia}
         onPick={onPick}
         onUpdated={replaceDoc}
         onDeleted={removeDoc}

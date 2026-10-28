@@ -74,6 +74,8 @@ export const getMe = async (req, res) => {
           firstName: req.user.firstName || null,
           lastName: req.user.lastName || null,
           role: req.user.role || "admin",
+          roleName: req.user.roleName || req.user.role || "admin",
+          permissions: req.user.permissions || [],
           userType: "admin",
         },
       });

@@ -14,8 +14,12 @@ import {
   FaImages,
   FaNewspaper,
   FaCalendarAlt,
+  FaUserShield,
+  FaKey,
+  FaHistory,
 } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
+import { can, isStaff } from "../../context/permissions";
 import { Button } from "@/components/ui/button";
 import { useLocation, Link } from "react-router-dom";
 import { RiHome9Fill } from "react-icons/ri";
@@ -34,46 +38,41 @@ export default function DashboardLayout({ children }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const websiteItems = [
-    { name: "Website", path: "/dashboard/site", icon: <FaGlobeAfrica /> },
-    { name: "Blog", path: "/dashboard/blog", icon: <FaNewspaper /> },
-    { name: "Events", path: "/dashboard/events", icon: <FaCalendarAlt /> },
-    { name: "Media", path: "/dashboard/media", icon: <FaImages /> },
+  // Staff see the areas their role's permissions allow; realtors keep their
+  // own menu.
+  const staffItems = [
+    { name: "Dashboard", path: "/dashboard", icon: <FaTachometerAlt />, perm: "realtors.view" },
+    { name: "Manage Realtors", path: "/dashboard/realtors", icon: <FaUsers />, perm: "realtors.view" },
+    { name: "Mailing List", path: "/dashboard/mailing-list", icon: <FaEnvelope />, perm: "mailing.view" },
+    { name: "Website", path: "/dashboard/site", icon: <FaGlobeAfrica />, perm: "site.view" },
+    { name: "Blog", path: "/dashboard/blog", icon: <FaNewspaper />, perm: "blog.edit" },
+    { name: "Events", path: "/dashboard/events", icon: <FaCalendarAlt />, perm: "events.edit" },
+    { name: "Media", path: "/dashboard/media", icon: <FaImages />, perm: "media.upload" },
+    { name: "Team", path: "/dashboard/team", icon: <FaUserShield />, perm: "staff.view" },
+    { name: "Roles", path: "/dashboard/roles", icon: <FaKey />, perm: ["staff.view", "roles.manage"] },
+    { name: "Activity", path: "/dashboard/activity", icon: <FaHistory />, perm: "audit.view" },
+    { name: "Reports", path: "/admin/reports", icon: <FaChartLine />, perm: "realtors.view" },
   ];
 
-  const sidebarItems =
-    user?.role === "publisher" || user?.role === "editor"
-      ? [...websiteItems, { name: "Back to Home", path: "/", icon: <RiHome9Fill /> }]
-      : user?.role === "admin"
-      ? [
-          {
-            name: "Dashboard",
-            path: "/dashboard",
-            icon: <FaTachometerAlt />,
-          },
-          {
-            name: "Manage Realtors",
-            path: "/dashboard/realtors",
-            icon: <FaUsers />,
-          },
-          {
-            name: "Mailing List",
-            path: "/dashboard/mailing-list",
-            icon: <FaEnvelope />, // add: import { FaEnvelope } from "react-icons/fa"
-          },
-          ...websiteItems,
-          { name: "Reports", path: "/admin/reports", icon: <FaChartLine /> },
-        ]
-      : [
-          {
-            name: "Dashboard",
-            path: "/dashboard",
-            icon: <FaTachometerAlt />,
-          },
-          { name: "My Recruits", path: "#", icon: <FaUsers /> },
-          { name: "Earnings", path: "#", icon: <FaBuilding /> },
-          { name: "Back to Home", path: "/", icon: <RiHome9Fill /> },
-        ];
+  const sidebarItems = isStaff(user)
+    ? [
+        ...staffItems.filter((item) =>
+          can(user, ...(Array.isArray(item.perm) ? item.perm : [item.perm])),
+        ),
+        ...(can(user, "realtors.view")
+          ? []
+          : [{ name: "Back to Home", path: "/", icon: <RiHome9Fill /> }]),
+      ]
+    : [
+        {
+          name: "Dashboard",
+          path: "/dashboard",
+          icon: <FaTachometerAlt />,
+        },
+        { name: "My Recruits", path: "#", icon: <FaUsers /> },
+        { name: "Earnings", path: "#", icon: <FaBuilding /> },
+        { name: "Back to Home", path: "/", icon: <RiHome9Fill /> },
+      ];
 
   const handleItemClick = () => {
     if (isMobile) setIsOpen(false);

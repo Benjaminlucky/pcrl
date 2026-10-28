@@ -77,22 +77,47 @@ again only if `package.json` changed.
 
 ---
 
-## 2. Roles
+## 2. Team, roles & permissions (RBAC)
 
-Staff accounts live in the `Admin` collection with a `role`:
+Access is controlled by **permissions** (e.g. `site.publish`,
+`realtors.view`). A **role** is a named set of permissions, and every staff
+member has one role. The full permission list is in
+`server/config/permissions.js`.
 
-| Role | Can |
+Built-in roles (created automatically on start-up):
+
+| Role | Starts with |
 |---|---|
-| `editor` | read everything, edit drafts, add/reorder/hide sections, upload media |
-| `publisher` | editor + publish / unpublish, delete media |
-| `admin` | everything, including deleting pages/menus |
+| **Administrator** (`admin`) | Everything, always — can't be edited or deleted |
+| **Publisher** (`publisher`) | Edit + publish website, blog, events; upload/delete media |
+| **Editor** (`editor`) | Edit drafts of website, blog, events; upload media |
 
-Existing admin accounts are `admin`. Create or change staff:
+Publisher and Editor can be adjusted, and you can create your own roles
+(e.g. "Realtor Support" with only realtors + mailing list) in the dashboard
+under **Roles**. Existing admin accounts keep full access automatically.
+
+**Team** (dashboard → Team) — add people by email: they receive an invitation
+to set their own password (72-hour link), or you can set a password for them.
+You can change someone's role, deactivate them (they're signed out on their
+next action), send a password reset, or remove them.
+
+Safety rules enforced by the server:
+- You can only give out roles/permissions you have yourself.
+- You can't change your own role, deactivate or delete yourself.
+- The last active administrator can't be removed, deactivated or demoted.
+- Changes to a role apply instantly to everyone who has it.
+- `POST /api/admin/signup` only works to create the **first** account (or with
+  the `ADMIN_SIGNUP_SECRET` header); everyone else is added from Team.
+
+**Activity** (dashboard → Activity) — sign-ins, failed sign-ins, and every
+team/role change, with who did it and when (kept for one year).
+
+Command-line fallback (from `server/`):
 ```bash
+node scripts/seedCmsRoles.js roles                                   # list role keys
 node scripts/seedCmsRoles.js create jane@pcrginitiative.com 'S3cure!pass' editor
 node scripts/seedCmsRoles.js set    jane@pcrginitiative.com publisher
 ```
-Log in with `POST /api/admin/login` → use the token as `Authorization: Bearer <token>`.
 
 ### Using the dashboard
 

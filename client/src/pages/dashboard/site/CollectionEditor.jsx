@@ -3,7 +3,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { FaArrowLeft, FaSave, FaGlobeAfrica, FaClock, FaTrash, FaExternalLinkAlt } from "react-icons/fa";
 import { useAuth } from "../../../context/AuthContext";
-import { cmsRequest, staffPermissions } from "./cmsApi";
+import { cmsRequest } from "./cmsApi";
+import { can } from "../../../context/permissions";
 import { COLLECTIONS, STATUS_META } from "./collections";
 import { timeAgo } from "./format";
 import FieldInput from "./FieldInput";
@@ -31,7 +32,10 @@ export default function CollectionEditor({ collection }) {
   const isNew = id === "new";
   const navigate = useNavigate();
   const { user } = useAuth();
-  const perms = staffPermissions(user);
+  const perms = {
+    canPublish: can(user, `${collection}.publish`),
+    canDelete: can(user, `${collection}.delete`),
+  };
 
   const [doc, setDoc] = useState(null);
   const [data, setData] = useState(() => clone(config.empty));
@@ -266,7 +270,7 @@ export default function CollectionEditor({ collection }) {
             )}
           </>
         )}
-        {!perms.canPublish && <span className="text-xs text-gray-500">A publisher must publish this.</span>}
+        {!perms.canPublish && <span className="text-xs text-gray-500">Someone with publishing rights must publish this.</span>}
       </div>
 
       <div className="mt-4 space-y-3">

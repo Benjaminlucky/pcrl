@@ -1,6 +1,7 @@
 "use client";
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
+import { isStaff } from "./permissions";
 
 const AuthContext = createContext();
 
@@ -19,11 +20,11 @@ export const AuthProvider = ({ children }) => {
   );
 
   const logout = () => {
-    const role = user?.role;
+    const staff = isStaff(user);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
-    window.location.href = role === "admin" ? "/admin/login" : "/login";
+    window.location.href = staff ? "/admin/login" : "/login";
   };
 
   useEffect(() => {

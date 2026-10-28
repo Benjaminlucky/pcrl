@@ -6,6 +6,8 @@ import EmailLog from "../models/emailLog.model.js";
 import jwt from "jsonwebtoken";
 import { getNextBirthdayAndDaysUntil } from "../utils/birthday.js";
 import { runBirthdayChecks } from "../jobs/birthdayJob.js";
+import { resolveRole } from "../utils/rbac.js";
+import { audit } from "../utils/audit.js";
 
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
@@ -13,47 +15,86 @@ const generateToken = (id) =>
 // -------------------------------
 // ADMIN AUTH
 // -------------------------------
+// Shape returned to the client for a signed-in staff member.
+async function staffSession(admin) {
+  const roleKey = admin.role || "admin";
+  const { perms, role } = await resolveRole(roleKey);
+  return {
+    id: admin._id,
+    email: admin.email,
+    firstName: admin.firstName || null,
+    lastName: admin.lastName || null,
+    role: roleKey,
+    roleName: role?.name || roleKey,
+    permissions: perms,
+    userType: "admin",
+  };
+}
+
+const str = (v) => (typeof v === "string" ? v.trim() : "");
+const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 export const signupAdmin = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = str(req.body?.email).toLowerCase();
+    const password = typeof req.body?.password === "string" ? req.body.password : "";
+    if (!email || password.length < 8) {
+      return res
+        .status(400)
+        .json({ message: "Email and a password of at least 8 characters are required." });
+    }
     const exists = await Admin.findOne({ email });
 
     if (exists)
       return res.status(400).json({ message: "Admin already exists" });
 
-    const admin = await Admin.create({ email, password });
+    const admin = await Admin.create({ email, password, role: "admin" });
     const token = generateToken(admin._id);
+    audit({ user: { id: admin._id, email } }, "staff.signup", { type: "staff", id: String(admin._id), label: email });
 
-    res.status(201).json({ token, admin });
+    // Never return the stored password hash.
+    res.status(201).json({ token, admin: await staffSession(admin), user: await staffSession(admin) });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("signupAdmin error:", err);
+    res.status(500).json({ message: "Signup failed." });
   }
 };
 
 export const loginAdmin = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = str(req.body?.email);
+    const password = typeof req.body?.password === "string" ? req.body.password : "";
+    if (!email || !password) return res.status(400).json({ message: "Invalid credentials" });
 
-    const admin = await Admin.findOne({ email });
-    if (!admin) return res.status(400).json({ message: "Invalid credentials" });
-
-    const isMatch = await admin.comparePassword(password);
-    if (!isMatch)
+    // Exact match first (existing accounts), then case-insensitive so
+    // "Name@Site.com" still finds the lowercased address.
+    const admin =
+      (await Admin.findOne({ email })) ||
+      (await Admin.findOne({ email: { $regex: `^${escapeRegex(email)}$`, $options: "i" } }));
+    const isMatch = admin ? await admin.comparePassword(password) : false;
+    if (!admin || !isMatch) {
+      audit(req, "staff.login_failed", { type: "staff", label: email }, { email });
       return res.status(400).json({ message: "Invalid credentials" });
+    }
+    if (admin.isActive === false) {
+      audit(req, "staff.login_blocked", { type: "staff", id: String(admin._id), label: email }, { email });
+      return res
+        .status(403)
+        .json({ message: "This account has been deactivated. Contact an administrator." });
+    }
 
-    const token = generateToken(admin._id);
-
-    res.json({
-      token,
-      user: {
-        id: admin._id,
-        email: admin.email,
-        role: admin.role || "admin",
-        userType: "admin",
-      },
+    admin.lastLoginAt = new Date();
+    await admin.save();
+    audit({ ...req, user: { id: admin._id, email: admin.email } }, "staff.login", {
+      type: "staff",
+      id: String(admin._id),
+      label: admin.email,
     });
+
+    res.json({ token: generateToken(admin._id), user: await staffSession(admin) });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("loginAdmin error:", err);
+    res.status(500).json({ message: "Sign-in failed. Please try again." });
   }
 };
 

@@ -1,12 +1,7 @@
 // routes/cms.routes.js
 import express from "express";
 import { protect } from "../middlewares/authMiddleware.js";
-import {
-  requireStaff,
-  canEdit,
-  canPublish,
-  canDelete,
-} from "../middlewares/cms.middleware.js";
+import { requireStaff, can } from "../middlewares/cms.middleware.js";
 import { uploadMediaFile } from "../middlewares/upload.middleware.js";
 import {
   blog,
@@ -24,65 +19,70 @@ const router = express.Router();
 router.use(protect, requireStaff);
 
 // Helper to wire a standard collection (with workflow) under a base path.
-function mountCollection(base, ctrl, { scheduling = true } = {}) {
-  // Read
-  router.get(`${base}`, ...canEdit, ctrl.adminList);
-  router.get(`${base}/:id`, ...canEdit, ctrl.adminGet);
-  // Write (editors+)
-  router.post(`${base}`, ...canEdit, ctrl.create);
-  router.put(`${base}/:id`, ...canEdit, ctrl.update);
-  // Workflow (publishers+)
-  router.post(`${base}/:id/publish`, ...canPublish, ctrl.publish);
-  router.post(`${base}/:id/unpublish`, ...canPublish, ctrl.unpublish);
+// `p` names the permissions: { view, edit, publish, remove }.
+function mountCollection(base, ctrl, p, { scheduling = true } = {}) {
+  router.get(`${base}`, can(p.view), ctrl.adminList);
+  router.get(`${base}/:id`, can(p.view), ctrl.adminGet);
+  router.post(`${base}`, can(p.edit), ctrl.create);
+  router.put(`${base}/:id`, can(p.edit), ctrl.update);
+  router.post(`${base}/:id/publish`, can(p.publish), ctrl.publish);
+  router.post(`${base}/:id/unpublish`, can(p.publish), ctrl.unpublish);
   if (scheduling) {
-    router.post(`${base}/:id/schedule`, ...canPublish, ctrl.schedule);
+    router.post(`${base}/:id/schedule`, can(p.publish), ctrl.schedule);
   }
-  // Delete (admin only)
-  router.delete(`${base}/:id`, ...canDelete, ctrl.remove);
+  router.delete(`${base}/:id`, can(p.remove), ctrl.remove);
 }
 
-mountCollection("/blog", blog);
-mountCollection("/events", events);
-mountCollection("/team", team, { scheduling: false });
-mountCollection("/testimonials", testimonials, { scheduling: false });
+const perms = (area) => ({
+  view: `${area}.edit`,
+  edit: `${area}.edit`,
+  publish: `${area}.publish`,
+  remove: `${area}.delete`,
+});
+const sitePerms = { view: "site.view", edit: "site.edit", publish: "site.publish", remove: "site.delete" };
+
+mountCollection("/blog", blog, perms("blog"));
+mountCollection("/events", events, perms("events"));
+mountCollection("/team", team, sitePerms, { scheduling: false });
+mountCollection("/testimonials", testimonials, sitePerms, { scheduling: false });
 
 // ---------------------------------------------------------------------------
 // Website builder — pages, menus, global settings
 // ---------------------------------------------------------------------------
 const doc = "/site/documents/:kind/:key";
 
-router.get("/site/documents", ...canEdit, site.listDocuments);
-router.post("/site/documents", ...canEdit, site.createDocument);
-router.get(doc, ...canEdit, site.getDocument);
-router.put(doc, ...canEdit, site.saveDraft);
-router.post(`${doc}/discard`, ...canEdit, site.discardDraft);
-router.post(`${doc}/publish`, ...canPublish, site.publishDocument);
-router.post(`${doc}/unpublish`, ...canPublish, site.unpublishDocument);
-router.delete(doc, ...canDelete, site.deleteDocument);
+router.get("/site/documents", can("site.view"), site.listDocuments);
+router.post("/site/documents", can("site.edit"), site.createDocument);
+router.get(doc, can("site.view"), site.getDocument);
+router.put(doc, can("site.edit"), site.saveDraft);
+router.post(`${doc}/discard`, can("site.edit"), site.discardDraft);
+router.post(`${doc}/publish`, can("site.publish"), site.publishDocument);
+router.post(`${doc}/unpublish`, can("site.publish"), site.unpublishDocument);
+router.delete(doc, can("site.delete"), site.deleteDocument);
 
 // History
-router.get(`${doc}/revisions`, ...canEdit, site.listRevisions);
-router.get("/site/revisions/:revisionId", ...canEdit, site.getRevision);
-router.post("/site/revisions/:revisionId/restore", ...canEdit, site.restoreRevision);
+router.get(`${doc}/revisions`, can("site.view"), site.listRevisions);
+router.get("/site/revisions/:revisionId", can("site.view"), site.getRevision);
+router.post("/site/revisions/:revisionId/restore", can("site.edit"), site.restoreRevision);
 
 // Page sections (draft edits). "reorder" is registered before ":sectionId".
 const sections = "/site/pages/:key/sections";
-router.post(sections, ...canEdit, site.addSection);
-router.post(`${sections}/reorder`, ...canEdit, site.reorderSections);
-router.put(`${sections}/:sectionId`, ...canEdit, site.updateSection);
-router.delete(`${sections}/:sectionId`, ...canEdit, site.removeSection);
-router.post(`${sections}/:sectionId/duplicate`, ...canEdit, site.duplicateSection);
+router.post(sections, can("site.edit"), site.addSection);
+router.post(`${sections}/reorder`, can("site.edit"), site.reorderSections);
+router.put(`${sections}/:sectionId`, can("site.edit"), site.updateSection);
+router.delete(`${sections}/:sectionId`, can("site.edit"), site.removeSection);
+router.post(`${sections}/:sectionId/duplicate`, can("site.edit"), site.duplicateSection);
 
 // Draft preview of a page/menu/settings as the public site would get it
-router.get("/site/preview/:kind/:key", ...canEdit, previewDraft);
+router.get("/site/preview/:kind/:key", can("site.view"), previewDraft);
 
 // ---------------------------------------------------------------------------
 // Media library (Cloudinary)
 // ---------------------------------------------------------------------------
-router.get("/media", ...canEdit, media.listMedia);
+router.get("/media", can("media.upload"), media.listMedia);
 router.post(
   "/media",
-  ...canEdit,
+  can("media.upload"),
   (req, res, next) =>
     uploadMediaFile(req, res, (err) => {
       if (err) {
@@ -94,7 +94,7 @@ router.post(
     }),
   media.uploadMedia,
 );
-router.patch("/media/:id", ...canEdit, media.updateMedia);
-router.delete("/media/:id", ...canPublish, media.deleteMedia);
+router.patch("/media/:id", can("media.upload"), media.updateMedia);
+router.delete("/media/:id", can("media.delete"), media.deleteMedia);
 
 export default router;
