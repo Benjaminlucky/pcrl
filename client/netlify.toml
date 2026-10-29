@@ -2,15 +2,15 @@
   command = "npm run build"
   publish = "dist" # or "build" — depends on Vite vs CRA
 
-# Once the API is live at api.pcrginitiative.com, uncomment this to serve the
-# always-up-to-date sitemap from it (includes blog posts, events and pages
-# created in the dashboard). Until then public/sitemap.xml is served.
+# Serve the always-up-to-date sitemap from the API (includes blog posts,
+# events and pages created in the dashboard). If the API goes down, comment
+# this out to fall back to public/sitemap.xml.
 # It must stay before the SPA catch-all below.
-# [[redirects]]
-#   from = "/sitemap.xml"
-#   to = "https://api.pcrginitiative.com/sitemap.xml"
-#   status = 200
-#   force = true
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "https://api.pcrginitiative.com/sitemap.xml"
+  status = 200
+  force = true
 
 [[redirects]]
   from = "/*"
